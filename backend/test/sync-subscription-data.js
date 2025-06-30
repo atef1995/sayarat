@@ -4,8 +4,7 @@ require('dotenv').config({ path: path.join(__dirname, '..', '.env.development') 
 const Stripe = require('stripe');
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
-const knexConfig = require('../knexFile');
-const knex = require('knex')(knexConfig.development);
+const knex = require('../config/database');
 
 async function syncSubscriptionData() {
   try {
@@ -61,7 +60,7 @@ async function syncSubscriptionData() {
     // Test the result by fetching updated data
     console.log('\n🧪 Testing updated data...');
     const testSub = await knex('user_subscriptions')
-      .leftJoin('subscription_plans', function() {
+      .leftJoin('subscription_plans', function () {
         this.on('user_subscriptions.plan_id', '=', 'subscription_plans.stripe_price_id').orOn(
           'user_subscriptions.plan_id',
           '=',

@@ -39,7 +39,6 @@ services:
 
       # Security Configuration
       SESSION_SECRET: ${SESSION_SECRET}
-      JWT_SECRET: ${JWT_SECRET}
       SECURE_COOKIES: ${SECURE_COOKIES:-false}
 
       # CORS Configuration

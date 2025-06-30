@@ -4,8 +4,7 @@
  * Handles account type detection, validation, and business logic
  * following Single Responsibility and Open/Closed principles
  */
-
-const knex = require('knex')(require('../knexfile').development);
+const knex = require('../config/database');
 const logger = require('../utils/logger');
 
 /**

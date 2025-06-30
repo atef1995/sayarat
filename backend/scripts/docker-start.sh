@@ -16,11 +16,6 @@ if [ -z "$SESSION_SECRET" ]; then
     exit 1
 fi
 
-if [ -z "$JWT_SECRET" ]; then
-    echo "ERROR: JWT_SECRET not set"
-    exit 1
-fi
-
 if [ -z "$REDIS_URL" ]; then
     echo "ERROR: REDIS_URL not set"
     exit 1
@@ -46,7 +41,6 @@ API_URL=${API_URL}
 DATABASE_URL=${DATABASE_URL}
 DATABASE_PASSWORD=${DATABASE_PASSWORD}
 SESSION_SECRET=${SESSION_SECRET}
-JWT_SECRET=${JWT_SECRET}
 REDIS_URL=${REDIS_URL}
 CORS_ORIGIN=${CORS_ORIGIN}
 CLIENT_URL=${CLIENT_URL}

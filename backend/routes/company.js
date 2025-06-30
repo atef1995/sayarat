@@ -2,7 +2,7 @@ const express = require('express');
 const CompanyController = require('../controllers/companyController');
 const { ensureAuthenticated } = require('../middleware/auth');
 const upload = require('../middleware/upload');
-const knex = require('knex')(require('../knexfile.js').development);
+const knex = require('../config/database'); // Adjust the path as necessary
 
 const router = express.Router();
 const companyController = new CompanyController(knex);

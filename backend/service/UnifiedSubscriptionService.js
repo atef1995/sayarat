@@ -48,10 +48,9 @@
  * #TODO: Implement usage-based billing for company accounts
  */
 
-const knex = require('knex')(require('../knexfile').development);
 const AccountTypeService = require('./AccountTypeService');
 const logger = require('../utils/logger');
-
+const knex = require('../config/database');
 /**
  * Base Subscription Strategy
  */
