@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مرحباً بك في الاشتراك المميز</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        direction: rtl;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      .header {
+        text-align: center;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px 10px 0 0;
+        margin: -20px -20px 20px -20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .success-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 20px 0;
+      }
+      .plan-info {
+        background-color: #f8f9ff;
+        border: 2px solid #667eea;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .plan-name {
+        font-size: 24px;
+        font-weight: bold;
+        color: #667eea;
+        margin-bottom: 10px;
+      }
+      .plan-price {
+        font-size: 20px;
+        color: #333;
+        margin-bottom: 15px;
+      }
+      .feature-list {
+        text-align: right;
+        margin: 20px 0;
+      }
+      .feature-list li {
+        margin: 10px 0;
+        padding: 8px;
+        background-color: #e8f5e8;
+        border-radius: 5px;
+        list-style: none;
+        position: relative;
+        padding-right: 30px;
+      }
+      .feature-list li:before {
+        content: '✓';
+        position: absolute;
+        right: 8px;
+        color: #28a745;
+        font-weight: bold;
+      }
+      .cta-button {
+        display: inline-block;
+        background-color: #667eea;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .period-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="success-icon">🎉</div>
+        <h1>تم تفعيل اشتراكك بنجاح!</h1>
+        <p>مرحباً بك في عالم المزايا المميزة</p>
+      </div>
+
+      <div class="content">
+        <p>عزيزي/عزيزتي <strong>{{ customerName }}</strong>,</p>
+
+        <p>
+          نتشرف بإعلامك بأنه تم تفعيل اشتراكك في منصة Cars Bids بنجاح! الآن يمكنك الاستفادة من جميع المزايا المميزة.
+        </p>
+
+        <div class="plan-info">
+          <div class="plan-name">{{ planName }}</div>
+          <div class="plan-price">{{ planPrice }} {{ currency }} / {{ interval }}</div>
+
+          <div class="period-info">
+            <strong>فترة الاشتراك:</strong><br />
+            من {{ periodStart }} إلى {{ periodEnd }}
+          </div>
+        </div>
+
+        <h3>المزايا المتاحة لك الآن:</h3>
+        <ul class="feature-list">
+          {{#if features.aiCarAnalysis}}
+          <li>تحليل السيارات بالذكاء الاصطناعي</li>
+          {{/if}} {{#if features.listingHighlights}}
+          <li>تمييز الإعلانات وإبرازها</li>
+          {{/if}} {{#if features.prioritySupport}}
+          <li>دعم فني مميز ذو أولوية</li>
+          {{/if}} {{#if features.advancedAnalytics}}
+          <li>إحصائيات متقدمة ومفصلة</li>
+          {{/if}} {{#if features.unlimitedListings}}
+          <li>إعلانات غير محدودة</li>
+          {{/if}} {{#if features.customBranding}}
+          <li>علامة تجارية مخصصة</li>
+          {{/if}}
+        </ul>
+
+        <div style="text-align: center">
+          <a href="{{ dashboardUrl }}" class="cta-button">ابدأ الاستفادة من مزاياك</a>
+        </div>
+
+        <p><strong>معرف الاشتراك:</strong> {{ subscriptionId }}</p>
+        {{#if stripeSubscriptionId}}
+        <p><strong>معرف الدفع:</strong> {{ stripeSubscriptionId }}</p>
+        {{/if}}
+      </div>
+
+      <div class="footer">
+        <p>شكراً لك لاختيارك Cars Bids</p>
+        <p>إذا كان لديك أي استفسار، لا تتردد في التواصل معنا</p>
+        <p>البريد الإلكتروني: support@carsbids.com | الهاتف: +963-XXX-XXXXXX</p>
+        <p>&copy; {{ currentYear }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

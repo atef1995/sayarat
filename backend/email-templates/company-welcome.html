@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مرحباً بكم في Cars Bids</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 20px;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 10px;
+      }
+      .welcome-message {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 25px;
+      }
+      .company-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-right: 4px solid #007bff;
+      }
+      .features {
+        margin-bottom: 25px;
+      }
+      .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+      }
+      .feature-icon {
+        color: #28a745;
+        margin-left: 10px;
+        font-size: 18px;
+      }
+      .cta-section {
+        text-align: center;
+        margin: 30px 0;
+      }
+      .cta-button {
+        display: inline-block;
+        padding: 15px 30px;
+        background-color: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px;
+        transition: background-color 0.3s;
+      }
+      .cta-button:hover {
+        background-color: #0056b3;
+      }
+      .cta-button.secondary {
+        background-color: #28a745;
+      }
+      .cta-button.secondary:hover {
+        background-color: #1e7e34;
+      }
+      .next-steps {
+        background-color: #e7f3ff;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+      }
+      .next-steps h3 {
+        color: #007bff;
+        margin-top: 0;
+      }
+      .next-steps ol {
+        padding-right: 20px;
+      }
+      .next-steps li {
+        margin-bottom: 10px;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #eee;
+        color: #666;
+        font-size: 14px;
+      }
+      .support-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+      }
+      .highlight {
+        color: #007bff;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">🚗 Cars Bids</div>
+        <p>منصة الإعلانات المتقدمة للسيارات</p>
+      </div>
+
+      <div class="welcome-message">
+        <h2>مرحباً بكم في عائلة Cars Bids!</h2>
+        <p>نحن سعداء لانضمامكم إلينا كشركة معتمدة</p>
+      </div>
+
+      <div class="company-info">
+        <h3>معلومات الحساب</h3>
+        <p><strong>مدير الحساب:</strong> {{ params.adminName }}</p>
+        <p><strong>اسم الشركة:</strong> {{ params.companyName }}</p>
+        <p><strong>نوع الاشتراك:</strong> {{ params.subscriptionType }}</p>
+        <p>
+          <strong>حالة الحساب:</strong>
+          <span class="highlight">في انتظار تفعيل الاشتراك</span>
+        </p>
+      </div>
+
+      <div class="features">
+        <h3>🌟 مميزات الحساب التجاري</h3>
+
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          <span><strong>إعلانات غير محدودة</strong> - أنشئ عدد لا محدود من الإعلانات</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          <span><strong>إبراز تلقائي</strong> - إعلاناتكم ستظهر في المقدمة</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          <span><strong>تحليلات متقدمة</strong> - إحصائيات مفصلة عن أداء إعلاناتكم</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          <span><strong>دعم أولوية</strong> - استجابة سريعة لاستفساراتكم</span>
+        </div>
+
+        <div class="feature-item">
+          <span class="feature-icon">✅</span>
+          <span><strong>شارة الشركة المعتمدة</strong> - يثق العملاء أكثر بإعلاناتكم</span>
+        </div>
+      </div>
+
+      <div class="next-steps">
+        <h3>الخطوات التالية</h3>
+        <ol>
+          <li><strong>قوموا بتسجيل الدخول</strong> إلى حسابكم الجديد</li>
+          <li><strong>أكملوا عملية الدفع</strong> لتفعيل الاشتراك</li>
+          <li><strong>أنشئوا أول إعلان</strong> واستفيدوا من المميزات</li>
+          <li><strong>تصفحوا لوحة التحكم</strong> واستكشفوا الميزات المتقدمة</li>
+        </ol>
+      </div>
+
+      <div class="cta-section">
+        <a href="{{ params.loginUrl }}" class="cta-button">تسجيل الدخول</a>
+        <a href="{{ params.dashboardUrl }}" class="cta-button secondary">لوحة التحكم</a>
+      </div>
+
+      <div class="support-info">
+        <h4>💡 هل تحتاجون المساعدة؟</h4>
+        <p>فريقنا المتخصص جاهز لمساعدتكم في أي وقت. لا تترددوا في التواصل معنا!</p>
+        <p><strong>البريد الإلكتروني:</strong> support@carsbids.com</p>
+        <p><strong>الهاتف:</strong> +966 11 234 5678</p>
+      </div>
+
+      <div class="footer">
+        <p>مع أطيب التحيات،<br />فريق Cars Bids</p>
+        <p>
+          <a href="{{ params.supportUrl }}">مركز المساعدة</a> |
+          <a href="{{ params.loginUrl }}">تسجيل الدخول</a>
+        </p>
+        <p>&copy; {{ params.currentYear }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,296 @@
+/* SellerProfile Component Styles */
+
+.seller-profile {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.seller-profile:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+.seller-profile--compact {
+  padding: 16px;
+}
+
+.seller-profile--full {
+  padding: 24px;
+}
+
+/* Header Section */
+.seller-profile__header {
+  width: 100%;
+}
+
+/* Avatar Styles */
+.seller-avatar {
+  flex-shrink: 0;
+  border: 2px solid #f0f0f0;
+  transition: border-color 0.3s ease;
+}
+
+.seller-avatar:hover {
+  border-color: #1890ff;
+}
+
+/* Seller Info Section */
+.seller-info {
+  flex: 1;
+  min-width: 0; /* Prevents overflow issues */
+}
+
+.seller-name-section {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.seller-name {
+  color: #262626;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.seller-verification-badge {
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.seller-description {
+  color: #595959;
+  font-size: 14px;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+/* Contact Info */
+.seller-contact-info {
+  margin-bottom: 12px;
+}
+
+.seller-contact-info .anticon {
+  font-size: 14px;
+  margin-left: 4px;
+}
+
+/* Action Buttons */
+.seller-actions {
+  margin-top: 12px;
+}
+
+.seller-phone-btn,
+.seller-message-btn {
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.seller-phone-btn {
+  border-color: #52c41a;
+  color: #52c41a;
+}
+
+.seller-phone-btn:hover {
+  border-color: #73d13d;
+  color: #73d13d;
+}
+
+.seller-message-btn {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.seller-message-btn:hover {
+  background: #40a9ff;
+  border-color: #40a9ff;
+}
+
+/* Company Stats */
+.seller-company-stats {
+  margin-top: 16px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1890ff;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: #8c8c8c;
+  margin-top: 2px;
+}
+
+/* RTL Support */
+[dir="rtl"] .seller-profile {
+  text-align: right;
+}
+
+[dir="rtl"] .seller-contact-info .anticon {
+  margin-left: 0;
+  margin-right: 4px;
+}
+
+[dir="rtl"] .seller-name-section {
+  flex-direction: row-reverse;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .seller-profile--compact {
+    padding: 12px;
+  }
+
+  .seller-profile--full {
+    padding: 16px;
+  }
+
+  .seller-avatar {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  .seller-name {
+    font-size: 16px;
+  }
+
+  .seller-description {
+    font-size: 13px;
+  }
+
+  .seller-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .seller-phone-btn,
+  .seller-message-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+}
+
+@media (max-width: 576px) {
+  .seller-profile__header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .seller-info {
+    width: 100%;
+    margin-top: 12px;
+  }
+
+  .seller-actions {
+    width: 100%;
+    justify-content: stretch;
+  }
+
+  .seller-phone-btn,
+  .seller-message-btn {
+    flex: 1;
+  }
+}
+
+/* Dark Mode Support */
+.dark .seller-profile {
+  background: #1f1f1f;
+  border-color: #303030;
+}
+
+.dark .seller-name {
+  color: #ffffff;
+}
+
+.dark .seller-description {
+  color: #a6a6a6;
+}
+
+.dark .seller-avatar {
+  border-color: #303030;
+}
+
+.dark .seller-avatar:hover {
+  border-color: #1890ff;
+}
+
+/* Accessibility */
+.seller-profile:focus-within {
+  outline: 2px solid #1890ff;
+  outline-offset: 2px;
+}
+
+.seller-phone-btn:focus,
+.seller-message-btn:focus {
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
+}
+
+/* Animation */
+.seller-profile {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Loading State */
+.seller-profile--loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.seller-profile--loading::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Error State */
+.seller-profile--error {
+  border-color: #ff4d4f;
+  background: #fff2f0;
+}
+
+.dark .seller-profile--error {
+  border-color: #ff7875;
+  background: #2a1215;
+}

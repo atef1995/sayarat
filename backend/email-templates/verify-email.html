@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تأكيد البريد الإلكتروني</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+      .content {
+        padding: 30px;
+      }
+      .message {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #333;
+      }
+      .button {
+        display: inline-block;
+        padding: 15px 30px;
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+      .footer {
+        background-color: #f1f1f1;
+        padding: 20px;
+        text-align: center;
+      }
+      .footer-text {
+        font-size: 14px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <h1>تأكيد البريد الإلكتروني</h1>
+      </div>
+      <div class="content">
+        <p class="message">
+          مرحبًا {{ params.userName }}،<br />
+          شكرًا لتسجيلك في موقعنا! يرجى تأكيد بريدك الإلكتروني من خلال الضغط على الزر أدناه.
+        </p>
+        <a href="{{ params.verificationUrl }}" class="button">تأكيد البريد الإلكتروني</a>
+      </div>
+      <div class="footer">
+        <p class="footer-text">إذا لم تقم بالتسجيل، يمكنك تجاهل هذا البريد الإلكتروني.</p>
+        <p class="footer-text">
+          إذا واجهت أي مشاكل، يرجى الاتصال بنا على
+          <a href="{{params.supportUrl}}">{{ params.supportUrl }}</a>
+        </p>
+        <p class="footer-text">© {{ params.currentYear }} {{ params.companyName }}. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

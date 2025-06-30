@@ -1,0 +1,16 @@
+curl 'http://localhost:5000/api/create-listing' \
+  -H 'Accept: */*' \
+  -H 'Accept-Language: en-GB,en;q=0.9,en-US;q=0.8,sv;q=0.7' \
+  -H 'Connection: keep-alive' \
+  -H 'Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryROecq54CrFOrwwBM' \
+  -b 'connect.sid=s%3A1VjGr0k886rEkwXDq2y8EwyICs356lxn.xHbLMb2zVLMRWMEEx5cboz%2Bvfl1kNlV14yOGi6Y686I' \
+  -H 'Origin: http://localhost:5173' \
+  -H 'Referer: http://localhost:5173/' \
+  -H 'Sec-Fetch-Dest: empty' \
+  -H 'Sec-Fetch-Mode: cors' \
+  -H 'Sec-Fetch-Site: same-site' \
+  -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36 Edg/134.0.0.0' \
+  -H 'sec-ch-ua: "Chromium";v="134", "Not:A-Brand";v="24", "Microsoft Edge";v="134"' \
+  -H 'sec-ch-ua-mobile: ?0' \
+  -H 'sec-ch-ua-platform: "Windows"' \
+  --data-raw $'------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="make"\r\n\r\nToyota\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="model"\r\n\r\nGR86\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="year"\r\n\r\n2013\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="mileage"\r\n\r\n120000\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="price"\r\n\r\n20000\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="color"\r\n\r\nأحمر\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="carType"\r\n\r\nبابين\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="transmission"\r\n\r\nاوتوماتيك\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="description"\r\n\r\ngt86\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="fuelType"\r\n\r\nبنزين\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="location"\r\n\r\nحمص\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="hp"\r\n\r\n211\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="currency"\r\n\r\nusd\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="email"\r\n\r\ncardriver.se@gmail.com\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="userIp"\r\n\r\n188.151.162.127\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="specs"\r\n\r\n["مقاعد قماشية","مقاعد أمامية مدفأة","تشغيل السيارة عن بعد"]\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="images"; filename="giordano-rossoni-uF1nmmjfFlY-unsplash.jpg"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="images"; filename="giordano-rossoni-f8Max9jZfxg-unsplash.jpg"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundaryROecq54CrFOrwwBM\r\nContent-Disposition: form-data; name="images"; filename="giordano-rossoni-Omo56CMb6jM-unsplash.jpg"\r\nContent-Type: image/jpeg\r\n\r\n\r\n------WebKitFormBoundaryROecq54CrFOrwwBM--\r\n'

@@ -1,0 +1,77 @@
+### Test Subscription Admin API Endpoints
+
+# Get sync status
+GET http://localhost:5000/api/admin/subscription/status
+Content-Type: application/json
+
+###
+
+# Trigger manual active sync
+POST http://localhost:5000/api/admin/subscription/sync
+Content-Type: application/json
+
+{
+  "type": "active",
+  "options": {
+    "limit": 3
+  }
+}
+
+###
+
+# Monitor for new plans
+POST http://localhost:5000/api/admin/subscription/plans/monitor
+Content-Type: application/json
+
+{
+  "autoAdd": false
+}
+
+###
+
+# Get scheduler status
+POST http://localhost:5000/api/admin/subscription/scheduler
+Content-Type: application/json
+
+{
+  "action": "status"
+}
+
+###
+
+# Get subscription analytics
+GET http://localhost:5000/api/admin/subscription/analytics
+Content-Type: application/json
+
+###
+
+# Trigger full sync (use carefully)
+POST http://localhost:5000/api/admin/subscription/sync
+Content-Type: application/json
+
+{
+  "type": "full",
+  "options": {
+    "limit": 5
+  }
+}
+
+###
+
+# Start scheduler
+POST http://localhost:5000/api/admin/subscription/scheduler
+Content-Type: application/json
+
+{
+  "action": "start"
+}
+
+###
+
+# Stop scheduler
+POST http://localhost:5000/api/admin/subscription/scheduler
+Content-Type: application/json
+
+{
+  "action": "stop"
+}

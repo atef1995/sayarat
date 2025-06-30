@@ -1,0 +1,459 @@
+/* Header Menu Alignment */
+.header-menu .ant-menu-item,
+.header-menu .ant-menu-submenu {
+  height: 64px !important;
+  line-height: 64px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 16px !important;
+}
+
+.header-menu .ant-menu-item .ant-menu-title-content,
+.header-menu .ant-menu-submenu .ant-menu-title-content {
+  display: flex !important;
+  align-items: center !important;
+  height: 100% !important;
+}
+
+.header-menu .ant-menu-item-icon {
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 8px !important;
+}
+
+/* Ensure all menu content stays inline */
+.header-menu .ant-menu-item-content,
+.header-menu .ant-menu-submenu-title {
+  display: flex !important;
+  align-items: center !important;
+  height: 64px !important;
+}
+
+/* Force inline-flex for all nested elements in menu items */
+.header-menu .ant-menu-item span,
+.header-menu .ant-menu-submenu span {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+}
+
+/* Override any flex-col that might be causing vertical stacking */
+.header-menu * {
+  flex-direction: row !important;
+}
+
+/* Specific override for status badges in header */
+.header-menu .status-badge {
+  height: auto !important;
+  line-height: normal !important;
+}
+
+/* Ensure badges don't break layout */
+.header-menu .status-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  vertical-align: middle !important;
+}
+
+/* Premium and Company Status Styles */
+
+/* Premium user glow animation */
+.premium-glow {
+  animation: premium-pulse 3s ease-in-out infinite;
+}
+
+@keyframes premium-pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(234, 179, 8, 0.1);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+  }
+}
+
+/* Company user border glow */
+.company-glow {
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  animation: company-pulse 4s ease-in-out infinite;
+}
+
+@keyframes company-pulse {
+  0% {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.2);
+  }
+  50% {
+    border-color: rgba(59, 130, 246, 0.6);
+    box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.1);
+  }
+  100% {
+    border-color: rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* Premium badge shimmer effect */
+.premium-shimmer {
+  background: linear-gradient(
+    90deg,
+    #fbbf24 0%,
+    #f59e0b 25%,
+    #fbbf24 50%,
+    #f59e0b 75%,
+    #fbbf24 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Status dot pulse animation */
+.status-dot-pulse {
+  animation: dot-pulse 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+}
+
+@keyframes dot-pulse {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+}
+
+/* Gradient text for premium users */
+.premium-text {
+  background: linear-gradient(45deg, #fbbf24, #f59e0b, #d97706);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-text 3s ease infinite;
+  font-weight: semibold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes gradient-text {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Company gradient text */
+.company-text {
+  background: linear-gradient(45deg, #3b82f6, #8b5cf6, #6366f1);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-text 3s ease infinite;
+}
+
+/* Hover effects for status badges */
+.status-badge:hover {
+  transform: translateY(-1px);
+  transition: transform 0.2s ease-in-out;
+}
+
+/* Premium header enhancement */
+.premium-header {
+  position: relative;
+  overflow: hidden;
+}
+
+.premium-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(234, 179, 8, 0.1),
+    transparent
+  );
+  animation: premium-sweep 3s ease-in-out infinite;
+}
+
+@keyframes premium-sweep {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Menu specific styles */
+.premium-menu .ant-menu-item-selected {
+  background: linear-gradient(
+    45deg,
+    rgba(251, 191, 36, 0.1),
+    rgba(245, 158, 11, 0.1)
+  ) !important;
+  border-bottom: 2px solid #fbbf24 !important;
+}
+
+.company-menu .ant-menu-item-selected {
+  background: linear-gradient(
+    45deg,
+    rgba(59, 130, 246, 0.1),
+    rgba(139, 92, 246, 0.1)
+  ) !important;
+  border-bottom: 2px solid #3b82f6 !important;
+}
+
+.premium-menu .ant-menu-item:hover {
+  background: linear-gradient(
+    45deg,
+    rgba(251, 191, 36, 0.05),
+    rgba(245, 158, 11, 0.05)
+  ) !important;
+}
+
+.company-menu .ant-menu-item:hover {
+  background: linear-gradient(
+    45deg,
+    rgba(59, 130, 246, 0.05),
+    rgba(139, 92, 246, 0.05)
+  ) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .premium-glow,
+  .company-glow {
+    animation: none;
+    box-shadow: 0 0 10px rgba(251, 191, 36, 0.2);
+  }
+
+  .premium-text,
+  .company-text {
+    font-size: 0.875rem;
+  }
+
+  .premium-header::before {
+    display: none;
+  }
+
+  /* Make badges even smaller on mobile */
+  .status-badge {
+    transform: scale(0.9);
+  }
+
+  .modern-premium-badge,
+  .modern-company-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+  }
+
+  .modern-premium-badge::before,
+  .modern-company-badge::before {
+    animation: none; /* Disable shimmer on mobile for performance */
+  }
+}
+
+/* Modern Premium Badge Styles */
+.modern-premium-badge {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-premium-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.25);
+}
+
+.modern-premium-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: badge-shimmer 3s ease-in-out infinite;
+}
+
+/* Modern Company Badge Styles */
+.modern-company-badge {
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease-in-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.modern-company-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+}
+
+.modern-company-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: badge-shimmer 3s ease-in-out infinite;
+}
+
+@keyframes badge-shimmer {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Modern Feature Badge Styles */
+.modern-feature-badge {
+  transition: all 0.2s ease-in-out;
+  -webkit-backdrop-filter: blur(5px);
+  backdrop-filter: blur(5px);
+}
+
+.modern-feature-badge:hover {
+  transform: scale(1.02);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Status Indicator Styles */
+.status-indicator-badge {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.status-indicator-badge::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: subtle-shimmer 6s ease-in-out infinite;
+}
+
+.status-indicator-badge:hover {
+  transform: scale(1.05);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+@keyframes subtle-shimmer {
+  0% {
+    left: -100%;
+  }
+  30% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+/* Header-specific adjustments for status indicators */
+.header-menu .status-indicator-badge {
+  margin-bottom: 1px;
+  width: 12px !important;
+  height: 12px !important;
+}
+
+/* Ensure status indicators don't break menu layout */
+.header-menu .ant-menu-item-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* Responsive adjustments for status indicators */
+@media (max-width: 768px) {
+  .status-indicator-badge {
+    width: 10px !important;
+    height: 10px !important;
+  }
+
+  .status-indicator-badge::before {
+    display: none;
+  }
+}
+
+/* Modern dot pulse animation */
+.modern-dot-pulse {
+  animation: modern-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes modern-pulse {
+  0%,
+  100% {
+    opacity: 0.8;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+}
+
+/* Refined company text styling */
+.company-text {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 600;
+}

@@ -1,0 +1,140 @@
+{
+  "env": {
+    "node": true,
+    "es2022": true,
+    "jest": true
+  },
+  "extends": ["eslint:recommended"],
+  "plugins": ["unused-imports"],
+  "parserOptions": {
+    "ecmaVersion": "latest",
+    "sourceType": "commonjs"
+  },
+  "rules": {
+    // Variables and imports - Focus on unused vars and missing imports
+    "no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        "vars": "all",
+        "args": "after-used",
+        "ignoreRestSiblings": false,
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ],
+    "no-undef": "error",
+    "no-use-before-define": ["error", { "functions": false, "classes": true }],
+    "no-redeclare": "error",
+    "no-shadow": "warn",
+    "no-global-assign": "error",
+    "no-implicit-globals": "error",
+
+    // Import/Export related
+    "no-duplicate-imports": "error",
+
+    // Code quality
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-alert": "error",
+    "no-unreachable": "error",
+    "consistent-return": "error",
+    "no-return-assign": "error",
+    "no-return-await": "error",
+
+    // Error handling
+    "no-throw-literal": "error",
+    "prefer-promise-reject-errors": "error",
+
+    // Async/await
+    "require-await": "warn",
+    "no-async-promise-executor": "error",
+    "no-await-in-loop": "warn",
+
+    // Node.js specific
+    "no-process-exit": "error",
+    "no-process-env": "warn",
+
+    // Best practices
+    "eqeqeq": ["error", "always"],
+    "no-eval": "error",
+    "no-implied-eval": "error",
+    "no-new-func": "error",
+    "no-with": "error",
+    "radix": "error",
+    "yoda": "error",
+    "no-lonely-if": "warn",
+    "no-nested-ternary": "warn",
+    "no-unneeded-ternary": "warn",
+    "prefer-const": "error",
+    "no-var": "error",
+    "prefer-arrow-callback": "warn",
+    "arrow-spacing": "error",
+    "prefer-template": "warn",
+
+    // Code style
+    "indent": ["error", 2, { "SwitchCase": 1 }],
+    "quotes": ["error", "single", { "avoidEscape": true }],
+    "semi": ["error", "always"],
+    "comma-dangle": ["error", "never"],
+    "comma-spacing": "error",
+    "comma-style": "error",
+    "key-spacing": "error",
+    "keyword-spacing": "error",
+    "space-before-blocks": "error",
+    "space-before-function-paren": ["error", "never"],
+    "space-in-parens": "error",
+    "space-infix-ops": "error",
+    "spaced-comment": "warn",
+    "brace-style": ["error", "1tbs", { "allowSingleLine": true }],
+    "curly": ["error", "all"],
+    "object-curly-spacing": ["error", "always"],
+    "array-bracket-spacing": ["error", "never"],
+
+    // Complexity
+    "complexity": ["warn", 10],
+    "max-depth": ["warn", 4],
+    "max-len": [
+      "warn",
+      {
+        "code": 120,
+        "tabWidth": 2,
+        "ignoreUrls": true,
+        "ignoreStrings": true,
+        "ignoreTemplateLiterals": true
+      }
+    ],
+    "max-lines": ["warn", 500],
+    // "max-lines-per-function": ["warn", 50],
+    "max-nested-callbacks": ["warn", 3],
+    "max-params": ["warn", 5]
+    // "max-statements": ["warn", 20]
+  },
+  "overrides": [
+    {
+      "files": ["**/*.test.js", "**/*.spec.js"],
+      "env": {
+        "jest": true
+      },
+      "rules": {
+        "no-console": "off",
+        "max-lines-per-function": "off",
+        "max-statements": "off"
+      }
+    },
+    {
+      "files": ["**/migrations/**/*.js"],
+      "rules": {
+        "no-console": "off"
+      }
+    },
+    {
+      "files": ["**/config/**/*.js", "**/scripts/**/*.js"],
+      "rules": {
+        "no-process-env": "off"
+      }
+    }
+  ],
+  "ignorePatterns": ["node_modules/", "dist/", "build/", "coverage/", "*.min.js"]
+}

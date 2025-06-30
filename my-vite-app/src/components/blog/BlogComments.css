@@ -1,0 +1,123 @@
+/* BlogComments Component Styles */
+
+.comment-container {
+  margin-bottom: 16px;
+}
+
+.comment-container.level-0 {
+  margin-left: 0;
+}
+
+.comment-container.level-1 {
+  margin-left: 24px;
+}
+
+.comment-container.level-2 {
+  margin-left: 48px;
+}
+
+.comment-container.level-3 {
+  margin-left: 72px;
+}
+
+.comment-container.level-4 {
+  margin-left: 96px;
+}
+
+/* For deeper nesting levels */
+.comment-container[class*="level-"] {
+  position: relative;
+}
+
+.comment-container[class*="level-"]:before {
+  content: "";
+  position: absolute;
+  left: -12px;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background-color: #f0f0f0;
+}
+
+.comment-date {
+  font-size: 12px !important;
+}
+
+.comment-form-container {
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: #fafafa;
+  border-radius: 8px;
+}
+
+.reply-form-container {
+  margin-left: 40px;
+  margin-top: 16px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border-radius: 6px;
+  border-left: 3px solid #1890ff;
+}
+
+.reply-form-container .ant-form-item {
+  margin-bottom: 12px;
+}
+
+.reply-form-container .ant-form-item:last-child {
+  margin-bottom: 0;
+}
+
+/* Comment actions styling */
+.ant-list-item-action {
+  margin-left: 8px;
+}
+
+.ant-list-item-action > li {
+  padding: 0 4px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .comment-container.level-1 {
+    margin-left: 16px;
+  }
+
+  .comment-container.level-2 {
+    margin-left: 32px;
+  }
+
+  .comment-container.level-3 {
+    margin-left: 48px;
+  }
+
+  .comment-container.level-4 {
+    margin-left: 48px; /* Cap at level 3 on mobile */
+  }
+
+  .reply-form-container {
+    margin-left: 20px;
+  }
+}
+
+/* Empty state styling */
+.ant-list-empty-text {
+  color: #8c8c8c;
+  font-style: italic;
+}
+
+/* Comment loading state */
+.ant-spin-container {
+  min-height: 200px;
+}
+
+/* Comment meta styling */
+.ant-list-item-meta-title {
+  margin-bottom: 4px !important;
+}
+
+.ant-list-item-meta-description {
+  color: #262626;
+  line-height: 1.5;
+  white-space: pre-wrap; /* Preserve line breaks in comments */
+}

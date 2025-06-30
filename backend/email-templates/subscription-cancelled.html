@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تم إلغاء اشتراكك</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        direction: rtl;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      .header {
+        text-align: center;
+        background: linear-gradient(135deg, #ff6b6b 0%, #ee5a52 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px 10px 0 0;
+        margin: -20px -20px 20px -20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .cancel-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 20px 0;
+      }
+      .cancellation-info {
+        background-color: #fff5f5;
+        border: 2px solid #ff6b6b;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .period-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+      .reactivate-info {
+        background-color: #e8f5e8;
+        border: 1px solid #28a745;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+      .cta-button {
+        display: inline-block;
+        background-color: #28a745;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px;
+        text-align: center;
+      }
+      .secondary-button {
+        display: inline-block;
+        background-color: #6c757d;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .button-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="cancel-icon">😔</div>
+        <h1>تم إلغاء اشتراكك</h1>
+        <p>نأسف لرؤيتك تغادر</p>
+      </div>
+
+      <div class="content">
+        <p>عزيزي/عزيزتي <strong>{{ customerName }}</strong>,</p>
+
+        <p>تم إلغاء اشتراكك في منصة Cars Bids بناءً على طلبك.</p>
+
+        <div class="cancellation-info">
+          <h3>تفاصيل الإلغاء</h3>
+          <p><strong>نوع الإلغاء:</strong> {{ cancellationType }}</p>
+          <p><strong>السبب:</strong> {{ cancellationReason }}</p>
+          <p><strong>تاريخ الإلغاء:</strong> {{ canceledAt }}</p>
+        </div>
+
+        {{#if isImmediateCancellation}}
+        <div class="period-info">
+          <h4>⚠️ إلغاء فوري</h4>
+          <p>تم إنهاء اشتراكك فوراً. لم تعد لديك إمكانية الوصول للمزايا المميزة.</p>
+        </div>
+        {{else}}
+        <div class="period-info">
+          <h4>📅 الإلغاء في نهاية الفترة</h4>
+          <p>
+            ستستمر في الاستفادة من مزايا الاشتراك حتى تاريخ
+            <strong>{{ currentPeriodEnd }}</strong>.
+          </p>
+          <p>بعد هذا التاريخ، ستعود لحسابك المجاني.</p>
+        </div>
+
+        <div class="reactivate-info">
+          <h4>💡 هل غيرت رأيك؟</h4>
+          <p>يمكنك إعادة تفعيل اشتراكك في أي وقت قبل تاريخ انتهاء الفترة الحالية.</p>
+        </div>
+
+        <div class="button-container">
+          <a href="{{ reactivateUrl }}" class="cta-button">إعادة تفعيل الاشتراك</a>
+        </div>
+        {{/if}}
+
+        <p><strong>معرف الاشتراك:</strong> {{ subscriptionId }}</p>
+
+        <div class="button-container">
+          <a href="{{ dashboardUrl }}" class="secondary-button">الذهاب لحسابي</a>
+          <a href="{{ supportUrl }}" class="secondary-button">تواصل معنا</a>
+        </div>
+      </div>
+
+      <div class="footer">
+        <p>نتمنى أن نراك مجدداً قريباً</p>
+        <p>إذا كان لديك أي ملاحظات أو اقتراحات، نود سماعها</p>
+        <p>البريد الإلكتروني: support@carsbids.com | الهاتف: +963-XXX-XXXXXX</p>
+        <p>&copy; {{ currentYear }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

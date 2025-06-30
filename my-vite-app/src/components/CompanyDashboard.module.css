@@ -1,0 +1,21 @@
+.companyDashboardContainer {
+  padding: 24px;
+}
+
+.companyDashboardHeader {
+  margin-bottom: 24px;
+}
+
+.companyNotFound {
+  text-align: center;
+  padding: 50px 0;
+}
+
+.showAllListings {
+  text-align: center;
+  margin-top: 16px;
+}
+
+.memberStatusContainer {
+  margin-top: 8px;
+}

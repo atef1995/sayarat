@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تم تحديث خطة اشتراكك</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        direction: rtl;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      .header {
+        text-align: center;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px 10px 0 0;
+        margin: -20px -20px 20px -20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .update-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 20px 0;
+      }
+      .plan-comparison {
+        display: flex;
+        justify-content: space-between;
+        margin: 20px 0;
+        gap: 20px;
+      }
+      .plan-box {
+        flex: 1;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+      }
+      .old-plan {
+        background-color: #f8f9fa;
+        border: 2px solid #dee2e6;
+      }
+      .new-plan {
+        background-color: #e8f5e8;
+        border: 2px solid #28a745;
+      }
+      .plan-name {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+      .plan-price {
+        font-size: 18px;
+        margin-bottom: 10px;
+      }
+      .arrow {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: #007bff;
+        margin: 0 10px;
+      }
+      .update-info {
+        background-color: #e3f2fd;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .cta-button {
+        display: inline-block;
+        background-color: #007bff;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .billing-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+      }
+      .button-container {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="update-icon">🔄</div>
+        <h1>تم تحديث خطة اشتراكك</h1>
+        <p>تغيير ناجح في خطة الاشتراك</p>
+      </div>
+
+      <div class="content">
+        <p>عزيزي/عزيزتي <strong>{{ customerName }}</strong>,</p>
+
+        <p>تم تحديث خطة اشتراكك في منصة Cars Bids بنجاح.</p>
+
+        <div class="plan-comparison">
+          <div class="plan-box old-plan">
+            <h4>الخطة السابقة</h4>
+            <div class="plan-name">{{ oldPlanName }}</div>
+            <div class="plan-price">{{ oldPlanPrice }} {{ currency }} / {{ oldPlanInterval }}</div>
+          </div>
+
+          <div class="arrow">➡️</div>
+
+          <div class="plan-box new-plan">
+            <h4>الخطة الجديدة</h4>
+            <div class="plan-name">{{ newPlanName }}</div>
+            <div class="plan-price">{{ newPlanPrice }} {{ currency }} / {{ newPlanInterval }}</div>
+          </div>
+        </div>
+
+        <div class="update-info">
+          <h3>معلومات التحديث</h3>
+          <p><strong>تاريخ التحديث:</strong> {{ updateDate }}</p>
+          <p><strong>سبب التغيير:</strong> {{ changeReason }}</p>
+          {{#if hasUpgrade}}
+          <p style="color: #28a745">
+            <strong>🎉 تهانينا! لقد قمت بترقية خطتك</strong>
+          </p>
+          {{else}}
+          <p style="color: #ffc107"><strong>📝 تم تغيير خطتك</strong></p>
+          {{/if}}
+        </div>
+
+        {{#if prorationAmount}}
+        <div class="billing-info">
+          <h4>📋 معلومات الفاتورة</h4>
+          {{#if prorationAmount > 0}}
+          <p>
+            مبلغ إضافي مستحق:
+            <strong>{{ prorationAmount }} {{ currency }}</strong>
+          </p>
+          <p>سيتم خصم هذا المبلغ من بطاقتك الائتمانية خلال 24 ساعة.</p>
+          {{else}}
+          <p>
+            مبلغ مسترد:
+            <strong>{{ Math.abs(prorationAmount) }} {{ currency }}</strong>
+          </p>
+          <p>سيتم إرجاع هذا المبلغ لبطاقتك الائتمانية خلال 5-7 أيام عمل.</p>
+          {{/if}}
+        </div>
+        {{/if}}
+
+        <h3>المزايا الجديدة المتاحة لك:</h3>
+        <ul style="text-align: right; margin: 20px 0; list-style: none; padding: 0">
+          {{#each newFeatures}}
+          <li
+            style="
+              margin: 10px 0;
+              padding: 8px;
+              background-color: #e8f5e8;
+              border-radius: 5px;
+              position: relative;
+              padding-right: 30px;
+            "
+          >
+            <span style="position: absolute; right: 8px; color: #28a745; font-weight: bold">✓</span>
+            {{ this }}
+          </li>
+          {{/each}}
+        </ul>
+
+        <div class="button-container">
+          <a href="{{ dashboardUrl }}" class="cta-button">عرض لوحة التحكم</a>
+        </div>
+
+        <p><strong>معرف الاشتراك:</strong> {{ subscriptionId }}</p>
+      </div>
+
+      <div class="footer">
+        <p>شكراً لك لثقتك في Cars Bids</p>
+        <p>إذا كان لديك أي استفسار حول التحديث، لا تتردد في التواصل معنا</p>
+        <p>البريد الإلكتروني: support@carsbids.com | الهاتف: +963-XXX-XXXXXX</p>
+        <p>&copy; {{ currentYear }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

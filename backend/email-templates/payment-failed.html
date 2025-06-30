@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>فشل الدفع</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #f44336, #d32f2f);
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+      .header-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+      .header-title {
+        margin: 0;
+        font-size: 28px;
+      }
+      .content {
+        padding: 30px;
+      }
+      .greeting {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 25px;
+      }
+      .message {
+        color: #666;
+        line-height: 1.6;
+      }
+      .info-grid {
+        display: table;
+        width: 100%;
+        margin: 20px 0;
+      }
+      .info-row {
+        display: table-row;
+      }
+      .info-label {
+        display: table-cell;
+        padding: 12px 0;
+        font-weight: bold;
+        color: #333;
+        width: 40%;
+        border-bottom: 1px solid #eee;
+      }
+      .info-value {
+        display: table-cell;
+        padding: 12px 0 12px 20px;
+        color: #666;
+        border-bottom: 1px solid #eee;
+      }
+      .status-failed {
+        color: #f44336;
+        font-weight: bold;
+      }
+      .button-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+      .button {
+        display: inline-block;
+        padding: 15px 30px;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 10px 5px;
+        text-align: center;
+      }
+      .retry-button {
+        background-color: #4caf50;
+      }
+      .support-button {
+        background-color: #f44336;
+      }
+      .thank-you {
+        color: #666;
+        margin-top: 30px;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+      }
+      .footer-text {
+        margin: 0;
+      }
+      .footer-copyright {
+        margin: 10px 0 0 0;
+      }
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 0;
+          border-radius: 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .info-grid {
+          display: block;
+        }
+        .info-row {
+          display: block;
+          margin-bottom: 15px;
+        }
+        .info-label,
+        .info-value {
+          display: block;
+          width: 100%;
+          padding: 5px 0;
+          border-bottom: none;
+        }
+        .info-label {
+          font-weight: bold;
+          color: #f44336;
+        }
+        .button {
+          display: block;
+          margin: 10px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <div class="header">
+        <div class="header-icon">❌</div>
+        <h1 class="header-title">فشل في معالجة الدفع</h1>
+      </div>
+
+      <div class="content">
+        <p class="greeting">مرحباً {{ params.customerName }}،</p>
+
+        <p class="message">عذرًا، لم يتمكن نظامنا من معالجة الدفع. إليك تفاصيل المحاولة:</p>
+
+        <div class="info-grid">
+          <div class="info-row">
+            <div class="info-label">رقم العملية:</div>
+            <div class="info-value">{{ params.paymentId }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">المبلغ:</div>
+            <div class="info-value">{{ params.amount }} {{ params.currency }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">تاريخ المحاولة:</div>
+            <div class="info-value">{{ params.attemptDate }}</div>
+          </div>
+          <div class="info-row">
+            <div class="info-label">حالة الدفع:</div>
+            <div class="info-value status-failed">فاشلة</div>
+          </div>
+          {% if params.errorMessage %}
+          <div class="info-row">
+            <div class="info-label">سبب الفشل:</div>
+            <div class="info-value">{{ params.errorMessage }}</div>
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="button-container">
+          <a href="{{ params.retryUrl }}" class="button retry-button"> إعادة المحاولة </a>
+
+          <a href="{{ params.supportUrl }}" class="button support-button"> اتصل بالدعم </a>
+        </div>
+
+        <p class="thank-you">يرجى التحقق من تفاصيل الدفع والمحاولة مرة أخرى، أو التواصل مع فريق الدعم للمساعدة.</p>
+      </div>
+
+      <div class="footer">
+        <p class="footer-text">هذا الإيميل تم إرساله تلقائياً، يرجى عدم الرد عليه</p>
+        <p class="footer-copyright">© {{ params.currentYear }} جميع الحقوق محفوظة</p>
+      </div>
+    </div>
+  </body>
+</html>

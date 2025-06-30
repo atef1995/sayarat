@@ -1,0 +1,95 @@
+/* FormattedText component styles */
+
+/* RTL text direction for Arabic content */
+.rtl-text {
+  direction: rtl;
+  text-align: start;
+}
+
+/* Line clamp utilities for text truncation */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-4 {
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-5 {
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-6 {
+  display: -webkit-box;
+  -webkit-line-clamp: 6;
+  line-clamp: 6;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Formatted text content styles */
+.formatted-text-content {
+  white-space: pre-line;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+.formatted-text-content strong {
+  font-weight: 600;
+  color: inherit;
+}
+
+.formatted-text-content em {
+  font-style: italic;
+  color: inherit;
+}
+
+.formatted-text-content code {
+  background-color: rgba(128, 128, 128, 0.1);
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: "Courier New", monospace;
+  font-size: 0.9em;
+}
+
+/* Responsive text sizing */
+@media (max-width: 640px) {
+  .formatted-text-content {
+    line-height: 1.5;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .formatted-text-content code {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}

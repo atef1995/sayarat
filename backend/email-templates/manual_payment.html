@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تعليمات الدفع اليدوي - Cars Bids</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .container {
+        background-color: white;
+        border-radius: 10px;
+        padding: 30px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        border-bottom: 3px solid #007bff;
+        padding-bottom: 20px;
+      }
+      .logo {
+        font-size: 28px;
+        font-weight: bold;
+        color: #007bff;
+        margin-bottom: 10px;
+      }
+      .payment-notice {
+        background: linear-gradient(135deg, #ffc107, #ff8f00);
+        color: white;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 25px;
+      }
+      .payment-info {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border-right: 4px solid #ffc107;
+      }
+      .payment-details {
+        background-color: #e3f2fd;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+        border: 2px solid #2196f3;
+      }
+      .bank-info {
+        background-color: #fff3cd;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 15px 0;
+        border-right: 4px solid #ffc107;
+      }
+      .amount-highlight {
+        background-color: #d4edda;
+        color: #155724;
+        padding: 15px;
+        border-radius: 6px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        margin: 20px 0;
+        border: 2px solid #28a745;
+      }
+      .instructions {
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 25px;
+      }
+      .step {
+        margin-bottom: 15px;
+        padding: 10px;
+        background-color: white;
+        border-radius: 5px;
+        border-right: 3px solid #007bff;
+      }
+      .warning {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        border: 1px solid #ffeaa7;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #ddd;
+        color: #666;
+        font-size: 14px;
+      }
+      .contact-info {
+        background-color: #e8f4fd;
+        padding: 15px;
+        border-radius: 6px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .highlight {
+        background-color: #fffbf0;
+        padding: 3px 6px;
+        border-radius: 3px;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="logo">Cars Bids</div>
+        <p>منصة مزادات السيارات الرائدة</p>
+      </div>
+
+      <div class="payment-notice">
+        <h2 style="margin: 0 0 10px 0">تعليمات الدفع اليدوي</h2>
+        <p style="margin: 0">يرجى اتباع التعليمات أدناه لإتمام عملية الدفع</p>
+      </div>
+
+      <div class="payment-info">
+        <h3 style="color: #007bff; margin-top: 0">مرحباً {{customerName}}</h3>
+        <p>نشكرك لاختيارك منصة Cars Bids. لإتمام تفعيل اشتراكك، يرجى إتباع تعليمات الدفع اليدوي أدناه.</p>
+      </div>
+
+      <div class="payment-details">
+        <h3 style="color: #2196f3; margin-top: 0">تفاصيل الدفعة</h3>
+        <div class="amount-highlight">المبلغ المطلوب: {{planPrice}} {{currency}}</div>
+        <p><strong>اسم الخطة:</strong> {{planName}}</p>
+        <p><strong>نوع الاشتراك:</strong> {{planName}}</p>
+        <p>
+          <strong>رقم المرجع:</strong>
+          <span class="highlight">{{referenceId}}</span>
+        </p>
+      </div>
+
+      <div class="instructions">
+        <h3 style="color: #007bff; margin-top: 0">طرق الدفع المتاحة</h3>
+
+        <div class="step">
+          <h4 style="color: #007bff; margin: 0 0 10px 0">1. التحويل البنكي</h4>
+          <div class="bank-info">
+            <p><strong>اسم البنك:</strong></p>
+            <p>{{bankName}}</p>
+            <p><strong>رقم الحساب:</strong></p>
+            <p>{{accountNumber}}</p>
+            <p><strong>اسم صاحب الحساب:</strong></p>
+            <p>{{accountHolder}}</p>
+            <p><strong>رمز IBAN:</strong></p>
+            <p>{{iban}}</p>
+            <p><strong>رمز SWIFT:</strong></p>
+            <p>{{swiftCode}}</p>
+            <p>
+              <strong>ملاحظة:</strong> يرجى ذكر رقم المرجع
+              <span class="highlight">{{referenceId}}</span>
+              في خانة الملاحظات عند إجراء التحويل البنكي.
+            </p>
+          </div>
+        </div>
+
+        <div class="step">
+          <h4 style="color: #007bff; margin: 0 0 10px 0">2. الدفع النقدي</h4>
+          <p>يمكنكم زيارة مكاتبنا في العنوان التالي:</p>
+          <p><strong>العنوان:</strong> {{officeAddress}}</p>
+          <p><strong>ساعات العمل:</strong> {{workingHours}}</p>
+        </div>
+
+        <div class="step">
+          <h4 style="color: #007bff; margin: 0 0 10px 0">3. الدفع عبر الهاتف</h4>
+          <p>للدفع عبر الهاتف، يرجى الاتصال على:</p>
+          <p><strong>رقم الهاتف:</strong></p>
+          <p>{{supportPhone}}</p>
+          <p><strong>ساعات العمل:</strong></p>
+          <p>{{supportHours}}</p>
+        </div>
+      </div>
+
+      <div class="warning">
+        <h4 style="margin-top: 0; color: #856404">تعليمات مهمة:</h4>
+        <ul style="margin: 10px 0">
+          <li>
+            يرجى ذكر رقم المرجع عند إجراء التحويل
+            <span class="highlight">{{referenceId}}</span>
+          </li>
+          <li>احتفظ بإيصال التحويل أو الدفع</li>
+          <li>سيتم تفعيل اشتراككم خلال 24 ساعة من استلام الدفعة</li>
+          <li>في حالة وجود أي استفسار، يرجى التواصل معنا</li>
+        </ul>
+      </div>
+
+      <div class="contact-info">
+        <h4 style="color: #007bff; margin-top: 0">هل تحتاج مساعدة؟</h4>
+        <p>فريق الدعم متاح لمساعدتكم:</p>
+        <p><strong>البريد الإلكتروني:</strong></p>
+        <p>{{supportEmail}}</p>
+        <p><strong>الهاتف:</strong></p>
+        <p>{{supportPhone}}</p>
+        <p><strong>ساعات الدعم:</strong> {{supportHours}}</p>
+      </div>
+
+      <div class="footer">
+        <p>شكراً لكم على ثقتكم في منصة Cars Bids</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #999">هذه رسالة تلقائية، يرجى عدم الرد عليها مباشرة</p>
+        <p style="margin-top: 10px; font-size: 12px; color: #999">© 2025 Cars Bids. جميع الحقوق محفوظة</p>
+      </div>
+    </div>
+  </body>
+</html>

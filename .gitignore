@@ -1,0 +1,16 @@
+my-vite-app/node_modules
+my-vite-app/.env.development
+my-vite-app/.env.production
+backend/node_modules
+myenv
+us_car_models_data_master
+.env
+.env.development
+.env.production
+backend/.env.development
+backend/.env.production
+backend/.env
+my-vite-app/.env
+my-vite-app/.env.development
+my-vite-app/.env.production
+.env.example

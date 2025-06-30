@@ -1,0 +1,4 @@
+GET /makes?year=2019 HTTP/1.1
+X-Rapidapi-Key: 60487821cdmsh6cde70050c79bf7p1dff01jsn4eff6cf269c5
+X-Rapidapi-Host: cars-api10.p.rapidapi.com
+Host: cars-api10.p.rapidapi.com

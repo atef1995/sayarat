@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>مرحباً بعودتك! تم إعادة تفعيل اشتراكك</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        direction: rtl;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+      .header {
+        text-align: center;
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        padding: 30px;
+        border-radius: 10px 10px 0 0;
+        margin: -20px -20px 20px -20px;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 28px;
+        font-weight: bold;
+      }
+      .welcome-icon {
+        font-size: 48px;
+        margin-bottom: 10px;
+      }
+      .content {
+        padding: 20px 0;
+      }
+      .reactivation-info {
+        background-color: #e8f5e8;
+        border: 2px solid #28a745;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .period-info {
+        background-color: #fff3cd;
+        border: 1px solid #ffeaa7;
+        border-radius: 5px;
+        padding: 15px;
+        margin: 15px 0;
+        text-align: center;
+      }
+      .cta-button {
+        display: inline-block;
+        background-color: #667eea;
+        color: white;
+        padding: 15px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .footer {
+        text-align: center;
+        margin-top: 30px;
+        padding: 20px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        color: #6c757d;
+        font-size: 14px;
+      }
+      .button-container {
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <div class="welcome-icon">🎊</div>
+        <h1>مرحباً بعودتك!</h1>
+        <p>تم إعادة تفعيل اشتراكك بنجاح</p>
+      </div>
+
+      <div class="content">
+        <p>عزيزي/عزيزتي <strong>{{ customerName }}</strong>,</p>
+
+        <p>نحن سعداء جداً بعودتك! تم إعادة تفعيل اشتراكك في منصة Cars Bids بنجاح.</p>
+
+        <div class="reactivation-info">
+          <h3>✅ اشتراكك نشط الآن</h3>
+          <p>يمكنك الآن الاستفادة من جميع المزايا المميزة مرة أخرى!</p>
+          <p><strong>تاريخ إعادة التفعيل:</strong> {{ reactivatedAt }}</p>
+          <p><strong>عدد مرات إعادة التفعيل:</strong> {{ reactivationCount }}</p>
+        </div>
+
+        <div class="period-info">
+          <strong>اشتراكك ساري حتى:</strong><br />
+          {{ currentPeriodEnd }}
+        </div>
+
+        <h3>المزايا المتاحة لك الآن:</h3>
+        <ul style="text-align: right; margin: 20px 0">
+          <li
+            style="
+              margin: 10px 0;
+              padding: 8px;
+              background-color: #e8f5e8;
+              border-radius: 5px;
+              list-style: none;
+              position: relative;
+              padding-right: 30px;
+            "
+          >
+            <span style="position: absolute; right: 8px; color: #28a745; font-weight: bold">✓</span>
+            تحليل السيارات بالذكاء الاصطناعي
+          </li>
+          <li
+            style="
+              margin: 10px 0;
+              padding: 8px;
+              background-color: #e8f5e8;
+              border-radius: 5px;
+              list-style: none;
+              position: relative;
+              padding-right: 30px;
+            "
+          >
+            <span style="position: absolute; right: 8px; color: #28a745; font-weight: bold">✓</span>
+            تمييز الإعلانات وإبرازها
+          </li>
+          <li
+            style="
+              margin: 10px 0;
+              padding: 8px;
+              background-color: #e8f5e8;
+              border-radius: 5px;
+              list-style: none;
+              position: relative;
+              padding-right: 30px;
+            "
+          >
+            <span style="position: absolute; right: 8px; color: #28a745; font-weight: bold">✓</span>
+            دعم فني مميز ذو أولوية
+          </li>
+          <li
+            style="
+              margin: 10px 0;
+              padding: 8px;
+              background-color: #e8f5e8;
+              border-radius: 5px;
+              list-style: none;
+              position: relative;
+              padding-right: 30px;
+            "
+          >
+            <span style="position: absolute; right: 8px; color: #28a745; font-weight: bold">✓</span>
+            إحصائيات متقدمة ومفصلة
+          </li>
+        </ul>
+
+        <div class="button-container">
+          <a href="{{ dashboardUrl }}" class="cta-button">ابدأ الاستفادة من مزاياك</a>
+        </div>
+
+        <p><strong>معرف الاشتراك:</strong> {{ subscriptionId }}</p>
+      </div>
+
+      <div class="footer">
+        <p>شكراً لك لإعطائنا فرصة أخرى</p>
+        <p>نحن ملتزمون بتقديم أفضل خدمة لك</p>
+        <p>البريد الإلكتروني: support@carsbids.com | الهاتف: +963-XXX-XXXXXX</p>
+        <p>&copy; {{ currentYear }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

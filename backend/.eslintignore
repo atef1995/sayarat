@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+*.min.js
+
+# Coverage reports
+coverage/
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Generated files
+*.generated.*
+*.auto.*
+
+# Legacy code (if any)
+legacy/
+
+# Third-party
+vendor/

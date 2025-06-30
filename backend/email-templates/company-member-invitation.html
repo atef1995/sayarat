@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>دعوة للانضمام للشركة - Cars Bids</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+        direction: rtl;
+      }
+      .container {
+        max-width: 600px;
+        margin: 20px auto;
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px;
+        text-align: center;
+      }
+      .content {
+        padding: 30px;
+      }
+      .invitation-card {
+        background: #f8f9fa;
+        border-right: 4px solid #667eea;
+        border-left: none;
+        padding: 20px;
+        margin: 20px 0;
+      }
+      .button {
+        display: inline-block;
+        background: #667eea;
+        color: white;
+        padding: 12px 30px;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 20px 0;
+        font-weight: bold;
+      }
+      .button:hover {
+        background: #5a6fd8;
+      }
+      .footer {
+        background: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        font-size: 14px;
+        color: #666;
+      }
+      .role-badge {
+        display: inline-block;
+        background: #28a745;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 15px;
+        font-size: 12px;
+        font-weight: bold;
+        text-transform: uppercase;
+      }
+      .text-center {
+        text-align: center;
+      }
+      .divider {
+        border: none;
+        border-top: 1px solid #eee;
+        margin: 30px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🚗 Cars Bids</h1>
+        <h2>دعوة للانضمام للشركة</h2>
+      </div>
+      <div class="content">
+        <h3>أهلاً وسهلاً {{ params.memberName }}!</h3>
+
+        <p>
+          تشرّفنا بدعوتكم للانضمام إلى شركة
+          <strong>{{ params.companyName }}</strong> على منصة Cars Bids من قِبل {{ params.inviterName }}.
+        </p>
+
+        <div class="invitation-card">
+          <h4>تفاصيل الدعوة:</h4>
+          <p><strong>الشركة:</strong> {{ params.companyName }}</p>
+          <p>
+            <strong>منصبكم:</strong>
+            <span class="role-badge">{{ params.role }}</span>
+          </p>
+          <p><strong>الدعوة من:</strong> {{ params.inviterName }}</p>
+        </div>
+
+        <p>كعضو في شركة {{ params.companyName }}، ستتمكنون من:</p>
+        <ul>
+          <li>� إدارة إعلانات السيارات الخاصة بالشركة</li>
+          <li>📊 الوصول إلى التحليلات والإحصائيات المتقدمة</li>
+          <li>💬 الرد على استفسارات العملاء</li>
+          <li>👥 التعاون مع أعضاء الفريق</li>
+          <li>🎯 متابعة مقاييس الأداء</li>
+        </ul>
+        <div class="text-center">
+          <a href="{{ params.invitationUrl }}" class="button">قبول الدعوة</a>
+        </div>
+
+        <p>
+          <strong>مهم:</strong> هذه الدعوة ستنتهي صلاحيتها خلال {{ params.expiryDays }} أيام. يُرجى قبولها في أقرب وقت
+          للانضمام إلى الفريق!
+        </p>
+
+        <hr class="divider" />
+
+        <p>
+          <small>إذا كنتم تواجهون مشكلة مع الزر أعلاه، يُرجى نسخ ولصق هذا الرابط في متصفحكم:</small>
+        </p>
+        <p>
+          <small><a href="{{ params.invitationUrl }}">{{ params.invitationUrl }}</a></small>
+        </p>
+      </div>
+
+      <div class="footer">
+        <p>
+          تحتاجون مساعدة؟ تواصلوا معنا على
+          <a href="mailto:{{ params.supportEmail }}">{{ params.supportEmail }}</a>
+        </p>
+        <p>&copy; {{ "now" | date: "%Y" }} Cars Bids. جميع الحقوق محفوظة.</p>
+      </div>
+    </div>
+  </body>
+</html>

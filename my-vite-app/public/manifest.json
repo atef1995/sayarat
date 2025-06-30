@@ -1,0 +1,75 @@
+{
+  "name": "مزادات السيارات - Cars Bids",
+  "short_name": "مزادات السيارات",
+  "description": "منصة مزادات السيارات الرائدة في المنطقة العربية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1890ff",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "ar",
+  "dir": "rtl",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Desktop view of Cars Bids homepage"
+    },
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "375x812",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Mobile view of Cars Bids homepage"
+    }
+  ],
+  "categories": ["automotive", "marketplace", "shopping"],
+  "shortcuts": [
+    {
+      "name": "البحث عن سيارات",
+      "short_name": "البحث",
+      "description": "البحث في قاعدة بيانات السيارات",
+      "url": "/search",
+      "icons": [
+        {
+          "src": "/search-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "إضافة إعلان",
+      "short_name": "إضافة",
+      "description": "إضافة إعلان سيارة جديد",
+      "url": "/create-listing",
+      "icons": [
+        {
+          "src": "/add-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

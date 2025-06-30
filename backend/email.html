@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>تم الدفع بنجاح</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f5f5f5;
+        direction: rtl;
+      }
+      .email-container {
+        max-width: 600px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .header {
+        background: linear-gradient(135deg, #4caf50, #45a049);
+        padding: 30px;
+        text-align: center;
+        color: white;
+      }
+      .content {
+        padding: 30px;
+      }
+      .info-grid {
+        display: table;
+        width: 100%;
+        margin: 20px 0;
+      }
+      .info-row {
+        display: table-row;
+      }
+      .info-label {
+        display: table-cell;
+        padding: 12px 0;
+        font-weight: bold;
+        color: #333;
+        width: 40%;
+        border-bottom: 1px solid #eee;
+      }
+      .info-value {
+        display: table-cell;
+        padding: 12px 0 12px 20px;
+        color: #666;
+        border-bottom: 1px solid #eee;
+      }
+      .success-icon {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 20px;
+        display: block;
+      }
+      .button {
+        display: inline-block;
+        padding: 15px 30px;
+        background-color: #4caf50;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        margin: 20px 0;
+        text-align: center;
+      }
+      .footer {
+        background-color: #f8f9fa;
+        padding: 20px;
+        text-align: center;
+        color: #666;
+        font-size: 14px;
+      }
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 0;
+          border-radius: 0;
+        }
+        .content {
+          padding: 20px;
+        }
+        .info-grid {
+          display: block;
+        }
+        .info-row {
+          display: block;
+          margin-bottom: 15px;
+        }
+        .info-label,
+        .info-value {
+          display: block;
+          width: 100%;
+          padding: 5px 0;
+          border-bottom: none;
+        }
+        .info-label {
+          font-weight: bold;
+          color: #4caf50;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- parameter for content -->
+     {{ htmlContent }}
+    <!-- End of parameter for content -->
+
+        <p style="color: #666; margin-top: 30px">
+          شكراً لك على استخدام خدمتنا! إذا كان لديك أي استفسارات، لا تتردد في
+          التواصل معنا.
+        </p>
+      </div>
+
+      <div class="footer">
+        <p style="margin: 0">
+          هذا الإيميل تم إرساله تلقائياً، يرجى عدم الرد عليه
+        </p>
+        <p style="margin: 10px 0 0 0">
+          © ${new Date().getFullYear()} جميع الحقوق محفوظة
+        </p>
+      </div>
+    </div>
+  </body>
+</html>
