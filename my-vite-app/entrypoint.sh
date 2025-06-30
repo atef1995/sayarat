@@ -9,7 +9,6 @@ echo "Starting environment variable injection..."
 # Default target directory
 TARGET_DIR="${TARGET_DIR:-/usr/share/nginx/html}"
 
-echo "Injecting VITE_ environment variables into: $TARGET_DIR"
 
 # Check if target directory exists
 if [ ! -d "$TARGET_DIR" ]; then
@@ -25,9 +24,7 @@ for i in $(env | grep "^VITE_" || true); do
     if [ -n "$i" ]; then
         key=$(echo "$i" | cut -d '=' -f 1)
         value=$(echo "$i" | cut -d '=' -f 2-)
-        
-        echo "Processing: $key=$value"
-        
+                
         # Escape special characters in value for sed
         escaped_value=$(echo "$value" | sed 's/[[\.*^$()+?{|]/\\&/g')
         

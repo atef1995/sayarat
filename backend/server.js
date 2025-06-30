@@ -34,13 +34,14 @@ const { setupAutoExpire, setupAutoDeleteDisabledListings } = require('./service/
 const logger = require('./utils/logger');
 
 const knex = require('./config/database');
-
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+logger.info(`Using Redis URL: ${redisUrl}`);
 // Initialize Redis client
 const redisClient = createClient({
-  url: process.env.REDIS_URL || 'redis://localhost:6379'
+  url: redisUrl
 });
 
-redisClient.connect().catch(console.error);
+redisClient.connect().catch(logger.error);
 
 const cleanupTempFiles = () => {
   const uploadsDir = path.join(__dirname, 'uploads');
@@ -52,7 +53,7 @@ const cleanupTempFiles = () => {
         try {
           require('fs').unlinkSync(filePath);
         } catch (error) {
-          console.warn('Failed to cleanup temp file:', error);
+          logger.warn('Failed to cleanup temp file:', { error });
         }
       });
   }
