@@ -43,8 +43,8 @@ services:
 
       # CORS Configuration
       CORS_ORIGIN: ${CORS_ORIGIN}
-      CLIENT_URL: ${CLIENT_URL:-http://localhost:5173}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      CLIENT_URL: ${CLIENT_URL}
+      FRONTEND_URL: ${FRONTEND_URL}
 
       # Stripe Configuration
       STRIPE_PUBLIC_KEY: ${STRIPE_PUBLIC_KEY}
@@ -115,9 +115,11 @@ services:
     container_name: cars-bids-frontend
     restart: unless-stopped
     environment:
-      VITE_API_ENDPOINT: ${VITE_API_ENDPOINT:-http://localhost:5000}
+      VITE_API_ENDPOINT: ${VITE_API_ENDPOINT}
       VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
       VITE_STRIPE_SECRET_KEY: ${VITE_STRIPE_SECRET_KEY}
+    ports:
+      - "8080:80"
     depends_on:
       backend:
         condition: service_healthy

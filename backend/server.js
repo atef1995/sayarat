@@ -34,7 +34,7 @@ const { setupAutoExpire, setupAutoDeleteDisabledListings } = require('./service/
 const logger = require('./utils/logger');
 
 const knex = require('./config/database');
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = process.env.REDIS_URL;
 logger.info(`Using Redis URL: ${redisUrl}`);
 // Initialize Redis client
 const redisClient = createClient({
