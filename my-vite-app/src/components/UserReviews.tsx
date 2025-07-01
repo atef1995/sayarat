@@ -49,7 +49,7 @@ const UserReviews: React.FC<UserReviewsProps> = React.memo(({ username }) => {
       setError(null);
 
       const response = await fetch(
-        `${apiUrl}/api/reviews/seller-reviews/${encodeURIComponent(username)}`,
+        `${apiUrl}/reviews/seller-reviews/${encodeURIComponent(username)}`,
         {
           method: "GET",
           credentials: "include",

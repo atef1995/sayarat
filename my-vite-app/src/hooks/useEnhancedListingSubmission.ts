@@ -115,7 +115,7 @@ export const useEnhancedListingSubmission = (
         dryRunData.append("dryRun", "true");
 
         // TODO: Replace with actual backend validation call
-        const response = await fetch("/api/listings/validate", {
+        const response = await fetch("/listings/validate", {
           method: "POST",
           body: dryRunData,
         });
@@ -230,7 +230,7 @@ export const useEnhancedListingSubmission = (
         }
 
         // Submit to backend
-        const response = await fetch("/api/listings", {
+        const response = await fetch("/listings", {
           method: "POST",
           body: finalFormData,
         });

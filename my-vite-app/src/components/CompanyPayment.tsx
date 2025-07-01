@@ -43,20 +43,17 @@ const CompanyPayment = () => {
 
     try {
       // Create checkout session
-      const response = await fetch(
-        `${apiUrl}/api/payment/company-subscription`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify({
-            companyId: state.companyId,
-            subscriptionType: state.subscriptionType,
-          }),
-        }
-      );
+      const response = await fetch(`${apiUrl}/payment/company-subscription`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({
+          companyId: state.companyId,
+          subscriptionType: state.subscriptionType,
+        }),
+      });
 
       const data = await response.json();
 

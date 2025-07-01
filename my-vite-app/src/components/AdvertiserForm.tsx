@@ -109,7 +109,7 @@ const AdvertiserForm = () => {
         formData.append("ad_image", adImage[0].originFileObj);
       }
 
-      const response = await fetch(`${apiUrl}/api/advertisers`, {
+      const response = await fetch(`${apiUrl}/advertisers`, {
         method: "POST",
         body: formData,
       });

@@ -62,7 +62,7 @@ const StrategyTest: React.FC<StrategyTestProps> = ({ onClose }) => {
     setLoading(true);
     try {
       const strategyParam = strategy !== "auto" ? `&strategy=${strategy}` : "";
-      const endpoint = `/api/listings/smart?page=1&limit=12&highlightRatio=${highlightRatio}${strategyParam}`;
+      const endpoint = `/listings/smart?page=1&limit=12&highlightRatio=${highlightRatio}${strategyParam}`;
 
       const response = await fetchListings(endpoint);
       setListings(response.rows);

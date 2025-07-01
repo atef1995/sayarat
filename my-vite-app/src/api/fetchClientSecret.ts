@@ -13,18 +13,15 @@ export async function fetchClientSecret(body: items[]): Promise<string> {
   try {
     console.log("Fetching client secret with body:", body);
 
-    const response = await fetch(
-      `${apiUrl}/api/payment/create-payment-intent`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          items: body,
-        }),
-      }
-    );
+    const response = await fetch(`${apiUrl}/payment/create-payment-intent`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        items: body,
+      }),
+    });
 
     if (!response.ok) {
       throw new Error("Failed to fetch client secret");

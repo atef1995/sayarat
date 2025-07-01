@@ -50,7 +50,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
 
   const handleSave = async (values: ProfileFormValues) => {
     try {
-      const response = await fetch(`${apiUrl}/api/profile/`, {
+      const response = await fetch(`${apiUrl}/profile/`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -78,7 +78,7 @@ const ProfileForm: React.FC<ProfileFormProps> = ({
     const firstName = form.getFieldValue("firstName");
 
     try {
-      const response = await fetch(`${apiUrl}/api/reset-password-request`, {
+      const response = await fetch(`${apiUrl}/reset-password-request`, {
         method: "POST",
         headers: {
           "content-type": "application/json",

@@ -150,7 +150,7 @@ const CompanyDashboard = () => {
   const fetchCompanyData = useCallback(async () => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/company/profile`, {
+      const response = await fetch(`${apiUrl}/company/profile`, {
         credentials: "include",
       });
 
@@ -171,7 +171,7 @@ const CompanyDashboard = () => {
 
   const fetchCompanyStats = useCallback(async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/company/stats`, {
+      const response = await fetch(`${apiUrl}/company/stats`, {
         credentials: "include",
       });
 
@@ -196,7 +196,7 @@ const CompanyDashboard = () => {
 
   const fetchCompanyListings = useCallback(async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/company/listings`, {
+      const response = await fetch(`${apiUrl}/company/listings`, {
         credentials: "include",
       });
 
@@ -213,7 +213,7 @@ const CompanyDashboard = () => {
 
   const fetchCompanyMembers = useCallback(async () => {
     try {
-      const response = await fetch(`${apiUrl}/api/company/members`, {
+      const response = await fetch(`${apiUrl}/company/members`, {
         credentials: "include",
       });
 
@@ -250,7 +250,7 @@ const CompanyDashboard = () => {
   const handleUpdateCompany = async (values: CompanyUpdateValues) => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/company/update`, {
+      const response = await fetch(`${apiUrl}/company/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -276,7 +276,7 @@ const CompanyDashboard = () => {
   const handleAddMember = async (values: MemberAddValues) => {
     try {
       setLoading(true);
-      const response = await fetch(`${apiUrl}/api/company/members`, {
+      const response = await fetch(`${apiUrl}/company/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

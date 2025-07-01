@@ -75,14 +75,14 @@ const CompanyRegistrationDebug: React.FC = () => {
   };
 
   const testStep1Validation = async () => {
-    await testEndpoint("/api/auth/validate-company-step", {
+    await testEndpoint("/auth/validate-company-step", {
       companyName,
       step: 1,
     });
   };
 
   const testStep2Validation = async () => {
-    await testEndpoint("/api/auth/validate-admin-step", {
+    await testEndpoint("/auth/validate-admin-step", {
       email,
       username,
       step: 2,
@@ -90,7 +90,7 @@ const CompanyRegistrationDebug: React.FC = () => {
   };
 
   const testFieldValidation = async () => {
-    await testEndpoint("/api/auth/validate-field", {
+    await testEndpoint("/auth/validate-field", {
       fieldName: "email",
       fieldValue: email,
       checkExistence: true,
@@ -98,7 +98,7 @@ const CompanyRegistrationDebug: React.FC = () => {
   };
 
   const testFullValidation = async () => {
-    await testEndpoint("/api/auth/validate-company-signup", {
+    await testEndpoint("/auth/validate-company-signup", {
       companyName,
       email,
       username,
@@ -116,7 +116,7 @@ const CompanyRegistrationDebug: React.FC = () => {
   };
 
   const testCompanyCreation = async () => {
-    await testEndpoint("/api/auth/company-signup", {
+    await testEndpoint("/auth/company-signup", {
       // Company Information
       companyName,
       companyDescription:

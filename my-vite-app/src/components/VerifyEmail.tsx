@@ -26,7 +26,7 @@ const VerifyEmail = () => {
       }
 
       try {
-        const response = await fetch(`${apiUrl}/api/verify-email`, {
+        const response = await fetch(`${apiUrl}/verify-email`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -47,7 +47,7 @@ const Favorites = () => {
         limit: size.toString(),
       });
 
-      const response = await fetch(`${apiUrl}/api/favorites/?${queryParams}`, {
+      const response = await fetch(`${apiUrl}/favorites/?${queryParams}`, {
         credentials: "include",
       });
 
@@ -90,7 +90,7 @@ const Favorites = () => {
 
   const removeFavorite = async (listingId: CarInfo["id"]) => {
     try {
-      const response = await fetch(`${apiUrl}/api/favorites/${listingId}`, {
+      const response = await fetch(`${apiUrl}/favorites/${listingId}`, {
         method: "DELETE",
         credentials: "include",
       });

@@ -24,7 +24,7 @@ export class ListingLimitService {
    */
   static async checkListingStatus(): Promise<ListingStatusResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/listings/status`, {
+      const response = await fetch(`${apiUrl}/listings/status`, {
         method: "GET",
         credentials: "include",
         headers: {

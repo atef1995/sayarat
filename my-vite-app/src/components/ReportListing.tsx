@@ -33,7 +33,7 @@ const ReportListing = () => {
       message.error("لا يمكن الإبلاغ عن إعلان بدون معرف");
       return;
     }
-    const url = `${apiUrl}/api/report`;
+    const url = `${apiUrl}/report`;
 
     setLoading(true);
     try {

@@ -22,7 +22,7 @@ interface ProductData {
 }
 
 const fetchProducts = async () => {
-  const res = await fetch(`${apiUrl}/api/payment/products`, {
+  const res = await fetch(`${apiUrl}/payment/products`, {
     headers: {
       "Content-type": "application/json",
       accept: "application/json",

@@ -103,13 +103,13 @@ const PaginatedCards = ({
           const strategyParams =
             currentStrategy !== "auto" ? `&strategy=${currentStrategy}` : "";
           endpoint = combinedQueryString
-            ? `/api/listings/smart?${combinedQueryString}&${paginationParams}${strategyParams}`
-            : `/api/listings/smart?${paginationParams}${strategyParams}`;
+            ? `/listings/smart?${combinedQueryString}&${paginationParams}${strategyParams}`
+            : `/listings/smart?${paginationParams}${strategyParams}`;
         } else {
           // Use regular search endpoint for all cases (including username filtering)
           endpoint = combinedQueryString
-            ? `/api/listings/search?${combinedQueryString}&${paginationParams}`
-            : `/api/listings/search?${paginationParams}`;
+            ? `/listings/search?${combinedQueryString}&${paginationParams}`
+            : `/listings/search?${paginationParams}`;
         }
 
         console.log("Fetching listings with endpoint:", endpoint);

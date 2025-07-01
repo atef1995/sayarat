@@ -10,14 +10,11 @@ export class ListingService {
   }
   async createListing(formData: FormData): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.apiUrl}/api/listings/create-listing`,
-        {
-          method: "POST",
-          credentials: "include",
-          body: formData,
-        }
-      );
+      const response = await fetch(`${this.apiUrl}/listings/create-listing`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      });
 
       const data = await response.json();
 
@@ -53,7 +50,7 @@ export class ListingService {
   async updateListing(listingId: string, formData: FormData): Promise<boolean> {
     try {
       const response = await fetch(
-        `${this.apiUrl}/api/listings/update/${listingId}`,
+        `${this.apiUrl}/listings/update/${listingId}`,
         {
           method: "PUT",
           credentials: "include",

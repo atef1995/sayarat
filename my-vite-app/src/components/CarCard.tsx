@@ -22,7 +22,7 @@ const CarCard = ({ carData }: { carData: CarCardProps }) => {
   const redirectToCarPage = async (event: React.MouseEvent<HTMLDivElement>) => {
     event.stopPropagation();
     event.preventDefault();
-    await fetch(`${apiUrl}/api/listings/${carData.id}/view`, {
+    await fetch(`${apiUrl}/listings/${carData.id}/view`, {
       method: "PUT",
     });
     navigate(`/car-listing/${carData.id}`);

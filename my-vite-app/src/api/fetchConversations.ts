@@ -6,7 +6,7 @@ import { ConversationResponse } from "../types/api.types";
 const { apiUrl } = loadApiConfig();
 
 const fetchConversations = async () => {
-  const response = await fetch(`${apiUrl}/api/conversations/user`, {
+  const response = await fetch(`${apiUrl}/conversations/user`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     credentials: "include",

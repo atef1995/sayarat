@@ -42,7 +42,7 @@ export const FavBtn: React.FC<FavBtnProps> = ({
     const newFavoritedState = !isFavorited;
     try {
       if (newFavoritedState) {
-        const response = await fetch(`${apiUrl}/api/favorites/${listingId}`, {
+        const response = await fetch(`${apiUrl}/favorites/${listingId}`, {
           method: "POST",
           credentials: "include",
         });
@@ -60,7 +60,7 @@ export const FavBtn: React.FC<FavBtnProps> = ({
           throw data.error;
         }
       } else {
-        const response = await fetch(`${apiUrl}/api/favorites/${listingId}`, {
+        const response = await fetch(`${apiUrl}/favorites/${listingId}`, {
           method: "DELETE",
           credentials: "include",
         });

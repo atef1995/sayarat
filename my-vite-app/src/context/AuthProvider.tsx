@@ -17,7 +17,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const checkSession = async () => {
     if (!localStorage.getItem("isAuthenticated")) return;
     try {
-      const response = await fetch(`${apiUrl}/api/auth/check`, {
+      const response = await fetch(`${apiUrl}/auth/check`, {
         credentials: "include",
       });
 
@@ -64,7 +64,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   ): Promise<ApiResponse> => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${apiUrl}/api/auth/login`, {
+      const response = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -101,7 +101,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const logout = async () => {
     try {
-      await fetch(`${apiUrl}/api/auth/logout`, {
+      await fetch(`${apiUrl}/auth/logout`, {
         method: "POST",
         credentials: "include",
       });

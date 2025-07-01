@@ -104,7 +104,7 @@ const User = () => {
           setLoading(false);
           return;
         }
-        const response = await fetch(`${apiUrl}/api/users/${username}`, {
+        const response = await fetch(`${apiUrl}/users/${username}`, {
           credentials: "include",
         });
         if (!response.ok) {

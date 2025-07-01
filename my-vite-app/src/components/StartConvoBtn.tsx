@@ -41,7 +41,7 @@ export const StartConvoBtn: React.FC<StartConvoBtnProps> = ({ listingId }) => {
         created_at: new Date().toISOString(),
       };
 
-      const response = await fetch(`${apiUrl}/api/conversations`, {
+      const response = await fetch(`${apiUrl}/conversations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

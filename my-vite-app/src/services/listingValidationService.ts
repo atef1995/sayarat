@@ -26,7 +26,7 @@ class ListingValidationService {
   private baseUrl: string;
 
   private constructor() {
-    this.baseUrl = `${apiUrl}/api/listings`;
+    this.baseUrl = `${apiUrl}/listings`;
   }
 
   public static getInstance(): ListingValidationService {

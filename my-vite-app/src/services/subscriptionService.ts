@@ -60,7 +60,7 @@ export class SubscriptionService {
         queryParams.append("companyId", options.companyId);
       }
 
-      const url = `${apiUrl}/api/subscription/plans${
+      const url = `${apiUrl}/subscription/plans${
         queryParams.toString() ? `?${queryParams.toString()}` : ""
       }`;
 
@@ -87,7 +87,7 @@ export class SubscriptionService {
    */
   static async checkSubscription(): Promise<SubscriptionCheckResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/status`, {
+      const response = await fetch(`${apiUrl}/subscription/status`, {
         method: "GET",
         credentials: "include",
       });
@@ -127,7 +127,7 @@ export class SubscriptionService {
     request: SubscriptionCreateRequest
   ): Promise<SubscriptionCreateResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/create`, {
+      const response = await fetch(`${apiUrl}/subscription/create`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ export class SubscriptionService {
     request?: SubscriptionCancelRequest
   ): Promise<SubscriptionCancelResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/cancel`, {
+      const response = await fetch(`${apiUrl}/subscription/cancel`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -185,7 +185,7 @@ export class SubscriptionService {
     request?: SubscriptionReactivateRequest
   ): Promise<SubscriptionReactivateResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/reactivate`, {
+      const response = await fetch(`${apiUrl}/subscription/reactivate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -214,7 +214,7 @@ export class SubscriptionService {
     planId: string
   ): Promise<SubscriptionCreateResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/update`, {
+      const response = await fetch(`${apiUrl}/subscription/update`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -251,17 +251,14 @@ export class SubscriptionService {
     currency: string;
   }): Promise<{ success: boolean; error?: string }> {
     try {
-      const response = await fetch(
-        `${apiUrl}/api/subscription/manual-payment`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(data),
-        }
-      );
+      const response = await fetch(`${apiUrl}/subscription/manual-payment`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
 
       const result = await response.json();
       return result;
@@ -434,7 +431,7 @@ export class SubscriptionService {
    */
   static async detectAccountType(): Promise<"individual" | "company"> {
     try {
-      const response = await fetch(`${apiUrl}/api/user/account-type`, {
+      const response = await fetch(`${apiUrl}/user/account-type`, {
         method: "GET",
         credentials: "include",
       });
@@ -465,7 +462,7 @@ export class SubscriptionService {
       const targetAccountType = accountType || (await this.detectAccountType());
 
       const response = await fetch(
-        `${apiUrl}/api/subscription/plans?accountType=${targetAccountType}`,
+        `${apiUrl}/subscription/plans?accountType=${targetAccountType}`,
         {
           method: "GET",
           credentials: "include",
@@ -512,8 +509,8 @@ export class SubscriptionService {
       // Use appropriate endpoint based on account type
       const endpoint =
         accountType === "company"
-          ? `${apiUrl}/api/subscription/create-company`
-          : `${apiUrl}/api/subscription/create`;
+          ? `${apiUrl}/subscription/create-company`
+          : `${apiUrl}/subscription/create`;
 
       const response = await fetch(endpoint, {
         method: "POST",
@@ -598,7 +595,7 @@ export class SubscriptionService {
    */
   static async getAccountType(): Promise<AccountTypeResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/account-type`, {
+      const response = await fetch(`${apiUrl}/subscription/account-type`, {
         method: "GET",
         credentials: "include",
       });
@@ -630,7 +627,7 @@ export class SubscriptionService {
   ): Promise<AccountTypeSwitchResponse> {
     try {
       const response = await fetch(
-        `${apiUrl}/api/subscription/switch-account-type`,
+        `${apiUrl}/subscription/switch-account-type`,
         {
           method: "POST",
           headers: {
@@ -666,7 +663,7 @@ export class SubscriptionService {
     request: CompanyCreateRequest
   ): Promise<CompanyCreateResponse> {
     try {
-      const response = await fetch(`${apiUrl}/api/subscription/companies`, {
+      const response = await fetch(`${apiUrl}/subscription/companies`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -699,17 +696,14 @@ export class SubscriptionService {
     request: CompanyAssociationRequest
   ): Promise<CompanyAssociationResponse> {
     try {
-      const response = await fetch(
-        `${apiUrl}/api/subscription/associate-company`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          credentials: "include",
-          body: JSON.stringify(request),
-        }
-      );
+      const response = await fetch(`${apiUrl}/subscription/associate-company`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(request),
+      });
 
       if (!response.ok) {
         throw new Error("Failed to associate with company");

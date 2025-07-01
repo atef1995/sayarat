@@ -12,7 +12,7 @@ export const getIpAddress = async () => {
     console.error("Failed to get IP:", error);
     // Option 2: Fallback to server endpoint
     try {
-      const response = await fetch(`${apiUrl}/api/get-ip`);
+      const response = await fetch(`${apiUrl}/get-ip`);
       const data = await response.json();
       return data;
     } catch (fallbackError) {

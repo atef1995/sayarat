@@ -71,7 +71,7 @@ export const useImageHandler = ({
       const { apiUrl } = loadApiConfig();
       try {
         const response = await fetch(
-          `${apiUrl}/api/delete-image/${initialValues.id}`,
+          `${apiUrl}/delete-image/${initialValues.id}`,
           {
             method: "DELETE",
             credentials: "include",

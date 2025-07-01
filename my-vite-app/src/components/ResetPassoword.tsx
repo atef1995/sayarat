@@ -24,7 +24,7 @@ const ResetPassword = () => {
     console.log({ formValues });
     const password = formValues.password;
     try {
-      const response = await fetch(`${apiUrl}/api/reset-password`, {
+      const response = await fetch(`${apiUrl}/reset-password`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

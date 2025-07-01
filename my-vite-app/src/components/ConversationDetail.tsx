@@ -124,7 +124,7 @@ const ConversationDetail = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${apiUrl}/api/conversations/messages`, {
+      const response = await fetch(`${apiUrl}/conversations/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

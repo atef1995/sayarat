@@ -24,7 +24,7 @@ export const useMessages = (
   const fetchMessages = useCallback(async () => {
     try {
       const response = await fetch(
-        `${apiUrl}/api/conversations/${conversationId}/messages?page=${page}?limit=${messageLimit}`,
+        `${apiUrl}/conversations/${conversationId}/messages?page=${page}?limit=${messageLimit}`,
         { credentials: "include" }
       );
 

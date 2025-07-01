@@ -344,7 +344,7 @@ export const useCompanySignup = (props: UseCompanySignupProps = {}) => {
       await retryWithBackoff(
         async () => {
           const response = await fetch(
-            `${apiUrl}/api/auth/validate-company-signup`,
+            `${apiUrl}/auth/validate-company-signup`,
             {
               method: "POST",
               headers: {
@@ -432,7 +432,7 @@ export const useCompanySignup = (props: UseCompanySignupProps = {}) => {
       await retryWithBackoff(
         async () => {
           const response = await fetch(
-            `${apiUrl}/api/auth/validate-company-signup`,
+            `${apiUrl}/auth/validate-company-signup`,
             {
               method: "POST",
               headers: {
@@ -548,7 +548,7 @@ export const useCompanySignup = (props: UseCompanySignupProps = {}) => {
     try {
       const data = await retryWithBackoff(
         async () => {
-          const response = await fetch(`${apiUrl}/api/auth/company-signup`, {
+          const response = await fetch(`${apiUrl}/auth/company-signup`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

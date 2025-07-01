@@ -243,7 +243,7 @@ Allow: /category/
 
 # Disallow admin and private areas
 Disallow: /admin/
-Disallow: /api/
+Disallow: /
 Disallow: /private/
 Disallow: /*.json$
 Disallow: /*?*sort=
@@ -291,7 +291,7 @@ Allow: /`;
   > {
     // #TODO: Replace with actual API call
     try {
-      const response = await fetch("/api/cars/sitemap");
+      const response = await fetch("/cars/sitemap");
       if (!response.ok) throw new Error("Failed to fetch car listings");
       return await response.json();
     } catch {
@@ -305,7 +305,7 @@ Allow: /`;
   private async fetchCompanies(): Promise<{ id: string; updatedAt: string }[]> {
     // #TODO: Replace with actual API call
     try {
-      const response = await fetch("/api/companies/sitemap");
+      const response = await fetch("/companies/sitemap");
       if (!response.ok) throw new Error("Failed to fetch companies");
       return await response.json();
     } catch {
@@ -329,7 +329,7 @@ Allow: /`;
     ];
 
     try {
-      const response = await fetch("/api/categories/sitemap");
+      const response = await fetch("/categories/sitemap");
       if (!response.ok) throw new Error("Failed to fetch categories");
       return await response.json();
     } catch {

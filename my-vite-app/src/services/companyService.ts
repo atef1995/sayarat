@@ -14,7 +14,7 @@ const { apiUrl } = loadApiConfig();
 
 export class CompanyService {
   static async getCompanyProfile(): Promise<Company> {
-    const response = await fetch(`${apiUrl}/api/company/profile`, {
+    const response = await fetch(`${apiUrl}/company/profile`, {
       credentials: "include",
     });
 
@@ -33,7 +33,7 @@ export class CompanyService {
   static async updateCompanyProfile(
     updateData: CompanyUpdateRequest
   ): Promise<Company> {
-    const response = await fetch(`${apiUrl}/api/company/update`, {
+    const response = await fetch(`${apiUrl}/company/update`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -75,7 +75,7 @@ export class CompanyService {
         type: formData.get("type"),
       });
 
-      const response = await fetch(`${apiUrl}/api/company/upload-image`, {
+      const response = await fetch(`${apiUrl}/company/upload-image`, {
         method: "POST",
         credentials: "include",
         body: formData,
@@ -114,7 +114,7 @@ export class CompanyService {
     }
   }
   static async getCompanyStats(): Promise<CompanyStats> {
-    const response = await fetch(`${apiUrl}/api/company/stats`, {
+    const response = await fetch(`${apiUrl}/company/stats`, {
       credentials: "include",
     });
 
@@ -133,7 +133,7 @@ export class CompanyService {
     return data.stats;
   }
   static async getCompanyAnalytics(): Promise<CompanyAnalytics> {
-    const response = await fetch(`${apiUrl}/api/company/analytics`, {
+    const response = await fetch(`${apiUrl}/company/analytics`, {
       credentials: "include",
     });
 
@@ -155,7 +155,7 @@ export class CompanyService {
   }
 
   static async getCompanyMembers(): Promise<CompanyMember[]> {
-    const response = await fetch(`${apiUrl}/api/company/members`, {
+    const response = await fetch(`${apiUrl}/company/members`, {
       credentials: "include",
     });
 
@@ -178,7 +178,7 @@ export class CompanyService {
   static async addCompanyMember(
     memberData: AddCompanyMemberRequest
   ): Promise<CompanyMember> {
-    const response = await fetch(`${apiUrl}/api/company/members`, {
+    const response = await fetch(`${apiUrl}/company/members`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -221,7 +221,7 @@ export class CompanyService {
     };
   }
   static async removeCompanyMember(memberId: number): Promise<void> {
-    const response = await fetch(`${apiUrl}/api/company/members/${memberId}`, {
+    const response = await fetch(`${apiUrl}/company/members/${memberId}`, {
       method: "DELETE",
       credentials: "include",
     });

@@ -32,7 +32,7 @@ export const fetchCarMakes = async () => {
     }));
   }
 
-  const res = await fetch(`${API_URL}/api/makes`, {
+  const res = await fetch(`${API_URL}/makes`, {
     headers: {
       "Content-type": "application/json",
       accept: "application/json",
@@ -87,7 +87,7 @@ export const fetchCarModels = async (
     formattedMakes = makes.join(",");
   }
 
-  const res = await fetch(`${API_URL}/api/models?makes=${formattedMakes}`, {
+  const res = await fetch(`${API_URL}/models?makes=${formattedMakes}`, {
     headers: {
       "Content-type": "application/json",
       accept: "application/json",
@@ -107,7 +107,7 @@ export const fetchCarModels = async (
   return data;
 };
 
-export const fetchListings = async (endpoint: string = "/api/listings") => {
+export const fetchListings = async (endpoint: string = "/listings") => {
   console.log("Fetching listings from endpoint:", API_URL + endpoint);
 
   const response = await fetch(`${API_URL}${endpoint}`, {
@@ -137,7 +137,7 @@ export const fetchListingsByUsername = async (username: string) => {
     throw new Error("Invalid username");
   }
 
-  const res = await fetch(`${API_URL}/api/listings/username/${username}`, {
+  const res = await fetch(`${API_URL}/listings/username/${username}`, {
     headers: {
       "Content-type": "application/json",
       accept: "application/json",
@@ -183,7 +183,7 @@ export const fetchImagesById = async (id: number) => {
 };
 
 export const fetchListingsByUserId = async () => {
-  const res = await fetch(`${API_URL}/api/listings/user-listings`, {
+  const res = await fetch(`${API_URL}/listings/user-listings`, {
     method: "POST",
     headers: {
       "Content-type": "application/json",
@@ -203,7 +203,7 @@ export const fetchListingsByUserId = async () => {
 };
 
 export const fetchSomeCarDetailsById = async (id: CarInfo["id"]) => {
-  const res = await fetch(`${API_URL}/api/listings/some-listing/${id}`, {
+  const res = await fetch(`${API_URL}/listings/some-listing/${id}`, {
     headers: {
       "Content-type": "application/json",
       accept: "application/json",
@@ -231,7 +231,7 @@ export const fetchListingById = async (
   id: CarInfo["id"]
 ): Promise<ListingInfo> => {
   try {
-    const res = await fetch(`${API_URL}/api/listings/get-listing/${id}`, {
+    const res = await fetch(`${API_URL}/listings/get-listing/${id}`, {
       headers: {
         "Content-type": "application/json",
         accept: "application/json",
@@ -281,7 +281,7 @@ export const fetchListingByIdLegacy = async (id: CarInfo["id"]) => {
 };
 
 export const deleteListingById = async (id: CarInfo["id"], reason: string) => {
-  const res = await fetch(`${API_URL}/api/listings/delete-listing/${id}`, {
+  const res = await fetch(`${API_URL}/listings/delete-listing/${id}`, {
     method: "DELETE",
     credentials: "include",
     headers: {

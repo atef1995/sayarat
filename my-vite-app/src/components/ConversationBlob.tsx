@@ -21,14 +21,11 @@ const ConversationBlob = ({
 }: ConversationProps) => {
   const navigate = useNavigate();
   const handleConversationClick = async (conversationId: string) => {
-    const res = await fetch(
-      `${apiUrl}/api/conversations/${conversationId}/read`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-      }
-    );
+    const res = await fetch(`${apiUrl}/conversations/${conversationId}/read`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+    });
 
     if (!res.ok) throw new Error("Failed to mark conversation as read");
 

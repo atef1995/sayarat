@@ -63,7 +63,7 @@ const apiRequest = async <T>(
       },
     };
 
-    const response = await fetch(`${apiUrl}/api/blog${endpoint}`, config);
+    const response = await fetch(`${apiUrl}/blog${endpoint}`, config);
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -336,14 +336,14 @@ export const uploadBlogImage = async (
  * Get a single blog post by ID or slug
  */
 const getPost = async (identifier: string): Promise<BlogPostResponse> => {
-  return apiRequest<BlogPostResponse>(`/api/blog/posts/${identifier}`);
+  return apiRequest<BlogPostResponse>(`/blog/posts/${identifier}`);
 };
 
 /**
  * Track a blog post view
  */
 const trackView = async (postId: string): Promise<{ success: boolean }> => {
-  return apiRequest<{ success: boolean }>(`/api/blog/posts/${postId}/view`, {
+  return apiRequest<{ success: boolean }>(`/blog/posts/${postId}/view`, {
     method: "POST",
   });
 };
@@ -355,7 +355,7 @@ const toggleLike = async (
   postId: string
 ): Promise<{ success: boolean; action: string }> => {
   return apiRequest<{ success: boolean; action: string }>(
-    `/api/blog/posts/${postId}/like`,
+    `/blog/posts/${postId}/like`,
     {
       method: "POST",
     }

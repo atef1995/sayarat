@@ -8,7 +8,7 @@ interface Message {
 
 export const fetchUnreadMessagesCount = async (): Promise<number> => {
   try {
-    const response = await fetch(`${apiUrl}/api/conversations/unread`, {
+    const response = await fetch(`${apiUrl}/conversations/unread`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

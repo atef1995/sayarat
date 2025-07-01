@@ -55,7 +55,7 @@ const CompanyImageManager: React.FC<CompanyImageManagerProps> = ({
     try {
       const { apiUrl } = loadApiConfig();
 
-      const response = await fetch(`${apiUrl}/api/company/profile`, {
+      const response = await fetch(`${apiUrl}/company/profile`, {
         credentials: "include",
       });
 

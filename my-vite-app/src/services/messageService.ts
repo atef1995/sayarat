@@ -64,7 +64,7 @@ export interface Message {
  * Handles messaging operations with enhanced company member management
  */
 class MessageService {
-  private baseUrl = `${apiUrl}/api/messages`;
+  private baseUrl = `${apiUrl}/messages`;
 
   /**
    * Handle fetch requests with error handling
@@ -286,7 +286,7 @@ class MessageService {
   }> {
     try {
       const response = await this.fetchWithCredentials(
-        `${apiUrl}/api/company/stats/enhanced`
+        `${apiUrl}/company/stats/enhanced`
       );
       return await response.json();
     } catch (error) {

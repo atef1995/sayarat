@@ -15,7 +15,7 @@ const ResetPasswordReq: React.FC = () => {
 
     try {
       // Replace with your actual API call
-      const response = await fetch(`${apiUrl}/api/reset-password-request`, {
+      const response = await fetch(`${apiUrl}/reset-password-request`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

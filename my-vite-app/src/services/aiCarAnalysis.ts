@@ -62,7 +62,7 @@ export const analyzeCarImage = async (
       formData.append("mileage", mileage.toString());
     }
 
-    const response = await fetch(`${apiUrl}/api/ai/analyze-car`, {
+    const response = await fetch(`${apiUrl}/ai/analyze-car`, {
       method: "POST",
       credentials: "include",
       body: formData,
