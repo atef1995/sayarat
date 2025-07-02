@@ -118,8 +118,6 @@ services:
       VITE_API_ENDPOINT: ${VITE_API_ENDPOINT}
       VITE_STRIPE_PUBLIC_KEY: ${VITE_STRIPE_PUBLIC_KEY}
       VITE_STRIPE_SECRET_KEY: ${VITE_STRIPE_SECRET_KEY}
-    ports:
-      - "8080:80"
     depends_on:
       backend:
         condition: service_healthy
