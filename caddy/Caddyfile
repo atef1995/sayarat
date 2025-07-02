@@ -1,0 +1,9 @@
+sayarat.autos, www.sayarat.autos { # Proxy all requests to frontend by default
+reverse_proxy frontend:80
+
+    # Proxy API requests to backend
+    handle_path /api/* {
+        reverse_proxy backend:5000
+    }
+
+}
