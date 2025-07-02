@@ -63,6 +63,28 @@ docker compose -f docker-compose.cloud.yml run --rm certbot
 if [ $? -eq 0 ]; then
     print_status "✅ SSL certificates obtained successfully!"
     
+    print_status "Step 3.5: Creating SSL configuration files..."
+    # Create options-ssl-nginx.conf
+    docker compose -f docker-compose.cloud.yml exec nginx sh -c "
+    mkdir -p /etc/letsencrypt
+    cat > /etc/letsencrypt/options-ssl-nginx.conf << 'EOF'
+# This file contains important security parameters.
+ssl_session_cache shared:le_nginx_SSL:10m;
+ssl_session_timeout 1440m;
+ssl_session_tickets off;
+
+ssl_protocols TLSv1.2 TLSv1.3;
+ssl_prefer_server_ciphers off;
+
+ssl_ciphers 'ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384';
+EOF
+    " 2>/dev/null || print_warning "Could not create options-ssl-nginx.conf, using defaults"
+    
+    # Create ssl-dhparams.pem
+    docker compose -f docker-compose.cloud.yml exec nginx sh -c "
+    openssl dhparam -out /etc/letsencrypt/ssl-dhparams.pem 2048 2>/dev/null
+    " 2>/dev/null || print_warning "Could not create ssl-dhparams.pem, using defaults"
+    
     print_status "Step 4: Switching to SSL configuration..."
     if [ -f "nginx/nginx-ssl.conf.backup" ]; then
         cp nginx/nginx-ssl.conf.backup nginx/nginx.conf
