@@ -58,7 +58,7 @@ if [ ! -f "nginx/certbot/conf/live/sayarat.autos/fullchain.pem" ]; then
     fi
 fi
 
-docker-compose -f docker-compose.cloud.yml up --build -d
+docker compose -f docker-compose.cloud.yml up --build -d
 
 print_status "Waiting for services to start..."
 sleep 30
@@ -66,28 +66,28 @@ sleep 30
 print_status "Checking service health..."
 
 # Check Redis
-if docker-compose -f docker-compose.cloud.yml ps redis | grep -q "Up"; then
+if docker compose -f docker-compose.cloud.yml ps redis | grep -q "Up"; then
     print_status "✅ Redis is running"
 else
     print_warning "⚠️  Redis health check failed"
 fi
 
 # Check Backend
-if docker-compose -f docker-compose.cloud.yml ps backend | grep -q "Up"; then
+if docker compose -f docker-compose.cloud.yml ps backend | grep -q "Up"; then
     print_status "✅ Backend is running"
 else
     print_warning "⚠️  Backend health check failed"
 fi
 
 # Check Frontend
-if docker-compose -f docker-compose.cloud.yml ps frontend | grep -q "Up"; then
+if docker compose -f docker-compose.cloud.yml ps frontend | grep -q "Up"; then
     print_status "✅ Frontend is running"
 else
     print_warning "⚠️  Frontend health check failed"
 fi
 
 # Check Nginx
-if docker-compose -f docker-compose.cloud.yml ps nginx | grep -q "Up"; then
+if docker compose -f docker-compose.cloud.yml ps nginx | grep -q "Up"; then
     print_status "✅ Nginx is running"
 else
     print_warning "⚠️  Nginx health check failed"
@@ -114,7 +114,7 @@ fi
 print_status "  Redis: localhost:6379"
 
 print_status "To view logs, run:"
-print_status "  docker-compose -f docker-compose.cloud.yml logs -f"
+print_status "  docker compose -f docker-compose.cloud.yml logs -f"
 
 print_status "To stop services, run:"
-print_status "  docker-compose -f docker-compose.cloud.yml down"
+print_status "  docker compose -f docker-compose.cloud.yml down"
