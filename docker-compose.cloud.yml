@@ -134,7 +134,9 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/certbot/conf:/etc/letsencrypt
+      - ./nginx/certbot/www:/var/www/certbot
       - ./my-vite-app/dist:/usr/share/nginx/html:ro
     depends_on:
       frontend:
@@ -150,7 +152,7 @@ services:
       - ./nginx/certbot/www:/var/www/certbot
     entrypoint: >
       sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
-      --email your@email.com --agree-tos --no-eff-email
+      --email atefcodes@gmail.com --agree-tos --no-eff-email
       -d sayarat.autos -d www.sayarat.autos"
 
 networks:
