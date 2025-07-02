@@ -121,6 +121,8 @@ services:
         condition: service_healthy
     networks:
       - cars-bids-network
+    expose:
+      - "80"
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost || exit 1"]
       interval: 30s
@@ -137,9 +139,10 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
-      - ./my-vite-app/dist:/usr/share/nginx/html:ro
     depends_on:
       frontend:
+        condition: service_healthy
+      backend:
         condition: service_healthy
     networks:
       - cars-bids-network
@@ -150,10 +153,9 @@ services:
     volumes:
       - ./nginx/certbot/conf:/etc/letsencrypt
       - ./nginx/certbot/www:/var/www/certbot
-    entrypoint: >
-      sh -c "certbot certonly --webroot --webroot-path=/var/www/certbot
-      --email atefcodes@gmail.com --agree-tos --no-eff-email
-      -d sayarat.autos -d www.sayarat.autos"
+    command: certonly --webroot --webroot-path=/var/www/certbot --email atefcodes@gmail.com --agree-tos --no-eff-email -d sayarat.autos -d www.sayarat.autos
+    depends_on:
+      - nginx
 
 networks:
   cars-bids-network:

@@ -79,10 +79,17 @@ else
     print_warning "⚠️  Frontend health check failed"
 fi
 
+# Check Nginx
+if docker-compose -f docker-compose.cloud.yml ps nginx | grep -q "Up"; then
+    print_status "✅ Nginx is running"
+else
+    print_warning "⚠️  Nginx health check failed"
+fi
+
 print_status "🎉 Deployment completed!"
 print_status "Access your application at:"
-print_status "  Frontend: http://localhost"
-print_status "  Backend API: http://localhost:3000"
+print_status "  Frontend: https://sayarat.autos"
+print_status "  Backend API: https://sayarat.autos/api"
 print_status "  Redis: localhost:6379"
 
 print_status "To view logs, run:"
@@ -90,3 +97,6 @@ print_status "  docker-compose -f docker-compose.cloud.yml logs -f"
 
 print_status "To stop services, run:"
 print_status "  docker-compose -f docker-compose.cloud.yml down"
+
+print_status "To set up SSL certificates (first time only), run:"
+print_status "  chmod +x setup-ssl.sh && ./setup-ssl.sh"
