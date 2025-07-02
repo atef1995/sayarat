@@ -46,9 +46,6 @@ if [ ! -f "backend/ca.pem" ]; then
     exit 1
 fi
 
-print_status "Testing cloud database connection..."
-cd backend && node scripts/test-db-connection.js
-cd ..
 
 print_status "Building and starting containers (HTTP mode first)..."
 # Use HTTP-only config initially if SSL certs don't exist
