@@ -10,7 +10,7 @@ import { ApiResponse } from "../types/api.types";
 import { ListingTransformer, ListingError } from "../utils/listingTransform";
 import { loadApiConfig } from "../config/apiConfig";
 
-const { apiUrl: API_URL, stripePublicKey, stripeSecretKey } = loadApiConfig();
+const { apiUrl: API_URL } = loadApiConfig();
 
 console.log("API URL:", API_URL);
 
