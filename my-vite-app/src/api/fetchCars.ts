@@ -13,8 +13,6 @@ import { loadApiConfig } from "../config/apiConfig";
 const { apiUrl: API_URL, stripePublicKey, stripeSecretKey } = loadApiConfig();
 
 console.log("API URL:", API_URL);
-console.log("Stripe Public Key:", stripePublicKey);
-console.log("Stripe Secret Key:", stripeSecretKey);
 
 const makesCache = new DbCache<string[]>();
 

@@ -94,7 +94,6 @@ app.use(
 
 // Debug middleware to log all requests
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
   logger.info(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
   next();
 });
@@ -187,7 +186,7 @@ app.get('/health', (req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logger.error(err.stack);
   res.status(500).json({
     error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
   });
@@ -195,9 +194,9 @@ app.use((err, req, res, next) => {
 
 // Graceful shutdown
 process.on('SIGTERM', () => {
-  console.info('SIGTERM signal received.');
+  logger.info('SIGTERM signal received.');
   app.close(() => {
-    console.log('Server closed.');
+    logger.info('Server closed.');
     process.exit(0);
   });
 });
