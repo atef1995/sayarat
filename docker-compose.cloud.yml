@@ -132,7 +132,7 @@ services:
     image: nginx:latest
     container_name: cars-bids-nginx
     volumes:
-      - ./my-vite-app/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./my-vite-app/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
       - ./my-vite-app/dist:/usr/share/nginx/html:ro
     ports:
       - "80:80"
