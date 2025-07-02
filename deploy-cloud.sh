@@ -113,6 +113,18 @@ fi
 
 print_status "  Redis: localhost:6379"
 
+print_status ""
+print_status "🔍 Troubleshooting - Test these URLs:"
+print_status "  Direct IP: http://$(curl -s ifconfig.me 2>/dev/null || echo 'YOUR_SERVER_IP')"
+print_status "  HTTP: http://sayarat.autos"
+print_status "  HTTPS: https://sayarat.autos"
+
+print_status ""
+print_status "💡 Quick diagnostics:"
+print_status "  Test HTTP: curl -I http://sayarat.autos"
+print_status "  Test HTTPS: curl -I https://sayarat.autos"
+print_status "  Check nginx config: docker compose -f docker-compose.cloud.yml exec nginx nginx -t"
+
 print_status "To view logs, run:"
 print_status "  docker compose -f docker-compose.cloud.yml logs -f"
 

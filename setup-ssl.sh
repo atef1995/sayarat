@@ -43,8 +43,8 @@ cp nginx/nginx-http.conf nginx/nginx.conf
 print_status "Using HTTP-only configuration"
 
 print_status "Step 2: Starting services with HTTP configuration..."
-docker-compose -f docker-compose.cloud.yml down || true
-docker-compose -f docker-compose.cloud.yml up -d redis backend frontend nginx
+docker compose -f docker-compose.cloud.yml down || true
+docker compose -f docker-compose.cloud.yml up -d redis backend frontend nginx
 
 print_status "Waiting for services to be ready..."
 sleep 30
@@ -58,7 +58,7 @@ else
 fi
 
 print_status "Step 3: Obtaining SSL certificates..."
-docker-compose -f docker-compose.cloud.yml run --rm certbot
+docker compose -f docker-compose.cloud.yml run --rm certbot
 
 if [ $? -eq 0 ]; then
     print_status "✅ SSL certificates obtained successfully!"
@@ -73,7 +73,7 @@ if [ $? -eq 0 ]; then
     fi
     
     print_status "Step 5: Restarting nginx with SSL..."
-    docker-compose -f docker-compose.cloud.yml restart nginx
+    docker compose -f docker-compose.cloud.yml restart nginx
     
     print_status "Waiting for nginx to restart..."
     sleep 10
@@ -103,5 +103,5 @@ print_status "Cleaning up..."
 rm -f nginx/nginx-ssl.conf.backup
 
 print_status "To renew certificates in the future, run:"
-print_status "  docker-compose -f docker-compose.cloud.yml run --rm certbot renew"
-print_status "  docker-compose -f docker-compose.cloud.yml restart nginx"
+print_status "  docker compose -f docker-compose.cloud.yml run --rm certbot renew"
+print_status "  docker compose -f docker-compose.cloud.yml restart nginx"
