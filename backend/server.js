@@ -30,6 +30,9 @@ const blogRouter = require('./routes/blog');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Trust proxy for proper IP detection when behind reverse proxy (Caddy)
+app.set('trust proxy', true);
+
 const { setupAutoExpire, setupAutoDeleteDisabledListings } = require('./service/autoExpireListings');
 const logger = require('./utils/logger');
 
@@ -87,6 +90,13 @@ app.use(
     }
   })
 );
+
+// Debug middleware to log all requests
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
+  logger.info(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
+  next();
+});
 
 // Session configuration
 app.use(
