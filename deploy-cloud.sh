@@ -50,7 +50,17 @@ print_status "Testing cloud database connection..."
 cd backend && node scripts/test-db-connection.js
 cd ..
 
-print_status "Building and starting containers..."
+print_status "Building and starting containers (HTTP mode first)..."
+# Use HTTP-only config initially if SSL certs don't exist
+if [ ! -f "nginx/certbot/conf/live/sayarat.autos/fullchain.pem" ]; then
+    print_warning "SSL certificates not found, starting in HTTP-only mode"
+    if [ -f "nginx/nginx-http.conf" ]; then
+        cp nginx/nginx.conf nginx/nginx-ssl.conf.temp 2>/dev/null || true
+        cp nginx/nginx-http.conf nginx/nginx.conf
+        print_status "Using HTTP-only configuration"
+    fi
+fi
+
 docker-compose -f docker-compose.cloud.yml up --build -d
 
 print_status "Waiting for services to start..."
@@ -87,9 +97,23 @@ else
 fi
 
 print_status "🎉 Deployment completed!"
-print_status "Access your application at:"
-print_status "  Frontend: https://sayarat.autos"
-print_status "  Backend API: https://sayarat.autos/api"
+
+# Check if SSL certificates exist
+if [ -f "nginx/certbot/conf/live/sayarat.autos/fullchain.pem" ]; then
+    print_status "✅ SSL certificates found - HTTPS is enabled"
+    print_status "Access your application at:"
+    print_status "  Frontend: https://sayarat.autos"
+    print_status "  Backend API: https://sayarat.autos/api"
+else
+    print_warning "⚠️  No SSL certificates found - running in HTTP mode"
+    print_status "Access your application at:"
+    print_status "  Frontend: http://sayarat.autos"
+    print_status "  Backend API: http://sayarat.autos/api"
+    print_status ""
+    print_status "🔐 To set up SSL certificates, run:"
+    print_status "  chmod +x setup-ssl.sh && ./setup-ssl.sh"
+fi
+
 print_status "  Redis: localhost:6379"
 
 print_status "To view logs, run:"
@@ -97,6 +121,3 @@ print_status "  docker-compose -f docker-compose.cloud.yml logs -f"
 
 print_status "To stop services, run:"
 print_status "  docker-compose -f docker-compose.cloud.yml down"
-
-print_status "To set up SSL certificates (first time only), run:"
-print_status "  chmod +x setup-ssl.sh && ./setup-ssl.sh"
