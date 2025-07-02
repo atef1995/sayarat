@@ -71,7 +71,8 @@ app.use(helmet());
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  message: 'Too many requests from this IP'
+  message: 'Too many requests from this IP',
+  trustProxy: 1 // Trust first proxy (Caddy)
 });
 app.use(globalLimiter);
 

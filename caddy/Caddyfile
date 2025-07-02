@@ -1,15 +1,15 @@
-sayarat.autos, www.sayarat.autos { # Enable access logging
-log {
-output stdout
-format console
-}
+sayarat.autos, www.sayarat.autos {
+    # Enable access logging
+    log {
+        output stdout
+        format console
+    }
 
-    # Proxy API requests to backend
-    handle_path /api/* {
+    # Proxy API requests to backend (keep /api prefix)
+    handle /api/* {
         reverse_proxy backend:5000
     }
 
     # Proxy all other requests to frontend
     reverse_proxy frontend:80
-
 }
