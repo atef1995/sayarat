@@ -18,11 +18,8 @@ RUN npm run build
 
 # Production stage
 FROM nginx:stable-alpine
-# Set working directory
-WORKDIR /usr/share/nginx/html
-
 # Copy built files from the build stage
-COPY --from=build /app/dist .
+COPY --from=build /app/dist /usr/share/nginx/html
 
 # Install curl for health checks (optional)
 RUN apk add --no-cache curl
