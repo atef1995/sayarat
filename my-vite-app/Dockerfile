@@ -31,7 +31,6 @@ RUN apk add --no-cache curl
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
-COPY nginx.conf /etc/nginx/nginx.conf
 
 # Use entrypoint script
 ENTRYPOINT ["/entrypoint.sh"]
