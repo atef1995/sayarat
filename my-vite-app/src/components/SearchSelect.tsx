@@ -31,7 +31,7 @@ interface SearchParams {
   model?: string[];
   carType?: string[];
   fuel?: string[];
-  gearbox?: string[];
+  transmission?: string[];
   location?: string[];
   price?: [number, number];
   carMileage?: [number, number];
@@ -186,7 +186,7 @@ const SearchSelect = ({ onSearch }: SearchSelectProps) => {
               key === "model" ||
               key === "carType" ||
               key === "fuel" ||
-              key === "gearbox" ||
+              key === "transmission" ||
               key === "location"
             ) {
               // Only these are true multi-select fields
@@ -590,7 +590,7 @@ const SearchSelect = ({ onSearch }: SearchSelectProps) => {
             </Form.Item>
           </Col>
           <Col span={4} xs={12} md={4} lg={4} className="space-y-1">
-            <Form.Item name="gearbox" label="ناقل الحركة">
+            <Form.Item name="transmission" label="ناقل الحركة">
               <Select
                 maxTagCount={1}
                 mode="multiple"
@@ -600,9 +600,9 @@ const SearchSelect = ({ onSearch }: SearchSelectProps) => {
                 onChange={handleGearboxChange}
                 options={data.gearbox.map((car) => {
                   const gear = Object.keys(car)[0];
-                  const gearValue = Object.keys(car)[0];
+                  // const gearValue = Object.keys(car)[0];
 
-                  return { label: gear, value: gearValue };
+                  return { label: gear, value: gear };
                 })}
               />
             </Form.Item>

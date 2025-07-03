@@ -80,7 +80,7 @@ const validateSearchParameters = params => {
     currency: Joi.string().valid('usd', 'syp'),
     mileageRange: Joi.array().items(Joi.number().min(0)).length(2),
     color: Joi.string().valid(...data.colors),
-    gearbox: Joi.alternatives().try(
+    transmission: Joi.alternatives().try(
       Joi.string().valid('يدوي', 'اوتوماتيك'),
       Joi.array().items(Joi.string().valid('يدوي', 'اوتوماتيك'))
     ),

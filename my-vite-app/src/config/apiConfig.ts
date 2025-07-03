@@ -24,7 +24,7 @@ export function loadApiConfig(): ApiConfig {
 
   // In dev, use Vite env
   if (import.meta.env.DEV) {
-    apiUrl = import.meta.env.VITE_API_ENDPOINT || "http://localhost:5000";
+    apiUrl = import.meta.env.VITE_API_ENDPOINT || "http://localhost:5000/api";
     stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || "";
     stripeSecretKey = import.meta.env.VITE_STRIPE_SECRET_KEY || "";
   }
