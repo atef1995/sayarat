@@ -35,6 +35,7 @@ import PrivacyPolicy from "./components/PrivacyPolicy.tsx";
 import { App as AntdApp, ConfigProvider, theme } from "antd";
 import Payment from "./components/Payment.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
+import BlogDetail from "./components/blog/BlogDetail.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -278,6 +279,14 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <MyLayout>
                     <BlogPage />
+                  </MyLayout>
+                }
+              />
+              <Route
+                path="/blog/:slug/:id"
+                element={
+                  <MyLayout>
+                    <BlogDetail />
                   </MyLayout>
                 }
               />

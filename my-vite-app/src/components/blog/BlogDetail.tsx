@@ -36,7 +36,7 @@ import "./BlogDetail.css";
 const { Title, Paragraph, Text } = Typography;
 
 const BlogDetail: React.FC = () => {
-  const { id } = useParams<{ id: string }>();
+  const { id, slug } = useParams<{ id: string; slug: BlogPost["slug"] }>();
   const navigate = useNavigate();
   const [blog, setBlog] = useState<BlogPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -44,18 +44,25 @@ const BlogDetail: React.FC = () => {
   const [liked, setLiked] = useState(false);
 
   const fetchBlogPost = useCallback(
-    async (blogId: string) => {
+    async (identifier: string) => {
       try {
         setLoading(true);
-        const response = await blogService.getPost(blogId);
-        if (response.success && response.data) {
-          setBlog(response.data);
-          // Check if user has liked this post (you might want to implement user authentication)
-          // setLiked(response.data.userLiked);
+        let post: BlogPost;
+
+        // Use getBlogPost for slug-based retrieval, fallback to getPost for ID
+        if (slug) {
+          post = await blogService.getBlogPost(identifier);
         } else {
-          message.error("Failed to load blog post");
-          navigate("/blog");
+          const response = await blogService.getPost(identifier);
+          if (response.success && response.data) {
+            post = response.data;
+          } else {
+            throw new Error("Failed to load blog post");
+          }
         }
+
+        setBlog(post);
+        setLiked(post.is_liked || false);
       } catch (error) {
         console.error("Error fetching blog post:", error);
         message.error("Failed to load blog post");
@@ -64,16 +71,16 @@ const BlogDetail: React.FC = () => {
         setLoading(false);
       }
     },
-    [navigate]
+    [navigate, slug]
   );
 
   useEffect(() => {
-    if (id) {
-      fetchBlogPost(id);
+    if (id && slug) {
+      fetchBlogPost(slug);
       // Track view
       blogService.trackView(id).catch(console.error);
     }
-  }, [id, fetchBlogPost]);
+  }, [id, slug, fetchBlogPost]);
 
   const handleLike = async () => {
     if (!blog) return;

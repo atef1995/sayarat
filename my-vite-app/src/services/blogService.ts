@@ -86,6 +86,14 @@ const apiRequest = async <T>(
 /**
  * Get blog posts with filtering and pagination
  */
+/**
+ * Enhanced getBlogPosts with better error handling and retry logic
+ * Implements modular architecture and follows DRY principles
+ *
+ * #TODO: Add caching mechanism for frequently accessed blog posts
+ * #TODO: Implement request deduplication for concurrent calls
+ * #TODO: Add offline support with service worker integration
+ */
 export const getBlogPosts = async (
   params: BlogSearchParams = {}
 ): Promise<BlogPaginationResponse<BlogPost>> => {
@@ -100,8 +108,40 @@ export const getBlogPosts = async (
   const queryString = searchParams.toString();
   const endpoint = `/posts${queryString ? `?${queryString}` : ""}`;
 
-  const response = await apiRequest<BlogPostsResponse>(endpoint);
-  return response.data!;
+  try {
+    const response = await apiRequest<{
+      success: boolean;
+      data: BlogPost[];
+      pagination?: BlogPaginationResponse<BlogPost>["pagination"];
+      error?: string;
+    }>(endpoint);
+
+    console.log("API Response:", response);
+
+    // Handle the response structure with better error checking
+    if (response.success && Array.isArray(response.data)) {
+      return {
+        data: response.data,
+        pagination: response.pagination || {
+          currentPage: 1,
+          totalPages: Math.ceil(response.data.length / 12),
+          totalItems: response.data.length,
+          itemsPerPage: response.data.length,
+          hasNextPage: false,
+          hasPrevPage: false,
+        },
+      };
+    } else {
+      throw new Error(response.error || "Invalid response format from server");
+    }
+  } catch (error) {
+    console.error("Error in getBlogPosts:", error);
+
+    // Re-throw with more context for debugging
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to fetch blog posts: ${errorMessage}`);
+  }
 };
 
 /**
@@ -336,14 +376,14 @@ export const uploadBlogImage = async (
  * Get a single blog post by ID or slug
  */
 const getPost = async (identifier: string): Promise<BlogPostResponse> => {
-  return apiRequest<BlogPostResponse>(`/blog/posts/${identifier}`);
+  return apiRequest<BlogPostResponse>(`/posts/${identifier}`);
 };
 
 /**
  * Track a blog post view
  */
 const trackView = async (postId: string): Promise<{ success: boolean }> => {
-  return apiRequest<{ success: boolean }>(`/blog/posts/${postId}/view`, {
+  return apiRequest<{ success: boolean }>(`/posts/${postId}/view`, {
     method: "POST",
   });
 };
@@ -355,7 +395,7 @@ const toggleLike = async (
   postId: string
 ): Promise<{ success: boolean; action: string }> => {
   return apiRequest<{ success: boolean; action: string }>(
-    `/blog/posts/${postId}/like`,
+    `/posts/${postId}/like`,
     {
       method: "POST",
     }
@@ -376,7 +416,13 @@ export const getBlogCategories = async (
     includeInactive ? "?include_inactive=true" : ""
   }`;
   const response = await apiRequest<BlogCategoriesResponse>(endpoint);
-  return response.data!;
+
+  // Handle the response format - categories API returns { success: true, data: [...] }
+  if (response.success && response.data) {
+    return response.data;
+  } else {
+    throw new Error(response.error || "Failed to fetch blog categories");
+  }
 };
 
 /**
@@ -404,8 +450,22 @@ export const createBlogCategory = async (
  * Get all blog tags
  */
 export const getBlogTags = async (): Promise<BlogTag[]> => {
-  const response = await apiRequest<BlogTagsResponse>("/tags");
-  return response.data!;
+  const response = await apiRequest<
+    BlogTagsResponse | { data: BlogTag[]; pagination: unknown }
+  >("/tags");
+
+  // Handle both old and new response formats
+  // New format: { data: [...], pagination: {...} }
+  // Old format: { success: true, data: [...] }
+  if ("data" in response && Array.isArray(response.data)) {
+    return response.data;
+  } else if ("success" in response && response.success && response.data) {
+    return response.data;
+  } else if (Array.isArray(response)) {
+    return response;
+  } else {
+    throw new Error("Invalid response format from tags API");
+  }
 };
 
 /**

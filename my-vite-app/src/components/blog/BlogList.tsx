@@ -29,6 +29,8 @@ const BlogList: React.FC<BlogListProps> = ({
   onPostClick,
   className = "",
 }) => {
+  console.log({ posts });
+
   /**
    * Handle pagination change
    */
@@ -121,16 +123,16 @@ const BlogList: React.FC<BlogListProps> = ({
    * Render pagination component
    */
   const renderPagination = () => {
-    if (!showPagination || !pagination || pagination.total_pages <= 1) {
+    if (!showPagination || !pagination || pagination.totalPages <= 1) {
       return null;
     }
 
     return (
       <div className="blog-list-pagination">
         <Pagination
-          current={pagination.current_page}
-          total={pagination.total}
-          pageSize={pagination.per_page}
+          current={pagination.currentPage}
+          total={pagination.totalItems}
+          pageSize={pagination.itemsPerPage}
           showSizeChanger={false}
           showQuickJumper
           showTotal={(total, range) =>

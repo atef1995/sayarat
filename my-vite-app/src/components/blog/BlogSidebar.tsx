@@ -216,10 +216,10 @@ const BlogSidebar: React.FC<
   return (
     <div className={`blog-sidebar ${className}`}>
       <Space direction="vertical" size="large">
-        {categories.length > 0 && renderCategories()}
-        {tags.length > 0 && renderTags()}
-        {recentPosts.length > 0 && renderRecentPosts()}
-        {popularPosts.length > 0 && renderPopularPosts()}
+        {categories?.length > 0 && renderCategories()}
+        {tags?.length > 0 && renderTags()}
+        {recentPosts?.length > 0 && renderRecentPosts()}
+        {popularPosts?.length > 0 && renderPopularPosts()}
       </Space>
     </div>
   );

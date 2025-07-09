@@ -328,7 +328,7 @@ const BlogComments: React.FC<BlogCommentsProps> = ({ blogId }) => {
 
   return (
     <CommentErrorBoundary>
-      <Card title={`Comments (${comments.length})`} style={{ marginTop: 24 }}>
+      <Card title={`Comments (${comments?.length})`} style={{ marginTop: 24 }}>
         {/* Add Comment Form */}
         {!replyingTo && (
           <div className="comment-form-container">

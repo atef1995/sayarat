@@ -35,6 +35,7 @@ import blogService from "../services/blogService";
 import { BlogList, BlogSidebar, FeaturedBlogs } from "../components/blog";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import "./BlogPage.css";
+import { useNavigate } from "react-router";
 
 const { Title, Text } = Typography;
 const { Search } = Input;
@@ -77,6 +78,8 @@ const useBlogPage = () => {
       };
 
       const response = await blogService.getBlogPosts(params);
+      console.log("Fetched posts:", response);
+
       setPosts(response.data);
       setPagination(response.pagination);
     } catch (error) {
@@ -180,7 +183,7 @@ const BlogPage: React.FC = () => {
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-
+  const navigate = useNavigate();
   const {
     posts,
     categories,
@@ -259,6 +262,7 @@ const BlogPage: React.FC = () => {
   const handlePostClick = (post: BlogPost) => {
     // #TODO: Navigate to blog post detail page
     console.log("Navigate to post:", post.slug);
+    navigate(`/blog/${post.slug}/${post.id}`);
   };
 
   /**
@@ -331,7 +335,7 @@ const BlogPage: React.FC = () => {
       </div>
 
       {/* Featured Posts Section */}
-      {featuredPosts.length > 0 && !hasActiveFilters && (
+      {featuredPosts?.length > 0 && !hasActiveFilters && (
         <div className="blog-page-featured">
           <div className="container">
             <FeaturedBlogs
