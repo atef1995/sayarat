@@ -3,25 +3,22 @@
  * Creates all necessary tables for the blog system
  */
 
-exports.up = function(knex) {
-  return knex.schema;
+exports.up = function (knex) {
+  return knex.schema
+    .createTable('blog_categories', table => {
+      table.increments('id').primary();
+      table.string('name', 100).notNullable();
+      table.string('slug', 150).notNullable().unique();
+      table.text('description');
+      table.string('color', 7).defaultTo('#1890ff');
+      table.string('icon', 50).defaultTo('FileTextOutlined');
+      table.boolean('is_active').defaultTo(true);
+      table.integer('posts_count').defaultTo(0);
+      table.timestamps(true, true);
 
-  table.foreign('post_id').references('id').inTable('blog_posts').onDelete('CASCADE');
-  table.foreign('user_id').references('id').inTable('sellers').onDelete('SET NULL');
-  reateTable('blog_categories', table => {
-    table.increments('id').primary();
-    table.string('name', 100).notNullable();
-    table.string('slug', 150).notNullable().unique();
-    table.text('description');
-    table.string('color', 7).defaultTo('#1890ff');
-    table.string('icon', 50).defaultTo('FileTextOutlined');
-    table.boolean('is_active').defaultTo(true);
-    table.integer('posts_count').defaultTo(0);
-    table.timestamps(true, true);
-
-    table.index('slug');
-    table.index('is_active');
-  })
+      table.index('slug');
+      table.index('is_active');
+    })
     .createTable('blog_tags', table => {
       table.increments('id').primary();
       table.string('name', 50).notNullable();
@@ -32,7 +29,6 @@ exports.up = function(knex) {
 
       table.index('slug');
     })
-
     .createTable('blog_posts', table => {
       table.increments('id').primary();
       table.string('title', 200).notNullable();
@@ -40,7 +36,7 @@ exports.up = function(knex) {
       table.text('content').notNullable();
       table.text('excerpt');
       table.string('featured_image', 500);
-      table.integer('author_id').unsigned().notNullable();
+      table.uuid('author_id').notNullable();
       table.integer('category_id').unsigned().notNullable();
       table.enum('status', ['draft', 'published', 'scheduled', 'archived']).defaultTo('draft');
       table.boolean('is_featured').defaultTo(false);
@@ -52,7 +48,7 @@ exports.up = function(knex) {
       table.integer('comments_count').defaultTo(0);
       table.timestamps(true, true);
       table.timestamp('published_at');
-      table.timestamp('scheduled_for');
+      table.timestamp('scheduled_at'); // Fixed column name
 
       // Car-specific fields
       table.string('car_make', 100);
@@ -79,13 +75,12 @@ exports.up = function(knex) {
       table.index(['published_at', 'status']);
       table.index('is_featured');
       table.index(['car_make', 'car_model']);
-      table.index('scheduled_for');
+      table.index('scheduled_at');
 
       // Foreign keys
       table.foreign('author_id').references('id').inTable('sellers').onDelete('CASCADE');
       table.foreign('category_id').references('id').inTable('blog_categories').onDelete('RESTRICT');
     })
-
     .createTable('blog_post_tags', table => {
       table.increments('id').primary();
       table.integer('post_id').unsigned().notNullable();
@@ -103,7 +98,7 @@ exports.up = function(knex) {
     .createTable('blog_comments', table => {
       table.increments('id').primary();
       table.integer('post_id').unsigned().notNullable();
-      table.integer('author_id').unsigned().notNullable();
+      table.uuid('author_id').notNullable();
       table.integer('parent_id').unsigned();
       table.text('content').notNullable();
       table.enum('status', ['approved', 'pending', 'spam']).defaultTo('pending');
@@ -125,7 +120,7 @@ exports.up = function(knex) {
     .createTable('blog_likes', table => {
       table.increments('id').primary();
       table.integer('post_id').unsigned().notNullable();
-      table.integer('user_id').unsigned().notNullable();
+      table.uuid('user_id').notNullable();
       table.timestamps(true, true);
 
       table.unique(['post_id', 'user_id']);
@@ -139,7 +134,7 @@ exports.up = function(knex) {
     .createTable('blog_views', table => {
       table.increments('id').primary();
       table.integer('post_id').unsigned().notNullable();
-      table.integer('user_id').unsigned();
+      table.uuid('user_id');
       table.string('ip_address', 45);
       table.timestamp('created_at').defaultTo(knex.fn.now());
 
@@ -357,7 +352,7 @@ exports.up = function(knex) {
     });
 };
 
-exports.down = function(knex) {
+exports.down = function (knex) {
   return knex.schema
     .dropTableIfExists('blog_content_moderation')
     .dropTableIfExists('blog_admin_activities')

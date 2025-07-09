@@ -6,7 +6,7 @@
  * Implements SOLID principles with single responsibility for analytics.
  */
 
-const blogService = require('../../service/blogService');
+const blogService = require('../../service/blog/index');
 const logger = require('../../utils/logger');
 
 /**
@@ -16,7 +16,7 @@ const logger = require('../../utils/logger');
 /**
  * Get blog statistics and analytics
  */
-const getBlogStats = async(req, res) => {
+const getBlogStats = async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d';
     const result = await blogService.getAnalytics(timeframe);
@@ -44,7 +44,7 @@ const getBlogStats = async(req, res) => {
 /**
  * Get blog analytics dashboard data (Admin only)
  */
-const getBlogAnalytics = async(req, res) => {
+const getBlogAnalytics = async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d';
     const includeDetails = req.query.details === 'true';
@@ -78,7 +78,7 @@ const getBlogAnalytics = async(req, res) => {
 /**
  * Get post performance metrics (Admin only)
  */
-const getPostAnalytics = async(req, res) => {
+const getPostAnalytics = async (req, res) => {
   try {
     const { id } = req.params;
     const timeframe = req.query.timeframe || '30d';
@@ -108,7 +108,7 @@ const getPostAnalytics = async(req, res) => {
 /**
  * Get top performing posts (Admin only)
  */
-const getTopPosts = async(req, res) => {
+const getTopPosts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 10;
     const timeframe = req.query.timeframe || '30d';
@@ -143,7 +143,7 @@ const getTopPosts = async(req, res) => {
 /**
  * Get popular search terms (Admin only)
  */
-const getSearchAnalytics = async(req, res) => {
+const getSearchAnalytics = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 20;
     const timeframe = req.query.timeframe || '30d';
@@ -177,7 +177,7 @@ const getSearchAnalytics = async(req, res) => {
 /**
  * Get user engagement analytics (Admin only)
  */
-const getUserEngagementAnalytics = async(req, res) => {
+const getUserEngagementAnalytics = async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d';
     const limit = parseInt(req.query.limit) || 50;
@@ -211,7 +211,7 @@ const getUserEngagementAnalytics = async(req, res) => {
 /**
  * Get category performance analytics (Admin only)
  */
-const getCategoryAnalytics = async(req, res) => {
+const getCategoryAnalytics = async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d';
 
@@ -240,7 +240,7 @@ const getCategoryAnalytics = async(req, res) => {
 /**
  * Get tag performance analytics (Admin only)
  */
-const getTagAnalytics = async(req, res) => {
+const getTagAnalytics = async (req, res) => {
   try {
     const timeframe = req.query.timeframe || '30d';
     const limit = parseInt(req.query.limit) || 20;
@@ -274,7 +274,7 @@ const getTagAnalytics = async(req, res) => {
 /**
  * Get real-time blog statistics (Admin only)
  */
-const getRealTimeStats = async(req, res) => {
+const getRealTimeStats = async (req, res) => {
   try {
     const result = await blogService.getRealTimeStats();
 
@@ -301,7 +301,7 @@ const getRealTimeStats = async(req, res) => {
 /**
  * Export analytics data (Admin only)
  */
-const exportAnalytics = async(req, res) => {
+const exportAnalytics = async (req, res) => {
   try {
     const { type, timeframe, format } = req.query;
     // type: 'posts', 'users', 'comments', 'categories', 'tags', 'all'

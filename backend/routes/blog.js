@@ -147,6 +147,9 @@ router.patch('/categories/:id/toggle-active', authenticateToken, requireAdmin, b
  * Tag Management Routes
  */
 
+// Get all tags
+router.get('/tags', blogController.getTags);
+
 // Get single tag by ID or slug
 router.get('/tags/:identifier', blogController.getTag);
 

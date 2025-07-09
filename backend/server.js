@@ -31,13 +31,15 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Trust proxy for proper IP detection when behind reverse proxy (Caddy)
-app.set('trust proxy', true);
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', true);
+}
 
 const { setupAutoExpire, setupAutoDeleteDisabledListings } = require('./service/autoExpireListings');
 const logger = require('./utils/logger');
 
 const knex = require('./config/database');
-const redisUrl = process.env.REDIS_URL;
+const redisUrl = process.env.NODE_ENV === 'production' ? process.env.REDIS_URL : 'redis://localhost:6379';
 logger.info(`Using Redis URL: ${redisUrl}`);
 // Initialize Redis client
 const redisClient = createClient({
@@ -91,12 +93,6 @@ app.use(
     }
   })
 );
-
-// Debug middleware to log all requests
-app.use((req, res, next) => {
-  logger.info(`${req.method} ${req.path} - Headers: ${JSON.stringify(req.headers)}`);
-  next();
-});
 
 // Session configuration
 app.use(

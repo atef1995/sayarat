@@ -7,6 +7,7 @@
  */
 
 const postController = require('./postController');
+const adminPostController = require('./adminPostController');
 const categoryController = require('./categoryController');
 const tagController = require('./tagController');
 const commentController = require('./commentController');
@@ -23,6 +24,7 @@ class BlogController {
   constructor() {
     // Initialize all controllers
     this.posts = postController;
+    this.adminPosts = adminPostController;
     this.categories = categoryController;
     this.tags = tagController;
     this.comments = commentController;
@@ -75,7 +77,7 @@ module.exports = {
 
   // Post Controllers
   getPosts: postController.getPosts,
-  getAllPosts: postController.getAllPosts,
+  getAllPosts: adminPostController.getAllPosts,
   getFeaturedPosts: postController.getFeaturedPosts,
   getTrendingPosts: postController.getTrendingPosts,
   getRecentPosts: postController.getRecentPosts,
@@ -84,14 +86,14 @@ module.exports = {
   getPostsByTag: postController.getPostsByTag,
   getPostsByAuthor: postController.getPostsByAuthor,
   searchPosts: postController.searchPosts,
-  createPost: postController.createPost,
-  updatePost: postController.updatePost,
-  deletePost: postController.deletePost,
-  bulkDeletePosts: postController.bulkDeletePosts,
-  publishPost: postController.publishPost,
-  unpublishPost: postController.unpublishPost,
-  schedulePost: postController.schedulePost,
-  toggleFeaturedPost: postController.toggleFeaturedPost,
+  createPost: adminPostController.createPost,
+  updatePost: adminPostController.updatePost,
+  deletePost: adminPostController.deletePost,
+  bulkDeletePosts: adminPostController.bulkDeletePosts,
+  publishPost: adminPostController.publishPost,
+  unpublishPost: adminPostController.unpublishPost,
+  schedulePost: adminPostController.schedulePost,
+  toggleFeaturedPost: adminPostController.toggleFeaturedPost,
   togglePostLike: postController.togglePostLike,
   trackPostView: postController.trackPostView,
 

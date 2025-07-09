@@ -6,7 +6,7 @@
  * with single responsibility for comments.
  */
 
-const blogService = require('../../service/blogService');
+const blogService = require('../../service/blog/index');
 const logger = require('../../utils/logger');
 
 /**
@@ -16,7 +16,7 @@ const logger = require('../../utils/logger');
 /**
  * Get comments for a specific blog post
  */
-const getPostComments = async(req, res) => {
+const getPostComments = async (req, res) => {
   try {
     const postId = req.params.id;
     const page = parseInt(req.query.page) || 1;
@@ -45,7 +45,7 @@ const getPostComments = async(req, res) => {
 /**
  * Add a comment to a blog post
  */
-const addPostComment = async(req, res) => {
+const addPostComment = async (req, res) => {
   try {
     const postId = req.params.id;
     const userId = req.user?.id;
@@ -90,7 +90,7 @@ const addPostComment = async(req, res) => {
 /**
  * Reply to a comment
  */
-const replyToComment = async(req, res) => {
+const replyToComment = async (req, res) => {
   try {
     const { id: parentCommentId } = req.params;
     const { content } = req.body;
@@ -128,7 +128,7 @@ const replyToComment = async(req, res) => {
 /**
  * Update a comment (User can only update their own comments)
  */
-const updateComment = async(req, res) => {
+const updateComment = async (req, res) => {
   try {
     const { id: commentId } = req.params;
     const { content } = req.body;
@@ -174,7 +174,7 @@ const updateComment = async(req, res) => {
 /**
  * Delete a comment (User can only delete their own comments)
  */
-const deleteComment = async(req, res) => {
+const deleteComment = async (req, res) => {
   try {
     const { id: commentId } = req.params;
     const userId = req.user.id;
@@ -222,7 +222,7 @@ const deleteComment = async(req, res) => {
 /**
  * Get all comments for admin panel (Admin only)
  */
-const getAllComments = async(req, res) => {
+const getAllComments = async (req, res) => {
   try {
     const searchParams = {
       page: parseInt(req.query.page) || 1,
@@ -260,7 +260,7 @@ const getAllComments = async(req, res) => {
 /**
  * Approve comment (Admin only)
  */
-const approveComment = async(req, res) => {
+const approveComment = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.approveComment(id);
@@ -295,7 +295,7 @@ const approveComment = async(req, res) => {
 /**
  * Disapprove comment (Admin only)
  */
-const disapproveComment = async(req, res) => {
+const disapproveComment = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.disapproveComment(id);
@@ -330,7 +330,7 @@ const disapproveComment = async(req, res) => {
 /**
  * Admin delete comment (Admin only)
  */
-const adminDeleteComment = async(req, res) => {
+const adminDeleteComment = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.adminDeleteComment(id);
@@ -364,7 +364,7 @@ const adminDeleteComment = async(req, res) => {
 /**
  * Bulk moderate comments (Admin only)
  */
-const bulkModerateComments = async(req, res) => {
+const bulkModerateComments = async (req, res) => {
   try {
     const { commentIds, action } = req.body; // action: 'approve', 'disapprove', 'delete'
     const adminId = req.user.id;

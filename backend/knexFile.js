@@ -1,6 +1,7 @@
+require('@dotenvx/dotenvx').config();
 const fs = require('fs');
 
-const pg = {
+const config = {
   development: {
     client: 'pg',
     connection: {
@@ -39,4 +40,4 @@ const pg = {
   }
 };
 
-module.exports = pg;
+module.exports = config;

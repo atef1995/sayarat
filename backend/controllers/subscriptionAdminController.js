@@ -59,7 +59,7 @@ const initializeAdminServices = dbConnection => {
 /**
  * Get sync service status and statistics
  */
-const getSyncStatus = async(req, res) => {
+const getSyncStatus = async (req, res) => {
   try {
     // #TODO: Add admin authentication check
     // if (!req.user?.isAdmin) {
@@ -99,7 +99,7 @@ const getSyncStatus = async(req, res) => {
 /**
  * Manually trigger subscription sync
  */
-const triggerSync = async(req, res) => {
+const triggerSync = async (req, res) => {
   try {
     // #TODO: Add admin authentication check
 
@@ -154,7 +154,7 @@ const triggerSync = async(req, res) => {
 /**
  * Monitor and discover new subscription plans
  */
-const monitorPlans = async(req, res) => {
+const monitorPlans = async (req, res) => {
   try {
     // #TODO: Add admin authentication check
 
@@ -195,7 +195,7 @@ const monitorPlans = async(req, res) => {
 /**
  * Control scheduler (start/stop/restart)
  */
-const controlScheduler = async(req, res) => {
+const controlScheduler = async (req, res) => {
   try {
     // #TODO: Add admin authentication check
 
@@ -261,7 +261,7 @@ const controlScheduler = async(req, res) => {
 /**
  * Get subscription analytics and insights
  */
-const getSubscriptionAnalytics = async(req, res) => {
+const getSubscriptionAnalytics = async (req, res) => {
   try {
     // #TODO: Add admin authentication check
 

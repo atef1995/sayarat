@@ -7,7 +7,8 @@
 
 const db = require('../../config/database');
 const logger = require('../../utils/logger');
-const { handleError, formatResponse } = require('./utils');
+const { postgresInterval } = require('./queryUtils');
+// const { handleError, formatResponse } = require('./utils'); // #TODO: Implement error handling utilities
 
 /**
  * Get featured blog posts
@@ -25,7 +26,7 @@ const getFeaturedPosts = async (limit = 5) => {
         'bp.featured_image',
         'bp.author_id',
         'u.username as author_name',
-        'u.avatar as author_avatar',
+        'u.picture as author_avatar',
         'bp.category_id',
         'bc.name as category_name',
         'bc.slug as category_slug',
@@ -66,7 +67,7 @@ const getTrendingPosts = async (limit = 10, days = 7) => {
         'bp.featured_image',
         'bp.author_id',
         'u.username as author_name',
-        'u.avatar as author_avatar',
+        'u.picture as author_avatar',
         'bp.category_id',
         'bc.name as category_name',
         'bc.slug as category_slug',
@@ -79,7 +80,7 @@ const getTrendingPosts = async (limit = 10, days = 7) => {
       .join('sellers as u', 'bp.author_id', 'u.id')
       .join('blog_categories as bc', 'bp.category_id', 'bc.id')
       .where('bp.status', 'published')
-      .where('bp.published_at', '>=', db.raw('NOW() - INTERVAL ? DAY', [days]))
+      .where('bp.published_at', '>=', postgresInterval(days, 'days'))
       .orderBy('bp.views_count', 'desc')
       .orderBy('bp.likes_count', 'desc')
       .limit(limit);
@@ -107,7 +108,7 @@ const getRecentPosts = async (limit = 5) => {
         'bp.featured_image',
         'bp.author_id',
         'u.username as author_name',
-        'u.avatar as author_avatar',
+        'u.picture as author_avatar',
         'bp.category_id',
         'bc.name as category_name',
         'bc.slug as category_slug',
@@ -298,11 +299,132 @@ const getPostsByAuthor = async (username, page = 1, limit = 10) => {
   }
 };
 
+/**
+ * Get a single blog post by slug with complete details
+ * @param {string} slug - The post slug
+ * @param {number} userId - Optional user ID to check if post is liked by user
+ * @returns {Promise<Object>} Complete post object with tags
+ */
+const getPostBySlug = async (slug, userId = null) => {
+  try {
+    // Build base query
+    let query = db('blog_posts as bp')
+      .select([
+        'bp.id',
+        'bp.title',
+        'bp.slug',
+        'bp.content',
+        'bp.excerpt',
+        'bp.featured_image',
+        'bp.author_id',
+        'u.username as author_name',
+        'u.picture as author_avatar',
+        'bp.category_id',
+        'bc.name as category_name',
+        'bc.slug as category_slug',
+        'bc.color as category_color',
+        'bp.status',
+        'bp.is_featured',
+        'bp.meta_title',
+        'bp.meta_description',
+        'bp.reading_time',
+        'bp.views_count',
+        'bp.likes_count',
+        'bp.comments_count',
+        'bp.created_at',
+        'bp.updated_at',
+        'bp.published_at',
+        'bp.car_make',
+        'bp.car_model',
+        'bp.car_year',
+        'bp.rating',
+        'bp.price_when_reviewed',
+        'bp.price_currency',
+        'bp.pros',
+        'bp.cons',
+        'bp.specifications',
+        'bp.steps'
+      ])
+      .join('sellers as u', 'bp.author_id', 'u.id')
+      .join('blog_categories as bc', 'bp.category_id', 'bc.id')
+      .leftJoin('blog_likes as bl', function () {
+        this.on('bp.id', '=', 'bl.post_id');
+        if (userId) {
+          this.andOn('bl.user_id', '=', userId);
+        }
+      })
+      .where('bp.slug', slug)
+      .where('bp.status', 'published')
+      .first();
+
+    // Add user liked status
+    if (userId) {
+      query = query.select(db.raw('CASE WHEN bl.user_id IS NOT NULL THEN true ELSE false END as is_liked'));
+    } else {
+      query = query.select(db.raw('false as is_liked'));
+    }
+
+    const post = await query;
+
+    if (!post) {
+      return null;
+    }
+
+    // Get tags for the post
+    const tags = await db('blog_post_tags as bpt')
+      .select('bt.id', 'bt.name', 'bt.slug')
+      .join('blog_tags as bt', 'bpt.tag_id', 'bt.id')
+      .where('bpt.post_id', post.id);
+
+    // Parse JSON fields if they exist
+    if (post.pros && typeof post.pros === 'string') {
+      try {
+        post.pros = JSON.parse(post.pros);
+      } catch (e) {
+        post.pros = [];
+      }
+    }
+
+    if (post.cons && typeof post.cons === 'string') {
+      try {
+        post.cons = JSON.parse(post.cons);
+      } catch (e) {
+        post.cons = [];
+      }
+    }
+
+    if (post.specifications && typeof post.specifications === 'string') {
+      try {
+        post.specifications = JSON.parse(post.specifications);
+      } catch (e) {
+        post.specifications = {};
+      }
+    }
+
+    if (post.steps && typeof post.steps === 'string') {
+      try {
+        post.steps = JSON.parse(post.steps);
+      } catch (e) {
+        post.steps = [];
+      }
+    }
+
+    return {
+      ...post,
+      tags: tags || []
+    };
+  } catch (error) {
+    logger.error('Error in getPostBySlug:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getFeaturedPosts,
   getTrendingPosts,
   getRecentPosts,
   getPostsByCategory,
   getPostsByTag,
-  getPostsByAuthor
+  getPostsByAuthor,
+  getPostBySlug
 };

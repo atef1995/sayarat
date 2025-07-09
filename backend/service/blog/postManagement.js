@@ -29,7 +29,7 @@ const getAllPosts = async (searchParams = {}) => {
 
     const offset = (page - 1) * limit;
 
-    // Build base query
+    // Build base query with LEFT JOIN to handle cases where seller might not exist
     let query = db('blog_posts as bp')
       .select([
         'bp.id',
@@ -39,11 +39,11 @@ const getAllPosts = async (searchParams = {}) => {
         'bp.excerpt',
         'bp.featured_image',
         'bp.author_id',
-        'u.username as author_name',
-        'u.avatar as author_avatar',
+        db.raw('COALESCE(u.username, \'Unknown\') as author_name'),
+        'u.picture as author_avatar',
         'bp.category_id',
-        'bc.name as category_name',
-        'bc.slug as category_slug',
+        db.raw('COALESCE(bc.name, \'Uncategorized\') as category_name'),
+        db.raw('COALESCE(bc.slug, \'uncategorized\') as category_slug'),
         'bp.status',
         'bp.is_featured',
         'bp.reading_time',
@@ -55,8 +55,8 @@ const getAllPosts = async (searchParams = {}) => {
         'bp.published_at',
         'bp.scheduled_at'
       ])
-      .join('sellers as u', 'bp.author_id', 'u.id')
-      .join('blog_categories as bc', 'bp.category_id', 'bc.id');
+      .leftJoin('sellers as u', 'bp.author_id', 'u.id')
+      .leftJoin('blog_categories as bc', 'bp.category_id', 'bc.id');
 
     // Include drafts filter for admin
     if (!includeDrafts) {
@@ -97,9 +97,37 @@ const getAllPosts = async (searchParams = {}) => {
         query = query.orderBy('bp.created_at', 'desc');
     }
 
-    // Get total count for pagination
-    const countQuery = query.clone().clearSelect().count('bp.id as total');
-    const [{ total }] = await countQuery;
+    // Get total count for pagination (simplified count query)
+    const countResult = await db('blog_posts as bp')
+      .leftJoin('sellers as u', 'bp.author_id', 'u.id')
+      .leftJoin('blog_categories as bc', 'bp.category_id', 'bc.id')
+      .count('bp.id as total')
+      .where(function () {
+        if (!includeDrafts) {
+          this.where('bp.status', 'published');
+        } else if (status) {
+          this.where('bp.status', status);
+        }
+
+        if (search) {
+          this.where(function () {
+            this.where('bp.title', 'ilike', `%${search}%`)
+              .orWhere('bp.content', 'ilike', `%${search}%`)
+              .orWhere('bp.excerpt', 'ilike', `%${search}%`);
+          });
+        }
+
+        if (category) {
+          this.where('bc.slug', category);
+        }
+
+        if (author) {
+          this.where('u.username', author);
+        }
+      })
+      .first();
+
+    const total = parseInt(countResult.total, 10);
 
     // Get paginated posts
     const posts = await query.limit(limit).offset(offset);
@@ -108,11 +136,12 @@ const getAllPosts = async (searchParams = {}) => {
       pagination: {
         page,
         limit,
-        total: parseInt(total, 10),
+        total,
         pages: Math.ceil(total / limit)
       }
     });
   } catch (error) {
+    logger.error('Error in getAllPosts:', error);
     return handleError(error, 'get all posts');
   }
 };

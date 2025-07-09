@@ -69,7 +69,7 @@ const getPosts = async searchParams => {
         'bp.featured_image',
         'bp.author_id',
         'u.username as author_name',
-        'u.avatar as author_avatar',
+        'u.picture as author_avatar',
         'bp.category_id',
         'bc.name as category_name',
         'bc.slug as category_slug',
@@ -328,7 +328,7 @@ const getPostById = async (identifier) => {
       .select([
         'bp.*',
         'u.username as author_name',
-        'u.avatar as author_avatar',
+        'u.picture as author_avatar',
         'bc.name as category_name',
         'bc.slug as category_slug',
         'bc.color as category_color'

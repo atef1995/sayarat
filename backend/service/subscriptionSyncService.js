@@ -16,7 +16,7 @@ const logger = require('../utils/logger');
  * USAGE:
  * ======
  *
- * const syncService = new SubscriptionSyncService(knex, stripe, subscriptionDb);
+ * const syncService = new SubscriptionSyncService(knex, stripe, subscriptionServiceFactory);
  * await syncService.syncAllSubscriptions();
  * await syncService.monitorNewPlans();
  *
@@ -26,14 +26,14 @@ const logger = require('../utils/logger');
  * #TODO: Implement rollback functionality for failed syncs
  */
 class SubscriptionSyncService {
-  constructor(knex, stripe, subscriptionDatabase, emailService = null) {
-    if (!knex || !stripe || !subscriptionDatabase) {
+  constructor(knex, stripe, subscriptionServiceFactory, emailService = null) {
+    if (!knex || !stripe || !subscriptionServiceFactory) {
       throw new Error('Required dependencies missing for SubscriptionSyncService');
     }
 
     this.knex = knex;
     this.stripe = stripe;
-    this.subscriptionDb = subscriptionDatabase;
+    this.subscriptionCoreService = subscriptionServiceFactory.getCoreService();
     this.emailService = emailService;
 
     // Sync strategies
@@ -254,7 +254,7 @@ class SubscriptionSyncService {
     }
 
     // Update the subscription
-    await this.subscriptionDb.updateSubscriptionStatus(stripeSubId, stripeSub.status, updateData);
+    await this.subscriptionCoreService.updateSubscriptionStatus(stripeSubId, stripeSub.status, updateData);
 
     // Check if this introduces a new plan
     const newPlan = await this._checkForNewPlan(stripeSub);

@@ -6,9 +6,31 @@
  * with single responsibility for tags.
  */
 
-const blogService = require('../../service/blogService');
-const { generateSlug } = require('../../middleware/blogValidation');
+const {
+  getAllTags,
+  getTagById,
+  getTagBySlug,
+  getPopularTags: getPopularTagsService,
+  createTag: createTagService,
+  updateTag: updateTagService,
+  deleteTag: deleteTagService
+} = require('../../service/blog/tags');
 const logger = require('../../utils/logger');
+
+/**
+ * Generate slug from tag name
+ * @param {string} name - Tag name
+ * @returns {string} Generated slug
+ */
+const generateSlug = (name) => {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+};
 
 /**
  * Public Tag Controllers
@@ -17,26 +39,24 @@ const logger = require('../../utils/logger');
 /**
  * Get all tags
  */
-const getTags = async(req, res) => {
+const getTags = async (req, res) => {
   try {
-    const result = await blogService.getTags();
+    const options = {
+      page: parseInt(req.query.page, 10) || 1,
+      limit: parseInt(req.query.limit, 10) || 50,
+      search: req.query.search || '',
+      orderBy: req.query.orderBy || 'name',
+      order: req.query.order || 'asc'
+    };
 
-    if (result.success) {
-      res.json({
-        success: true,
-        data: result.data
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: result.message
-      });
-    }
+    const result = await getAllTags(options);
+
+    return res.json(result);
   } catch (error) {
     logger.error('Error in getTags controller:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      message: 'Server error while fetching tags'
+      error: 'حدث خطأ في جلب العلامات'
     });
   }
 };
@@ -44,28 +64,34 @@ const getTags = async(req, res) => {
 /**
  * Get single tag by ID or slug
  */
-const getTag = async(req, res) => {
+const getTag = async (req, res) => {
   try {
     const { identifier } = req.params;
-    const result = await blogService.getTag(identifier);
 
-    if (result.success) {
-      res.json({
-        success: true,
-        data: result.data
-      });
+    // Check if identifier is numeric (ID) or string (slug)
+    const isNumeric = /^\d+$/.test(identifier);
+    let tag;
+
+    if (isNumeric) {
+      tag = await getTagById(parseInt(identifier));
     } else {
-      return res.status(404).json({
-        success: false,
-        error: 'التصنيف غير موجود',
-        message: result.message
-      });
+      tag = await getTagBySlug(identifier);
     }
+
+    return res.json(tag);
   } catch (error) {
     logger.error('Get tag error:', error);
-    res.status(500).json({
+
+    if (error.message === 'Tag not found') {
+      return res.status(404).json({
+        success: false,
+        error: 'العلامة غير موجودة'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: 'حدث خطأ في جلب التصنيف'
+      error: 'حدث خطأ في جلب العلامة'
     });
   }
 };
@@ -77,46 +103,42 @@ const getTag = async(req, res) => {
 /**
  * Create new tag
  */
-const createTag = async(req, res) => {
+const createTag = async (req, res) => {
   try {
     const tagData = {
       ...req.body,
-      slug: generateSlug(req.body.name)
+      slug: req.body.slug || generateSlug(req.body.name)
     };
 
-    const result = await blogService.createTag(tagData);
+    const newTag = await createTagService(tagData);
 
-    if (result.success) {
-      logger.info('Tag created:', {
-        tagId: result.data.id,
-        name: result.data.name,
-        createdBy: req.user.id
-      });
+    logger.info('Tag created:', {
+      tagId: newTag.id,
+      name: newTag.name,
+      createdBy: req.user?.id || 'system'
+    });
 
-      res.status(201).json({
-        success: true,
-        data: result.data,
-        message: 'تم إنشاء التصنيف بنجاح'
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        error: result.message
-      });
-    }
+    return res.status(201).json(newTag);
   } catch (error) {
     logger.error('Create tag error:', error);
 
-    if (error.code === '23505' && error.constraint?.includes('slug')) {
+    if (error.message.includes('already exists')) {
       return res.status(400).json({
         success: false,
-        error: 'اسم التصنيف مستخدم بالفعل'
+        error: 'اسم العلامة أو الرابط مستخدم بالفعل'
       });
     }
 
-    res.status(500).json({
+    if (error.message.includes('required')) {
+      return res.status(400).json({
+        success: false,
+        error: 'اسم العلامة مطلوب'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: 'حدث خطأ في إنشاء التصنيف'
+      error: 'حدث خطأ في إنشاء العلامة'
     });
   }
 };
@@ -124,51 +146,53 @@ const createTag = async(req, res) => {
 /**
  * Update tag (Admin only)
  */
-const updateTag = async(req, res) => {
+const updateTag = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = {
       ...req.body
     };
 
-    // Generate new slug if name is being updated
-    if (updateData.name) {
+    // Generate new slug if name is being updated and no custom slug provided
+    if (updateData.name && !updateData.slug) {
       updateData.slug = generateSlug(updateData.name);
     }
 
-    const result = await blogService.updateTag(id, updateData);
+    const updatedTag = await updateTagService(parseInt(id), updateData);
 
-    if (result.success) {
-      logger.info('Tag updated:', {
-        tagId: id,
-        updatedBy: req.user.id
-      });
+    logger.info('Tag updated:', {
+      tagId: id,
+      updatedBy: req.user?.id || 'system'
+    });
 
-      res.json({
-        success: true,
-        data: result.data,
-        message: 'تم تحديث التصنيف بنجاح'
-      });
-    } else {
-      return res.status(404).json({
-        success: false,
-        error: 'التصنيف غير موجود',
-        message: result.message
-      });
-    }
+    return res.json(updatedTag);
   } catch (error) {
     logger.error('Update tag error:', error);
 
-    if (error.code === '23505' && error.constraint?.includes('slug')) {
-      return res.status(400).json({
+    if (error.message === 'Tag not found') {
+      return res.status(404).json({
         success: false,
-        error: 'اسم التصنيف مستخدم بالفعل'
+        error: 'العلامة غير موجودة'
       });
     }
 
-    res.status(500).json({
+    if (error.message.includes('already exists')) {
+      return res.status(400).json({
+        success: false,
+        error: 'اسم العلامة أو الرابط مستخدم بالفعل'
+      });
+    }
+
+    if (error.message.includes('cannot be empty')) {
+      return res.status(400).json({
+        success: false,
+        error: 'اسم العلامة لا يمكن أن يكون فارغاً'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: 'حدث خطأ في تحديث التصنيف'
+      error: 'حدث خطأ في تحديث العلامة'
     });
   }
 };
@@ -176,66 +200,40 @@ const updateTag = async(req, res) => {
 /**
  * Delete tag (Admin only)
  */
-const deleteTag = async(req, res) => {
+const deleteTag = async (req, res) => {
   try {
     const { id } = req.params;
-    const result = await blogService.deleteTag(id);
+    await deleteTagService(parseInt(id));
 
-    if (result.success) {
-      logger.info('Tag deleted:', {
-        tagId: id,
-        deletedBy: req.user.id
-      });
+    logger.info('Tag deleted:', {
+      tagId: id,
+      deletedBy: req.user?.id || 'system'
+    });
 
-      res.json({
-        success: true,
-        message: 'تم حذف التصنيف بنجاح'
-      });
-    } else {
-      const statusCode = result.message.includes('being used') ? 400 : 404;
-      const errorMessage = result.message.includes('being used')
-        ? 'لا يمكن حذف التصنيف لأنه مستخدم في مقالات'
-        : 'التصنيف غير موجود';
-
-      return res.status(statusCode).json({
-        success: false,
-        error: errorMessage,
-        message: result.message
-      });
-    }
+    return res.json({
+      success: true,
+      message: 'تم حذف العلامة بنجاح'
+    });
   } catch (error) {
     logger.error('Delete tag error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'حدث خطأ في حذف التصنيف'
-    });
-  }
-};
 
-/**
- * Get tag statistics (Admin only)
- */
-const getTagStats = async(req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await blogService.getTagStats(id);
-
-    if (result.success) {
-      res.json({
-        success: true,
-        data: result.data
-      });
-    } else {
-      res.status(404).json({
+    if (error.message === 'Tag not found') {
+      return res.status(404).json({
         success: false,
-        error: result.message
+        error: 'العلامة غير موجودة'
       });
     }
-  } catch (error) {
-    logger.error('Get tag stats error:', error);
-    res.status(500).json({
+
+    if (error.message.includes('associated with posts')) {
+      return res.status(400).json({
+        success: false,
+        error: 'لا يمكن حذف العلامة لأنها مرتبطة بمقالات'
+      });
+    }
+
+    return res.status(500).json({
       success: false,
-      error: 'حدث خطأ في جلب إحصائيات التصنيف'
+      error: 'حدث خطأ في حذف العلامة'
     });
   }
 };
@@ -243,31 +241,22 @@ const getTagStats = async(req, res) => {
 /**
  * Get popular tags
  */
-const getPopularTags = async(req, res) => {
+const getPopularTags = async (req, res) => {
   try {
-    const limit = parseInt(req.query.limit) || 20;
-    const result = await blogService.getPopularTags(limit);
+    const limit = parseInt(req.query.limit, 10) || 20;
+    const tags = await getPopularTagsService(limit);
 
-    if (result.success) {
-      res.json({
-        success: true,
-        data: result.data
-      });
-    } else {
-      res.status(400).json({
-        success: false,
-        message: result.message
-      });
-    }
+    return res.json(tags);
   } catch (error) {
     logger.error('Get popular tags error:', error);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
-      error: 'حدث خطأ في جلب التصنيفات الشائعة'
+      error: 'حدث خطأ في جلب العلامات الشائعة'
     });
   }
 };
 
+// #TODO: Add tag statistics methods when implemented in service
 // #TODO: Add tag trending analytics methods
 // #TODO: Add tag content moderation methods
 // #TODO: Add tag SEO optimization methods
@@ -281,6 +270,5 @@ module.exports = {
   // Admin/User tag controllers
   createTag,
   updateTag,
-  deleteTag,
-  getTagStats
+  deleteTag
 };

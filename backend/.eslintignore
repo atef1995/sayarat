@@ -26,3 +26,8 @@ legacy/
 
 # Third-party
 vendor/
+
+migrations/
+scripts/
+test/
+tests/

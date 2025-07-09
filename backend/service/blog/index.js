@@ -13,6 +13,7 @@ const tagService = require('./tags');
 const likeService = require('./likes');
 const viewService = require('./views');
 const utilsService = require('./utils');
+const commentService = require('./comments');
 
 module.exports = {
   // Core Post operations
@@ -37,6 +38,7 @@ module.exports = {
   getPostsByCategory: postQueries.getPostsByCategory,
   getPostsByTag: postQueries.getPostsByTag,
   getPostsByAuthor: postQueries.getPostsByAuthor,
+  getPostBySlug: postQueries.getPostBySlug,
 
   // Category operations
   getAllCategories: categoryService.getAllCategories,
@@ -63,6 +65,20 @@ module.exports = {
   getViewsByPost: viewService.getViewsByPost,
   getViewsByUser: viewService.getViewsByUser,
   getMostViewedPosts: viewService.getMostViewedPosts,
+
+  // Comment operations
+  getPostComments: commentService.getPostComments,
+  addPostComment: commentService.addPostComment,
+  replyToComment: commentService.replyToComment,
+  getCommentById: commentService.getCommentById,
+  updateComment: commentService.updateComment,
+  deleteComment: commentService.deleteComment,
+  getAllComments: commentService.getAllComments,
+  approveComment: commentService.approveComment,
+  disapproveComment: commentService.disapproveComment,
+  adminDeleteComment: commentService.adminDeleteComment,
+  bulkModerateComments: commentService.bulkModerateComments,
+
 
   // Utility operations
   ...utilsService

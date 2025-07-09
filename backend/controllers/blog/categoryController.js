@@ -6,7 +6,7 @@
  * with single responsibility for categories.
  */
 
-const blogService = require('../../service/blogService');
+const { getAllCategories } = require('../../service/blog/index');
 const { generateSlug } = require('../../middleware/blogValidation');
 const logger = require('../../utils/logger');
 
@@ -17,9 +17,9 @@ const logger = require('../../utils/logger');
 /**
  * Get all categories
  */
-const getCategories = async(req, res) => {
+const getCategories = async (req, res) => {
   try {
-    const result = await blogService.getCategories();
+    const result = await getAllCategories();
 
     if (result.success) {
       res.json({
@@ -44,7 +44,7 @@ const getCategories = async(req, res) => {
 /**
  * Get single category by ID or slug
  */
-const getCategory = async(req, res) => {
+const getCategory = async (req, res) => {
   try {
     const { identifier } = req.params; // Can be ID or slug
     const result = await blogService.getCategory(identifier);
@@ -76,7 +76,7 @@ const getCategory = async(req, res) => {
 /**
  * Create new category (Admin only)
  */
-const createCategory = async(req, res) => {
+const createCategory = async (req, res) => {
   try {
     const categoryData = {
       ...req.body,
@@ -116,7 +116,7 @@ const createCategory = async(req, res) => {
 /**
  * Update category (Admin only)
  */
-const updateCategory = async(req, res) => {
+const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const updateData = {
@@ -167,7 +167,7 @@ const updateCategory = async(req, res) => {
 /**
  * Delete category (Admin only)
  */
-const deleteCategory = async(req, res) => {
+const deleteCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.deleteCategory(id);
@@ -202,7 +202,7 @@ const deleteCategory = async(req, res) => {
 /**
  * Toggle category active status (Admin only)
  */
-const toggleCategoryActive = async(req, res) => {
+const toggleCategoryActive = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.toggleCategoryActive(id);
@@ -239,7 +239,7 @@ const toggleCategoryActive = async(req, res) => {
 /**
  * Get category statistics (Admin only)
  */
-const getCategoryStats = async(req, res) => {
+const getCategoryStats = async (req, res) => {
   try {
     const { id } = req.params;
     const result = await blogService.getCategoryStats(id);
