@@ -1,3 +1,8 @@
 .env
 middleware/uploads
 cmd.md
+
+logs/
+
+# Ignore node_modules directories
+node_modules/
