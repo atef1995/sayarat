@@ -217,11 +217,144 @@ const deleteCategory = async (categoryId) => {
   }
 };
 
+/**
+ * Update posts count for a category
+ * @param {number} categoryId - The category ID
+ * @returns {Promise<Object>} Success status
+ */
+const updateCategoryPostsCount = async (categoryId) => {
+  try {
+    const result = await db('blog_posts')
+      .where('category_id', categoryId)
+      .andWhere('status', 'published')
+      .count('id as total')
+      .first();
+
+    const postsCount = parseInt(result.total) || 0;
+
+    await db('blog_categories')
+      .where('id', categoryId)
+      .update({ posts_count: postsCount });
+
+    return {
+      success: true,
+      data: { categoryId, postsCount },
+      message: 'Category posts count updated'
+    };
+  } catch (error) {
+    logger.error('Error in updateCategoryPostsCount:', error);
+    return {
+      success: false,
+      message: 'Failed to update category posts count',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Update posts count for all categories
+ * @returns {Promise<Object>} Success status with updated counts
+ */
+const updateAllCategoriesPostsCount = async () => {
+  try {
+    // Get all categories
+    const categories = await db('blog_categories').select('id');
+
+    const results = [];
+
+    for (const category of categories) {
+      const result = await updateCategoryPostsCount(category.id);
+      if (result.success) {
+        results.push(result.data);
+      }
+    }
+
+    return {
+      success: true,
+      data: results,
+      message: `Updated posts count for ${results.length} categories`
+    };
+  } catch (error) {
+    logger.error('Error in updateAllCategoriesPostsCount:', error);
+    return {
+      success: false,
+      message: 'Failed to update all categories posts count',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Get categories with post count
+ * @returns {Promise<Object>} Categories with accurate post counts
+ */
+const getCategoriesWithPostCount = async () => {
+  try {
+    const categories = await db('blog_categories as c')
+      .select([
+        'c.*',
+        db.raw('COUNT(p.id) as actual_posts_count')
+      ])
+      .leftJoin('blog_posts as p', function () {
+        this.on('c.id', '=', 'p.category_id')
+          .andOn('p.status', '=', db.raw('?', ['published']));
+      })
+      .where('c.is_active', true)
+      .groupBy('c.id')
+      .orderBy('c.name');
+
+    return {
+      success: true,
+      data: categories
+    };
+  } catch (error) {
+    logger.error('Error in getCategoriesWithPostCount:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch categories with post count',
+      error: error.message
+    };
+  }
+};
+
+/**
+ * Get category by slug
+ * @param {string} slug - The category slug
+ * @returns {Promise<Object>} The category data
+ */
+const getCategoryBySlug = async (slug) => {
+  try {
+    const category = await db('blog_categories').where('slug', slug).first();
+
+    if (!category) {
+      return {
+        success: false,
+        message: 'Category not found'
+      };
+    }
+
+    return {
+      success: true,
+      data: category
+    };
+  } catch (error) {
+    logger.error('Error in getCategoryBySlug:', error);
+    return {
+      success: false,
+      message: 'Failed to fetch category',
+      error: error.message
+    };
+  }
+};
+
 module.exports = {
   getAllCategories,
   createCategory,
   getCategoryById,
   updateCategory,
-  deleteCategory
-  // #TODO: Export other category-related functions after migration
+  deleteCategory,
+  updateCategoryPostsCount,
+  updateAllCategoriesPostsCount,
+  getCategoriesWithPostCount,
+  getCategoryBySlug
 };

@@ -8,7 +8,7 @@
 
 const express = require('express');
 const router = express.Router();
-const { authenticateToken, requireAdmin } = require('../middleware/auth');
+const { ensureAuthenticated, requireAdmin } = require('../middleware/auth');
 const {
   validateBlogPost,
   validateBlogCategory,
@@ -37,6 +37,9 @@ router.get('/posts/trending', blogController.getTrendingPosts);
 
 // Get recent blog posts
 router.get('/posts/recent', blogController.getRecentPosts);
+
+// Get popular blog posts
+router.get('/posts/popular', blogController.getPopularPosts);
 
 // Get single blog post by slug
 router.get('/posts/:slug', blogController.getPostBySlug);
@@ -70,19 +73,19 @@ router.get('/posts/:id/comments', blogController.getPostComments);
  */
 
 // Like/unlike a blog post
-router.post('/posts/:id/like', authenticateToken, blogController.togglePostLike);
+router.post('/posts/:id/like', ensureAuthenticated, blogController.togglePostLike);
 
 // Add a comment to a blog post
-router.post('/posts/:id/comments', authenticateToken, validateBlogComment, blogController.addPostComment);
+router.post('/posts/:id/comments', ensureAuthenticated, validateBlogComment, blogController.addPostComment);
 
 // Reply to a comment
-router.post('/comments/:id/reply', authenticateToken, validateBlogComment, blogController.replyToComment);
+router.post('/comments/:id/reply', ensureAuthenticated, validateBlogComment, blogController.replyToComment);
 
 // Update user's own comment
-router.put('/comments/:id', authenticateToken, validateBlogComment, blogController.updateComment);
+router.put('/comments/:id', ensureAuthenticated, validateBlogComment, blogController.updateComment);
 
 // Delete user's own comment
-router.delete('/comments/:id', authenticateToken, blogController.deleteComment);
+router.delete('/comments/:id', ensureAuthenticated, blogController.deleteComment);
 
 // Track blog post view
 router.post('/posts/:id/view', blogController.trackPostView);
@@ -92,37 +95,37 @@ router.post('/posts/:id/view', blogController.trackPostView);
  */
 
 // Get all posts (including drafts) - Admin only
-router.get('/admin/posts', authenticateToken, requireAdmin, blogController.getAllPosts);
+router.get('/admin/posts', ensureAuthenticated, requireAdmin, blogController.getAllPosts);
 
 // Create new blog post
-router.post('/posts', authenticateToken, upload.single('featured_image'), validateBlogPost, blogController.createPost);
+router.post('/posts', ensureAuthenticated, upload.single('featured_image'), validateBlogPost, blogController.createPost);
 
 // Update blog post
 router.put(
   '/posts/:id',
-  authenticateToken,
+  ensureAuthenticated,
   upload.single('featured_image'),
   validateBlogPost,
   blogController.updatePost
 );
 
 // Delete blog post
-router.delete('/posts/:id', authenticateToken, blogController.deletePost);
+router.delete('/posts/:id', ensureAuthenticated, blogController.deletePost);
 
 // Bulk delete blog posts
-router.delete('/posts', authenticateToken, requireAdmin, blogController.bulkDeletePosts);
+router.delete('/posts', ensureAuthenticated, requireAdmin, blogController.bulkDeletePosts);
 
 // Publish a draft post
-router.patch('/posts/:id/publish', authenticateToken, blogController.publishPost);
+router.patch('/posts/:id/publish', ensureAuthenticated, blogController.publishPost);
 
 // Unpublish a post (convert to draft)
-router.patch('/posts/:id/unpublish', authenticateToken, blogController.unpublishPost);
+router.patch('/posts/:id/unpublish', ensureAuthenticated, blogController.unpublishPost);
 
 // Schedule a post
-router.patch('/posts/:id/schedule', authenticateToken, blogController.schedulePost);
+router.patch('/posts/:id/schedule', ensureAuthenticated, blogController.schedulePost);
 
 // Feature/unfeature a post
-router.patch('/posts/:id/feature', authenticateToken, requireAdmin, blogController.toggleFeaturedPost);
+router.patch('/posts/:id/feature', ensureAuthenticated, requireAdmin, blogController.toggleFeaturedPost);
 
 /**
  * Category Management Routes (Admin Only)
@@ -132,16 +135,16 @@ router.patch('/posts/:id/feature', authenticateToken, requireAdmin, blogControll
 router.get('/categories/:identifier', blogController.getCategory);
 
 // Create new category
-router.post('/categories', authenticateToken, requireAdmin, validateBlogCategory, blogController.createCategory);
+router.post('/categories', ensureAuthenticated, requireAdmin, validateBlogCategory, blogController.createCategory);
 
 // Update category
-router.put('/categories/:id', authenticateToken, requireAdmin, validateBlogCategory, blogController.updateCategory);
+router.put('/categories/:id', ensureAuthenticated, requireAdmin, validateBlogCategory, blogController.updateCategory);
 
 // Delete category
-router.delete('/categories/:id', authenticateToken, requireAdmin, blogController.deleteCategory);
+router.delete('/categories/:id', ensureAuthenticated, requireAdmin, blogController.deleteCategory);
 
 // Toggle category active status
-router.patch('/categories/:id/toggle-active', authenticateToken, requireAdmin, blogController.toggleCategoryActive);
+router.patch('/categories/:id/toggle-active', ensureAuthenticated, requireAdmin, blogController.toggleCategoryActive);
 
 /**
  * Tag Management Routes
@@ -154,29 +157,29 @@ router.get('/tags', blogController.getTags);
 router.get('/tags/:identifier', blogController.getTag);
 
 // Create new tag
-router.post('/tags', authenticateToken, validateBlogTag, blogController.createTag);
+router.post('/tags', ensureAuthenticated, validateBlogTag, blogController.createTag);
 
 // Update tag
-router.put('/tags/:id', authenticateToken, requireAdmin, validateBlogTag, blogController.updateTag);
+router.put('/tags/:id', ensureAuthenticated, requireAdmin, validateBlogTag, blogController.updateTag);
 
 // Delete tag
-router.delete('/tags/:id', authenticateToken, requireAdmin, blogController.deleteTag);
+router.delete('/tags/:id', ensureAuthenticated, requireAdmin, blogController.deleteTag);
 
 /**
  * Comment Management Routes (Admin Only)
  */
 
 // Get all comments for admin panel
-router.get('/admin/comments', authenticateToken, requireAdmin, blogController.getAllComments);
+router.get('/admin/comments', ensureAuthenticated, requireAdmin, blogController.getAllComments);
 
 // Approve comment
-router.patch('/comments/:id/approve', authenticateToken, requireAdmin, blogController.approveComment);
+router.patch('/comments/:id/approve', ensureAuthenticated, requireAdmin, blogController.approveComment);
 
 // Disapprove comment
-router.patch('/comments/:id/disapprove', authenticateToken, requireAdmin, blogController.disapproveComment);
+router.patch('/comments/:id/disapprove', ensureAuthenticated, requireAdmin, blogController.disapproveComment);
 
 // Admin delete comment
-router.delete('/admin/comments/:id', authenticateToken, requireAdmin, blogController.adminDeleteComment);
+router.delete('/admin/comments/:id', ensureAuthenticated, requireAdmin, blogController.adminDeleteComment);
 
 /**
  * Car-Specific Blog Routes
@@ -202,23 +205,23 @@ router.delete('/admin/comments/:id', authenticateToken, requireAdmin, blogContro
  */
 
 // // Get blog analytics dashboard data
-// router.get('/admin/analytics', authenticateToken, requireAdmin, blogController.getBlogAnalytics);
+// router.get('/admin/analytics', ensureAuthenticated, requireAdmin, blogController.getBlogAnalytics);
 
 // // Get post performance metrics
-// router.get('/admin/posts/:id/analytics', authenticateToken, requireAdmin, blogController.getPostAnalytics);
+// router.get('/admin/posts/:id/analytics', ensureAuthenticated, requireAdmin, blogController.getPostAnalytics);
 
 // // Get popular search terms
-// router.get('/admin/search-analytics', authenticateToken, requireAdmin, blogController.getSearchAnalytics);
+// router.get('/admin/search-analytics', ensureAuthenticated, requireAdmin, blogController.getSearchAnalytics);
 
 /**
  * Import/Export Routes (Admin Only)
  */
 
 // // Export blog data
-// router.get('/admin/export', authenticateToken, requireAdmin, blogController.exportBlogData);
+// router.get('/admin/export', ensureAuthenticated, requireAdmin, blogController.exportBlogData);
 
 // // Import blog data
-// router.post('/admin/import', authenticateToken, requireAdmin, upload.single('import_file'), blogController.importBlogData);
+// router.post('/admin/import', ensureAuthenticated, requireAdmin, upload.single('import_file'), blogController.importBlogData);
 
 /**
  * RSS/Sitemap Routes

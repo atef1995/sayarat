@@ -27,6 +27,7 @@ const companyRouter = require('./routes/company');
 const subscriptionAdminRouter = require('./routes/subscriptionAdmin');
 const subscriptionAdminController = require('./controllers/subscriptionAdminController');
 const blogRouter = require('./routes/blog');
+const sitemapRouter = require('./routes/sitemap');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -145,6 +146,12 @@ app.get('/api/get-ip', (req, res) => {
 // Make database available to all routes
 app.set('db', knex);
 
+// Add knex to all requests for sitemap routes
+app.use((req, res, next) => {
+  req.knex = knex;
+  next();
+});
+
 // Initialize subscription admin services
 try {
   subscriptionAdminController.initializeAdminServices(knex);
@@ -169,6 +176,10 @@ app.use('/api/profile', profile(knex));
 app.use('/api/reviews', reviews(knex));
 app.use('/api/payment', paymentRouter);
 app.use('/api/blog', blogRouter);
+
+// SEO and Sitemap routes (no /api prefix for SEO compatibility)
+app.use('/', sitemapRouter);
+
 // Note: webhookRouter is already mounted above before JSON parsing
 // Health check endpoint
 app.get('/health', (req, res) => {

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://sayarat.autos/sitemap-static.xml</loc>
+    <lastmod>2025-07-10T19:11:34.445Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://sayarat.autos/sitemap-cars.xml</loc>
+    <lastmod>2025-07-10T19:11:34.721Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://sayarat.autos/sitemap-companies.xml</loc>
+    <lastmod>2025-06-26T13:45:28.073Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://sayarat.autos/sitemap-blog.xml</loc>
+    <lastmod>2025-07-10T13:23:15.178Z</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://sayarat.autos/sitemap-categories.xml</loc>
+    <lastmod>2025-07-10T19:11:34.776Z</lastmod>
+  </sitemap>
+</sitemapindex>

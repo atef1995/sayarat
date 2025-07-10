@@ -81,8 +81,15 @@ const getTrendingPosts = async (limit = 10, days = 7) => {
       .join('blog_categories as bc', 'bp.category_id', 'bc.id')
       .where('bp.status', 'published')
       .where('bp.published_at', '>=', postgresInterval(days, 'days'))
-      .orderBy('bp.views_count', 'desc')
-      .orderBy('bp.likes_count', 'desc')
+      // Use weighted trending score with recency boost
+      .orderByRaw(`
+        (COALESCE(bp.views_count, 0) * 1 + 
+         COALESCE(bp.likes_count, 0) * 3 + 
+         COALESCE(bp.comments_count, 0) * 5 +
+         -- Recency boost: newer posts get higher score
+         EXTRACT(EPOCH FROM (NOW() - bp.published_at)) / 86400.0 * -2
+        ) DESC
+      `)
       .limit(limit);
 
     return posts;
@@ -419,6 +426,46 @@ const getPostBySlug = async (slug, userId = null) => {
   }
 };
 
+/**
+ * Get popular blog posts with weighted scoring
+ * @param {number} limit - Maximum number of posts to return
+ * @returns {Promise<Array>} Array of popular posts sorted by weighted popularity score
+ */
+const getPopularPosts = async (limit = 5) => {
+  try {
+    const posts = await db('blog_posts as bp')
+      .select([
+        'bp.id',
+        'bp.title',
+        'bp.slug',
+        'bp.excerpt',
+        'bp.featured_image',
+        'bp.author_id',
+        'u.username as author_name',
+        'u.picture as author_avatar',
+        'bp.category_id',
+        'bc.name as category_name',
+        'bc.slug as category_slug',
+        'bp.views_count',
+        'bp.likes_count',
+        'bp.comments_count',
+        'bp.created_at',
+        'bp.published_at'
+      ])
+      .join('sellers as u', 'bp.author_id', 'u.id')
+      .join('blog_categories as bc', 'bp.category_id', 'bc.id')
+      .where('bp.status', 'published')
+      // Use weighted popularity score: views * 1 + likes * 3 + comments * 5
+      .orderByRaw('(COALESCE(bp.views_count, 0) * 1 + COALESCE(bp.likes_count, 0) * 3 + COALESCE(bp.comments_count, 0) * 5) DESC')
+      .limit(limit);
+
+    return posts;
+  } catch (error) {
+    logger.error('Error in getPopularPosts:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getFeaturedPosts,
   getTrendingPosts,
@@ -426,5 +473,6 @@ module.exports = {
   getPostsByCategory,
   getPostsByTag,
   getPostsByAuthor,
-  getPostBySlug
+  getPostBySlug,
+  getPopularPosts
 };

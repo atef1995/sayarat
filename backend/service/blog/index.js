@@ -35,6 +35,7 @@ module.exports = {
   getFeaturedPosts: postQueries.getFeaturedPosts,
   getTrendingPosts: postQueries.getTrendingPosts,
   getRecentPosts: postQueries.getRecentPosts,
+  getPopularPosts: postQueries.getPopularPosts,
   getPostsByCategory: postQueries.getPostsByCategory,
   getPostsByTag: postQueries.getPostsByTag,
   getPostsByAuthor: postQueries.getPostsByAuthor,

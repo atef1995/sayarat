@@ -353,7 +353,7 @@ const CreateListingContainer: React.FC<CreateListingContainerProps> = ({
 
   return (
     <>
-      <div className="w-full px-2 sm:px-4 lg:px-6 mx-auto my-4 sm:my-8">
+      <div className=" flex flex-col items-center w-full px-2 sm:px-4 lg:px-6 mx-auto my-4 sm:my-8">
         <Card
           className="w-full max-w-4xl mx-auto shadow-lg"
           loading={limitLoading}

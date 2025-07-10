@@ -82,6 +82,7 @@ class AuthService {
         emailTokenExpiry: seller.email_token_expiry,
         lastLogin: seller.last_login ? new Date(seller.last_login) : null,
         isCompany: seller.is_company,
+        isAdmin: seller.is_admin || false,
         companyId: seller.company_id,
         isPremium: seller.is_premium,
         accountType: seller.account_type,

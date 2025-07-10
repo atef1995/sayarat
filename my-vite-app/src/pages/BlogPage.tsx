@@ -7,10 +7,8 @@ import {
   Button,
   Space,
   Typography,
-  Breadcrumb,
   Card,
   Tag,
-  Affix,
   BackTop,
   message,
 } from "antd";
@@ -20,8 +18,6 @@ import {
   AppstoreOutlined,
   UnorderedListOutlined,
   PlusOutlined,
-  HomeOutlined,
-  BookOutlined,
 } from "@ant-design/icons";
 import {
   BlogPost,
@@ -32,12 +28,14 @@ import {
 } from "../types/blogTypes";
 import { AuthContext } from "../context/AuthContext";
 import blogService from "../services/blogService";
-import { BlogList, BlogSidebar, FeaturedBlogs } from "../components/blog";
+import { BlogList, BlogSidebar } from "../components/blog";
 import ErrorBoundary from "../components/common/ErrorBoundary";
+import ScrollableContainer from "../components/common/ScrollableContainer";
+import { useResponsive } from "../hooks/useResponsive";
 import "./BlogPage.css";
 import { useNavigate } from "react-router";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Search } = Input;
 
 /**
@@ -99,23 +97,15 @@ const useBlogPage = () => {
         [
           blogService.getBlogCategories(),
           blogService.getBlogTags(),
-          blogService.getBlogPosts({
-            limit: 5,
-            sort: "latest",
-            status: "published",
-          }),
-          blogService.getBlogPosts({
-            limit: 5,
-            sort: "popular",
-            status: "published",
-          }),
+          blogService.getRecentPosts(5),
+          blogService.getPopularPosts(5),
         ]
       );
 
       setCategories(categoriesRes);
       setTags(tagsRes);
-      setRecentPosts(recentRes.data);
-      setPopularPosts(popularRes.data);
+      setRecentPosts(recentRes);
+      setPopularPosts(popularRes);
     } catch (error) {
       console.error("Failed to fetch sidebar data:", error);
     }
@@ -182,13 +172,15 @@ const useBlogPage = () => {
 const BlogPage: React.FC = () => {
   const authContext = useContext(AuthContext);
   const user = authContext?.user;
+  const isAuthenticated = authContext?.isAuthenticated || false;
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const navigate = useNavigate();
+  const { isMobile, isDesktop } = useResponsive();
   const {
     posts,
     categories,
     tags,
-    featuredPosts,
+    // featuredPosts,
     recentPosts,
     popularPosts,
     loading,
@@ -266,6 +258,18 @@ const BlogPage: React.FC = () => {
   };
 
   /**
+   * Handle create blog post navigation
+   */
+  const handleCreatePost = () => {
+    if (!isAuthenticated) {
+      message.warning("يجب تسجيل الدخول أولاً لإنشاء مقال");
+      navigate("/login");
+      return;
+    }
+    navigate("/blog/create");
+  };
+
+  /**
    * Clear all filters
    */
   const clearFilters = () => {
@@ -286,72 +290,40 @@ const BlogPage: React.FC = () => {
     <ErrorBoundary>
       {/* Header Section */}
 
-      <div className="container">
-        <Row justify="space-between" align="middle">
-          <Col>
-            <Title level={2} className="blog-page-title">
-              <BookOutlined /> مدونة السيارات
-            </Title>
-            <Text type="secondary">
-              أحدث الأخبار والمقالات عن عالم السيارات
-            </Text>
-          </Col>
-          {user && (
-            <Col>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  // #TODO: Navigate to blog creation page
-                  console.log("Navigate to blog creation");
-                }}
-              >
-                إنشاء مقال جديد
-              </Button>
-            </Col>
-          )}
-        </Row>
-      </div>
-
-      {/* Breadcrumb */}
-      <div className="blog-page-breadcrumb">
-        <div className="container">
-          <Breadcrumb>
-            <Breadcrumb.Item>
-              <HomeOutlined />
-              <span>الرئيسية</span>
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>
-              <BookOutlined />
-              <span>المدونة</span>
-            </Breadcrumb.Item>
-            {selectedCategory && (
-              <Breadcrumb.Item>
-                {categories.find((cat) => cat.slug === selectedCategory)?.name}
-              </Breadcrumb.Item>
-            )}
-          </Breadcrumb>
-        </div>
-      </div>
-
-      {/* Featured Posts Section */}
-      {featuredPosts?.length > 0 && !hasActiveFilters && (
-        <div className="blog-page-featured">
-          <div className="container">
-            <FeaturedBlogs
-              posts={featuredPosts}
-              onPostClick={handlePostClick}
-            />
-          </div>
-        </div>
-      )}
-
       {/* Main Content */}
       <div className="container">
         {/* Search and Filters */}
         <Card className="blog-page-filters">
           <Row gutter={[16, 16]} align="middle">
-            <Col xs={24} sm={12} md={8}>
+            {/* Create Blog Button - First on mobile, last on desktop */}
+            <Col
+              xs={{ span: 24, order: 1 }}
+              sm={{ span: 6, order: 5 }}
+              md={{ span: 4, order: 5 }}
+            >
+              {user?.isAdmin && (
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  size="large"
+                  block
+                  onClick={handleCreatePost}
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                    border: "none",
+                    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                  }}
+                >
+                  {"إنشاء مقال"}
+                </Button>
+              )}
+            </Col>
+            <Col
+              xs={{ span: 24, order: 2 }}
+              sm={{ span: 12, order: 1 }}
+              md={{ span: 8, order: 1 }}
+            >
               <Search
                 placeholder="البحث في المقالات..."
                 allowClear
@@ -361,7 +333,11 @@ const BlogPage: React.FC = () => {
                 onSearch={handleSearch}
               />
             </Col>
-            <Col xs={12} sm={6} md={4}>
+            <Col
+              xs={{ span: 12, order: 3 }}
+              sm={{ span: 6, order: 2 }}
+              md={{ span: 4, order: 2 }}
+            >
               <Select
                 placeholder="الفئة"
                 allowClear
@@ -377,7 +353,11 @@ const BlogPage: React.FC = () => {
                 ))}
               </Select>
             </Col>
-            <Col xs={12} sm={6} md={4}>
+            <Col
+              xs={{ span: 12, order: 4 }}
+              sm={{ span: 6, order: 3 }}
+              md={{ span: 4, order: 3 }}
+            >
               <Select
                 placeholder="الترتيب"
                 size="large"
@@ -391,7 +371,11 @@ const BlogPage: React.FC = () => {
                 <Select.Option value="oldest">الأقدم</Select.Option>
               </Select>
             </Col>
-            <Col xs={24} sm={12} md={4}>
+            <Col
+              xs={{ span: 24, order: 5 }}
+              sm={{ span: 12, order: 4 }}
+              md={{ span: 4, order: 4 }}
+            >
               <Space size="small">
                 <Button.Group>
                   <Button
@@ -407,13 +391,18 @@ const BlogPage: React.FC = () => {
                 </Button.Group>
               </Space>
             </Col>
-            <Col xs={24} sm={12} md={4}>
-              {hasActiveFilters && (
+            {/* Clear Filters Button - Only show when filters are active */}
+            {hasActiveFilters && (
+              <Col
+                xs={{ span: 24, order: 6 }}
+                sm={{ span: 12, order: 6 }}
+                md={{ span: 4, order: 6 }}
+              >
                 <Button icon={<FilterOutlined />} onClick={clearFilters} block>
                   إلغاء الفلاتر
                 </Button>
-              )}
-            </Col>
+              </Col>
+            )}
           </Row>
 
           {/* Active Filters Display */}
@@ -465,32 +454,64 @@ const BlogPage: React.FC = () => {
         {/* Blog Posts List */}
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={18}>
-            <BlogList
-              posts={posts}
-              loading={loading}
-              variant={viewMode}
-              showPagination={true}
-              pagination={pagination || undefined}
-              onPageChange={handlePageChange}
-              onPostClick={handlePostClick}
-              className="blog-page-list"
-            />
+            <ScrollableContainer
+              maxHeight={isDesktop ? "calc(100vh - 140px)" : "auto"}
+              showScrollButtons={isDesktop}
+              showScrollShadows={isDesktop}
+              scrollButtonPosition="outside"
+              className="blog-page-list-scroll"
+            >
+              <BlogList
+                posts={posts}
+                loading={loading}
+                variant={viewMode}
+                showPagination={true}
+                pagination={pagination || undefined}
+                onPageChange={handlePageChange}
+                onPostClick={handlePostClick}
+                className="blog-page-list"
+              />
+            </ScrollableContainer>
           </Col>
 
           {/* Sidebar */}
           <Col xs={24} lg={6}>
-            <Affix offsetTop={80}>
-              <BlogSidebar
-                categories={categories}
-                tags={tags}
-                recentPosts={recentPosts}
-                popularPosts={popularPosts}
-                onCategoryClick={handleCategoryFilter}
-                onTagClick={handleTagFilter}
-                onPostClick={handlePostClick}
-                className="blog-page-sidebar"
-              />
-            </Affix>
+            <div className="blog-page-sidebar-wrapper">
+              {/* Conditional Affix based on screen size */}
+              {isDesktop ? (
+                <ScrollableContainer
+                  maxHeight="calc(100vh - 180px)"
+                  showScrollButtons={true}
+                  showScrollShadows={true}
+                  scrollButtonPosition="inside"
+                  className="blog-page-sidebar-scroll"
+                >
+                  <BlogSidebar
+                    categories={categories}
+                    tags={tags}
+                    recentPosts={recentPosts}
+                    popularPosts={popularPosts}
+                    onCategoryClick={handleCategoryFilter}
+                    onTagClick={handleTagFilter}
+                    onPostClick={handlePostClick}
+                    className="blog-page-sidebar"
+                  />
+                </ScrollableContainer>
+              ) : (
+                <BlogSidebar
+                  categories={categories}
+                  tags={tags}
+                  recentPosts={isMobile ? recentPosts.slice(0, 3) : recentPosts}
+                  popularPosts={
+                    isMobile ? popularPosts.slice(0, 3) : popularPosts
+                  }
+                  onCategoryClick={handleCategoryFilter}
+                  onTagClick={handleTagFilter}
+                  onPostClick={handlePostClick}
+                  className="blog-page-sidebar"
+                />
+              )}
+            </div>
           </Col>
         </Row>
       </div>

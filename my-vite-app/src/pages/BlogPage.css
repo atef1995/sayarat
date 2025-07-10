@@ -5,6 +5,31 @@
 
 /* Header */
 .blog-page-header {
+  width: 100%;
+}
+
+/* Scrollable containers */
+.blog-page-list-scroll {
+  background: transparent;
+  border-radius: 8px;
+}
+
+.blog-page-sidebar-scroll {
+  background: transparent;
+}
+
+/* Hide scrollbar for webkit browsers */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
+/* Header */
+.blog-page-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   padding: 2rem 0;
@@ -41,7 +66,6 @@
 
 /* Featured section */
 .blog-page-featured {
-  background: white;
   padding: 2rem 0;
   border-bottom: 1px solid #f0f0f0;
 }
@@ -73,12 +97,40 @@
   margin-bottom: 2rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 100; /* Increased z-index to ensure it stays above other content */
+  background: white;
+  border-bottom: 1px solid #f0f0f0;
 }
 
 .blog-page-active-filters {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid #f0f0f0;
+}
+
+/* Dark mode support for sticky filters */
+@media (prefers-color-scheme: dark) {
+  .blog-page-filters {
+    background: #141414;
+    border-color: #303030;
+  }
+}
+
+/* Sidebar affix positioning */
+.blog-page-sidebar-wrapper .ant-affix {
+  z-index: 50; /* Lower than search bar (100) */
+}
+
+.blog-page-sidebar-wrapper .ant-affix-affixed {
+  z-index: 50; /* Ensure it stays below the search bar */
+}
+
+/* Ensure proper layering */
+.blog-page-list-scroll {
+  position: relative;
+  z-index: 1;
 }
 
 /* Blog list */
@@ -91,6 +143,20 @@
 /* Sidebar */
 .blog-page-sidebar {
   padding-left: 1rem;
+}
+
+.blog-page-sidebar-wrapper {
+  width: 100%;
+}
+
+/* Hide scrollbar for webkit browsers */
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
 }
 
 /* Loading states */
@@ -129,7 +195,6 @@
 }
 
 .blog-list-item {
-  background: white;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
@@ -156,6 +221,11 @@
   .blog-page-sidebar {
     padding-left: 0;
     margin-top: 2rem;
+  }
+
+  .blog-page-sidebar-wrapper {
+    /* Remove any height constraints on tablets */
+    max-height: none;
   }
 
   .blog-page-title {

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:geo="http://www.google.com/geo/schemas/sitemap/1.0">
+  <url>
+    <loc>https://sayarat.autos/category/pickup</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/pickup" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/pickup" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/pickup" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/suv</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/suv" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/suv" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/suv" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/sedan</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/sedan" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/sedan" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/sedan" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/hatchback</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/hatchback" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/hatchback" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/hatchback" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/coupe</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/coupe" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/coupe" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/coupe" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/convertible</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/convertible" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/convertible" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/convertible" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/category/station</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/category/station" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/category/station" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/category/station" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/damascus</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/damascus" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/damascus" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/damascus" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/aleppo</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/aleppo" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/aleppo" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/aleppo" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/homs</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/homs" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/homs" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/homs" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/hama</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/hama" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/hama" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/hama" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/lattakia</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/lattakia" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/lattakia" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/lattakia" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/tartous</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/tartous" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/tartous" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/tartous" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/sweida</loc>
+    <lastmod>2025-07-10T20:13:13.832Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/sweida" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/sweida" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/sweida" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/quneitra</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/quneitra" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/quneitra" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/quneitra" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/daraa</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/daraa" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/daraa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/daraa" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/raqqa</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/raqqa" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/raqqa" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/raqqa" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/deir-ezzor</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/deir-ezzor" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/deir-ezzor" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/deir-ezzor" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/hasaka</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/hasaka" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/hasaka" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/hasaka" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/idleb</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/idleb" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/idleb" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/idleb" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/location/qamishli</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/location/qamishli" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/location/qamishli" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/location/qamishli" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/search?carType=sedan&amp;fuelType=bensin</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/search?carType=sedan&amp;fuelType=bensin" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/search?carType=sedan&amp;fuelType=bensin" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/search?carType=sedan&amp;fuelType=bensin" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/search?carType=suv&amp;fuelType=diesel</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/search?carType=suv&amp;fuelType=diesel" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/search?carType=suv&amp;fuelType=diesel" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/search?carType=suv&amp;fuelType=diesel" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/search?carType=pickup&amp;fuelType=diesel</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/search?carType=pickup&amp;fuelType=diesel" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/search?carType=pickup&amp;fuelType=diesel" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/search?carType=pickup&amp;fuelType=diesel" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/search?carType=hatchback&amp;fuelType=bensin</loc>
+    <lastmod>2025-07-10T20:13:13.834Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/search?carType=hatchback&amp;fuelType=bensin" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/search?carType=hatchback&amp;fuelType=bensin" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/search?carType=hatchback&amp;fuelType=bensin" />
+  </url>
+</urlset>

@@ -81,6 +81,7 @@ module.exports = {
   getFeaturedPosts: postController.getFeaturedPosts,
   getTrendingPosts: postController.getTrendingPosts,
   getRecentPosts: postController.getRecentPosts,
+  getPopularPosts: postController.getPopularPosts,
   getPostBySlug: postController.getPostBySlug,
   getPostsByCategory: postController.getPostsByCategory,
   getPostsByTag: postController.getPostsByTag,

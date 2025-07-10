@@ -12,6 +12,7 @@ export interface User {
   lastLogin: Date;
   picture: string;
   email_verified: boolean;
+  isAdmin: boolean;
   // Add company-related fields
   accountType?: "personal" | "company";
   companyId?: string;

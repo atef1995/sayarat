@@ -36,7 +36,6 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background-color: #f0f0f0;
 }
 
 .comment-date {
@@ -46,7 +45,6 @@
 .comment-form-container {
   margin-bottom: 24px;
   padding: 16px;
-  background-color: #fafafa;
   border-radius: 8px;
 }
 
@@ -55,7 +53,6 @@
   margin-top: 16px;
   margin-bottom: 16px;
   padding: 12px;
-  background-color: #f9f9f9;
   border-radius: 6px;
   border-left: 3px solid #1890ff;
 }

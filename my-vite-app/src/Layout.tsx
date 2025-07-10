@@ -3,6 +3,7 @@ import { Layout, Menu, theme, Button, Spin, Row, Col } from "antd";
 import { Content, Header, Footer } from "antd/es/layout/layout";
 import {
   ArrowLeftOutlined,
+  BookOutlined,
   CarFilled,
   HeartFilled,
   HomeFilled,
@@ -63,6 +64,13 @@ function MyLayout({ children }: { children: ReactNode }) {
       label: "الرئيسية",
       onClick: () => navigate("/"),
     },
+    {
+      key: "blog",
+      icon: <BookOutlined />,
+      label: "الاخبار والمقالات",
+      onClick: () => navigate("/blog"),
+    },
+
     isAuthenticated
       ? {
           className: isPremium()

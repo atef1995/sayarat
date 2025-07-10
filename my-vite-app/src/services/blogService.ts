@@ -178,6 +178,16 @@ export const getRecentPosts = async (limit = 5): Promise<BlogPost[]> => {
 };
 
 /**
+ * Get popular blog posts sorted by backend weighted score
+ */
+export const getPopularPosts = async (limit = 5): Promise<BlogPost[]> => {
+  const response = await apiRequest<{ success: boolean; data: BlogPost[] }>(
+    `/posts/popular?limit=${limit}`
+  );
+  return response.data;
+};
+
+/**
  * Get single blog post by slug
  */
 export const getBlogPost = async (slug: string): Promise<BlogPost> => {
@@ -398,6 +408,10 @@ const toggleLike = async (
     `/posts/${postId}/like`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include", // Ensure cookies are sent for auth
     }
   );
 };
@@ -690,6 +704,9 @@ const blogService = {
   // Posts
   getBlogPosts,
   getFeaturedPosts,
+  getTrendingPosts,
+  getRecentPosts,
+  getPopularPosts,
   getBlogPost,
   getPost, // Add this
   createBlogPost,

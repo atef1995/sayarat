@@ -1,4 +1,4 @@
-const { getAllPosts: getAllPostsService } = require('../../service/blog/index');
+const { getAllPosts: getAllPostsService, createPost: createPostService } = require('../../service/blog/index');
 const { generateSlug } = require('../../middleware/blogValidation');
 
 
@@ -56,7 +56,7 @@ const createPost = async (req, res) => {
       featured_image: req.file ? req.file.filename : null
     };
 
-    const post = await blogService.createPost(postData);
+    const post = await createPostService(postData);
 
     logger.info('Blog post created:', {
       postId: post.id,

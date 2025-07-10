@@ -1,0 +1,65 @@
+User-agent: *
+Allow: /
+
+# Arabic content specific rules
+Allow: /ar/
+Allow: /search*
+Allow: /car/*
+Allow: /company/*
+Allow: /category/*
+Allow: /location/*
+Allow: /blog/*
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /*.json$
+Disallow: /*?*sort=
+Disallow: /*?*filter=
+Disallow: /*?*page=
+
+# Allow important query parameters for cars
+Allow: /*?make=*
+Allow: /*?model=*
+Allow: /*?year=*
+Allow: /*?location=*
+
+# Sitemaps
+Sitemap: https://sayarat.autos/sitemap.xml
+Sitemap: https://sayarat.autos/sitemap-cars.xml
+Sitemap: https://sayarat.autos/sitemap-companies.xml
+Sitemap: https://sayarat.autos/sitemap-blog.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Special rules for search engines
+User-agent: Googlebot
+Crawl-delay: 0
+Allow: /
+
+User-agent: Bingbot
+Crawl-delay: 1
+Allow: /
+
+# Social media crawlers
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: WhatsApp
+Allow: /
+
+# Arabic search engines
+User-agent: YandexBot
+Allow: /
+
+# Block aggressive crawlers
+User-agent: AhrefsBot
+Disallow: /
+
+User-agent: MJ12bot
+Disallow: /

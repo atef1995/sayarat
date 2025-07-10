@@ -1,12 +1,72 @@
 /* BlogSidebar.css */
 .blog-sidebar {
+  position: relative;
+  width: 100%;
   background: transparent;
+}
+
+/* Desktop styles */
+@media (min-width: 1024px) {
+  .blog-sidebar {
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .blog-sidebar::-webkit-scrollbar {
+    width: 6px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 3px;
+  }
+
+  .blog-sidebar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 3px;
+  }
+
+  .blog-sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.5);
+  }
+}
+
+/* Mobile/tablet styles - no height restrictions */
+@media (max-width: 1023px) {
+  .blog-sidebar {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 .sidebar-card {
   margin-bottom: 1rem;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Desktop sidebar cards */
+@media (min-width: 1024px) {
+  .sidebar-card {
+    /* On desktop, limit height for better scrolling */
+    max-height: 400px;
+  }
+
+  .sidebar-card .ant-card-body {
+    max-height: 320px;
+    overflow-y: auto;
+  }
+}
+
+/* Mobile/tablet sidebar cards */
+@media (max-width: 1023px) {
+  .sidebar-card {
+    /* On mobile, allow full height */
+    max-height: none;
+  }
+
+  .sidebar-card .ant-card-body {
+    max-height: none;
+    overflow: visible;
+  }
 }
 
 .sidebar-card .ant-card-head {
@@ -21,6 +81,25 @@
 
 .sidebar-card .ant-card-body {
   padding: 16px;
+}
+
+.sidebar-card .ant-card-body::-webkit-scrollbar {
+  width: 6px;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 3px;
+}
+
+.sidebar-card .ant-card-body::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-card .ant-card-body::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.sidebar-card .ant-card-body::-webkit-scrollbar-track {
+  background: transparent;
 }
 
 /* Categories */
@@ -41,7 +120,8 @@
 }
 
 .sidebar-category-item:hover {
-  background-color: #f5f5f5;
+  background-color: transparent;
+  opacity: 0.7;
 }
 
 /* Tags */
@@ -74,7 +154,7 @@
 }
 
 .sidebar-post-item:hover {
-  background-color: #fafafa;
+  background-color: rgba(0, 0, 0, 0.6);
   border-radius: 6px;
   padding-left: 8px;
   padding-right: 8px;

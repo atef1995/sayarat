@@ -265,9 +265,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
           src={post.featured_image}
           alt={post.title}
           className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-          onError={(e) => {
-            e.currentTarget.src = "/images/blog-placeholder.jpg";
-          }}
         />
       </div>
     );
@@ -280,7 +277,6 @@ const BlogCard: React.FC<BlogCardProps> = ({
     if (variant === "list") {
       return (
         <div className="flex gap-4">
-          {renderImage()}
           <div className="flex-1">
             {renderCategory()}
             {renderCarInfo()}
@@ -302,18 +298,14 @@ const BlogCard: React.FC<BlogCardProps> = ({
 
     return (
       <>
-        {renderImage()}
         <div className="p-4">
           {renderCategory()}
           {renderCarInfo()}
           {renderRating()}
           {renderTitle()}
           {renderExcerpt()}
-          <div className="flex items-center justify-between mt-3">
-            <div className="flex items-center gap-3">
-              {renderAuthor()}
-              {renderMetadata()}
-            </div>
+          <div className="grid grid-rows-2 grid-cols-1 sm:grid-cols-1 m-3 gap-2">
+            <div className="flex items-center gap-3">{renderMetadata()}</div>
             {renderStats()}
           </div>
           {renderTags()}
@@ -327,7 +319,8 @@ const BlogCard: React.FC<BlogCardProps> = ({
       className={`${getCardClass()} ${className}`}
       hoverable
       onClick={handleClick}
-      bodyStyle={{ padding: variant === "list" ? "16px" : "0" }}
+      style={{ width: variant === "list" ? "100%" : "300px" }}
+      cover={variant !== "compact" ? renderImage() : null}
     >
       {renderContent()}
     </Card>

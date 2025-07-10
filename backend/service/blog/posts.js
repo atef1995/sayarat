@@ -18,6 +18,9 @@ const {
   formatResponse,
   buildPaginationMeta
 } = require('./utils');
+const { updateCategoryPostsCount } = require('./categories');
+const { updateTagPostsCount } = require('./tags');
+const { markdownToHtml } = require('../../utils/markdownUtils');
 
 // #TODO: Migrate remaining post-related functions from blogService.js
 // Functions still to migrate:
@@ -153,7 +156,8 @@ const getPosts = async searchParams => {
         query = query.orderBy('bp.published_at', 'asc');
         break;
       case 'popular':
-        query = query.orderBy('bp.views_count', 'desc');
+        // Use weighted popularity score: views * 1 + likes * 3 + comments * 5
+        query = query.orderByRaw('(COALESCE(bp.views_count, 0) * 1 + COALESCE(bp.likes_count, 0) * 3 + COALESCE(bp.comments_count, 0) * 5) DESC');
         break;
       case 'trending':
         query = query.orderBy([
@@ -273,19 +277,34 @@ const createPost = async (postData) => {
     const existingPost = await trx('blog_posts').where('slug', slug).first();
     const finalSlug = existingPost ? `${slug}-${Date.now()}` : slug;
 
+    // Convert markdown content to HTML if needed
+    let finalContent = content;
+    let finalReadingTime = reading_time;
+
+    if (content && typeof content === 'string') {
+      // Check if content looks like markdown (contains common markdown syntax)
+      const hasMarkdownSyntax = /^#{1,6}\s|^\*\s|\*\*.*\*\*|^-\s|^\d+\.\s/m.test(content);
+
+      if (hasMarkdownSyntax) {
+        const { html, readingTime } = markdownToHtml(content);
+        finalContent = html;
+        finalReadingTime = finalReadingTime || readingTime;
+      }
+    }
+
     // Insert the blog post
     const [newPost] = await trx('blog_posts')
       .insert({
         title,
         slug: finalSlug,
-        content,
+        content: finalContent,
         excerpt,
         featured_image,
         author_id,
         category_id,
         status,
         is_featured,
-        reading_time,
+        reading_time: finalReadingTime,
         car_make,
         car_model,
         car_year,
@@ -306,6 +325,19 @@ const createPost = async (postData) => {
     }
 
     await trx.commit();
+
+    // Update counts after successful post creation (only for published posts)
+    if (status === 'published') {
+      // Update category posts count
+      await updateCategoryPostsCount(category_id);
+
+      // Update tag posts counts
+      if (tags.length > 0) {
+        for (const tagId of tags) {
+          await updateTagPostsCount(tagId);
+        }
+      }
+    }
 
     return formatResponse(newPost, 'Blog post created successfully');
   } catch (error) {

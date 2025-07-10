@@ -113,6 +113,27 @@ const getRecentPosts = async (req, res) => {
 };
 
 /**
+ * Get popular blog posts sorted by weighted popularity score
+ */
+const getPopularPosts = async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 5;
+    const posts = await blogService.getPopularPosts(limit);
+
+    return res.json({
+      success: true,
+      data: posts
+    });
+  } catch (error) {
+    logger.error('Get popular posts error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'حدث خطأ في جلب المقالات الأكثر شعبية'
+    });
+  }
+};
+
+/**
  * Get single blog post by slug
  */
 const getPostBySlug = async (req, res) => {
@@ -313,6 +334,7 @@ module.exports = {
   getFeaturedPosts,
   getTrendingPosts,
   getRecentPosts,
+  getPopularPosts,
   getPostBySlug,
   getPostsByCategory,
   getPostsByTag,

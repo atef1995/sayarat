@@ -54,7 +54,7 @@ const BlogList: React.FC<BlogListProps> = ({
    */
   if (loading) {
     return (
-      <div className="blog-list-loading">
+      <div className="flex flex-col items-center justify-center m-5">
         <Spin size="large" />
         <div className="mt-4 text-center">
           <Typography.Text>جاري تحميل المقالات...</Typography.Text>
@@ -88,8 +88,8 @@ const BlogList: React.FC<BlogListProps> = ({
             key={post.id}
             xs={24}
             sm={12}
-            lg={8}
-            xl={6}
+            lg={12}
+            xl={12}
             className="blog-list-grid-item"
           >
             <BlogCard

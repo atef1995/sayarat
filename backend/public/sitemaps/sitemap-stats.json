@@ -1,0 +1,36 @@
+{
+  "lastGenerated": "2025-07-10T19:11:34.812Z",
+  "urls": {
+    "static": 9,
+    "cars": 0,
+    "companies": 5,
+    "blog": 8,
+    "categories": 14
+  },
+  "optimization": {
+    "targetRegion": "Syria (SY)",
+    "languages": [
+      "Arabic (ar)",
+      "Arabic-Syria (ar-SY)"
+    ],
+    "hreflang": [
+      "ar",
+      "ar-SY",
+      "x-default"
+    ],
+    "geoTarget": "SY",
+    "features": [
+      "Multi-language support",
+      "Geographic targeting",
+      "Arabic content optimization",
+      "Damascus timezone",
+      "Middle East focus"
+    ]
+  },
+  "searchEngines": {
+    "google": "https://sayarat.autos/sitemap.xml",
+    "bing": "https://sayarat.autos/sitemap.xml",
+    "yandex": "https://sayarat.autos/sitemap.xml"
+  },
+  "total": 36
+}

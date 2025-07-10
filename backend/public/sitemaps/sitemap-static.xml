@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml"
+        xmlns:geo="http://www.google.com/geo/schemas/sitemap/1.0">
+  <url>
+    <loc>https://sayarat.autos/</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/search</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/search" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/search" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/search" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/companies</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/companies" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/companies" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/companies" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/blog</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/blog" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/blog" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/blog" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/about</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/about" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/about" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/about" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/contact</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/contact" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/contact" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/contact" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/help</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/help" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/help" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/help" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/terms</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/terms" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/terms" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/terms" />
+  </url>
+  <url>
+    <loc>https://sayarat.autos/privacy</loc>
+    <lastmod>2025-07-10T20:13:13.831Z</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
+    <xhtml:link rel="alternate" hreflang="ar" href="https://sayarat.autos/privacy" />
+    <xhtml:link rel="alternate" hreflang="ar-SY" href="https://sayarat.autos/privacy" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://sayarat.autos/privacy" />
+  </url>
+</urlset>

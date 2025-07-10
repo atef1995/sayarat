@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { BlogPost } from "../../types/blogTypes";
 import "./FeaturedBlogs.css";
-
+import { formatToSyrianDate } from "../../helper/timeFormat";
 const { Title, Text, Paragraph } = Typography;
 
 interface FeaturedBlogsProps {
@@ -40,17 +40,6 @@ const FeaturedBlogs: React.FC<FeaturedBlogsProps> = ({
   }
 
   const [mainPost, ...otherPosts] = posts;
-
-  /**
-   * Format date for display
-   */
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("ar-EG", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   /**
    * Format reading time
@@ -95,6 +84,7 @@ const FeaturedBlogs: React.FC<FeaturedBlogsProps> = ({
   const renderMainPost = () => (
     <Card
       className="featured-main-post"
+      hoverable
       cover={
         <div
           className="featured-main-cover"
@@ -122,7 +112,7 @@ const FeaturedBlogs: React.FC<FeaturedBlogsProps> = ({
                 {mainPost.excerpt}
               </Paragraph>
               <div className="featured-main-meta">
-                <Space direction="vertical" size="small">
+                <Space direction="vertical">
                   <Space size="middle">
                     <Avatar src={mainPost.author_avatar} size="small" />
                     <Text className="featured-author">
@@ -131,11 +121,11 @@ const FeaturedBlogs: React.FC<FeaturedBlogsProps> = ({
                     <Space size="small">
                       <CalendarOutlined />
                       <Text type="secondary">
-                        {formatDate(mainPost.created_at)}
+                        {formatToSyrianDate(mainPost.created_at)}
                       </Text>
                     </Space>
                   </Space>
-                  {renderPostStats(mainPost)}
+                  {renderPostStats(mainPost, "small")}
                 </Space>
               </div>
             </div>
@@ -196,7 +186,9 @@ const FeaturedBlogs: React.FC<FeaturedBlogsProps> = ({
                   </Space>
                   <Space size="small">
                     <CalendarOutlined />
-                    <Text type="secondary">{formatDate(post.created_at)}</Text>
+                    <Text type="secondary">
+                      {formatToSyrianDate(post.created_at)}
+                    </Text>
                   </Space>
                   {renderPostStats(post, "small")}
                 </Space>

@@ -81,7 +81,9 @@ class UserProfileService {
           'picture',
           'last_login',
           'account_type',
-          'company_id'
+          'company_id',
+          'is_admin',
+          'is_premium',
         ]);
 
         if (!row) {
@@ -127,7 +129,9 @@ class UserProfileService {
       'last_login',
       'picture',
       'account_type',
-      'company_id'
+      'company_id',
+      'is_admin',
+      'is_premium',
     ];
 
     return await this.knex('sellers')
@@ -157,7 +161,9 @@ class UserProfileService {
       picture: userDetails.picture,
       accountType: accountType,
       companyId: userDetails.company_id,
-      isCompany: isCompany
+      isCompany: isCompany,
+      isAdmin: userDetails.is_admin || false,
+      isPremium: userDetails.is_premium || false
     };
   }
 }

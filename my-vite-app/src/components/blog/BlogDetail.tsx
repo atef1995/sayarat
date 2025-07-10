@@ -32,6 +32,8 @@ import blogService from "../../services/blogService";
 import BlogComments from "./BlogComments";
 import RelatedBlogs from "./RelatedBlogs";
 import "./BlogDetail.css";
+import { formatToSyrianDate } from "../../helper/timeFormat";
+import { useAuth } from "../../hooks/useAuth";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -42,6 +44,7 @@ const BlogDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [liking, setLiking] = useState(false);
   const [liked, setLiked] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const fetchBlogPost = useCallback(
     async (identifier: string) => {
@@ -129,14 +132,6 @@ const BlogDetail: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const getCategoryColor = (category: string) => {
     const colors: Record<string, string> = {
       "car-news": "blue",
@@ -214,7 +209,7 @@ const BlogDetail: React.FC = () => {
                   </Space>
                   <Space>
                     <CalendarOutlined />
-                    <Text>{formatDate(blog.created_at)}</Text>
+                    <Text>{formatToSyrianDate(blog.created_at)}</Text>
                   </Space>
                   <Space>
                     <EyeOutlined />
@@ -266,6 +261,7 @@ const BlogDetail: React.FC = () => {
               <div className="blog-detail-actions">
                 <Space size="large">
                   <Button
+                    disabled={!isAuthenticated}
                     type={liked ? "primary" : "default"}
                     icon={liked ? <HeartFilled /> : <HeartOutlined />}
                     loading={liking}
@@ -311,7 +307,7 @@ const BlogDetail: React.FC = () => {
                     </div>
                     <div className="stat-item">
                       <CalendarOutlined />
-                      <span>Published {formatDate(blog.created_at)}</span>
+                      <span>{formatToSyrianDate(blog.created_at)}</span>
                     </div>
                   </div>
                 </Card>

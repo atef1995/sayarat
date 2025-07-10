@@ -11,7 +11,8 @@ import CompanyPaymentSuccess from "./components/CompanyPaymentSuccess.tsx";
 import CompanyPaymentCancel from "./components/CompanyPaymentCancel.tsx";
 import CompanyDashboard from "./components/company/CompanyDashboard.tsx";
 import MyLayout from "./Layout.tsx";
-import { ProtectedRoute } from "./components/ProtectedRoute.tsx";
+import { ProtectedRoute } from "./components/common/guards";
+import { AdminRoute } from "./components/common/guards";
 import UserListings from "./components/UserListings.tsx";
 import CarListing from "./components/CarListing.tsx";
 import MessagesPage from "./components/MessagesPage.tsx";
@@ -36,6 +37,7 @@ import { App as AntdApp, ConfigProvider, theme } from "antd";
 import Payment from "./components/Payment.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import BlogDetail from "./components/blog/BlogDetail.tsx";
+import BlogEditorPage from "./pages/BlogEditorPage.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -279,6 +281,22 @@ createRoot(document.getElementById("root")!).render(
                 element={
                   <MyLayout>
                     <BlogPage />
+                  </MyLayout>
+                }
+              />
+              <Route
+                path="/blog/create"
+                element={
+                  <MyLayout>
+                    <AdminRoute component={BlogEditorPage} />
+                  </MyLayout>
+                }
+              />
+              <Route
+                path="/blog/edit/:id"
+                element={
+                  <MyLayout>
+                    <AdminRoute component={BlogEditorPage} />
                   </MyLayout>
                 }
               />
