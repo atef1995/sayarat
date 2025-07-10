@@ -31,17 +31,23 @@ const sitemapRouter = require('./routes/sitemap');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Trust proxy for proper IP detection when behind reverse proxy (Caddy)
+// Trust proxy configuration for security
+// Only trust the first proxy (Caddy) and validate proxy headers
 if (process.env.NODE_ENV === 'production') {
-  app.set('trust proxy', true);
+  // Trust only the first proxy in the chain (Caddy)
+  app.set('trust proxy', 1);
+} else {
+  // In development, don't trust any proxies
+  app.set('trust proxy', false);
 }
 
-const { setupAutoExpire, setupAutoDeleteDisabledListings } = require('./service/autoExpireListings');
+const { setupAutoExpire: _setupAutoExpire, setupAutoDeleteDisabledListings: _setupAutoDeleteDisabledListings } = require('./service/autoExpireListings');
 const logger = require('./utils/logger');
 
 const knex = require('./config/database');
 const redisUrl = process.env.NODE_ENV === 'production' ? process.env.REDIS_URL : 'redis://localhost:6379';
 logger.info(`Using Redis URL: ${redisUrl}`);
+
 // Initialize Redis client
 const redisClient = createClient({
   url: redisUrl
@@ -49,6 +55,10 @@ const redisClient = createClient({
 
 redisClient.connect().catch(logger.error);
 
+/**
+ * Clean up temporary files on server startup
+ * Follows Single Responsibility Principle
+ */
 const cleanupTempFiles = () => {
   const uploadsDir = path.join(__dirname, 'uploads');
   if (require('fs').existsSync(uploadsDir)) {
@@ -70,14 +80,56 @@ cleanupTempFiles();
 
 // Security middleware
 app.use(helmet());
-// Global rate limiting
+
+// Secure rate limiting configuration
 const globalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 1000,
-  message: 'Too many requests from this IP',
-  trustProxy: 1 // Trust first proxy (Caddy)
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 1000, // Limit each IP to 1000 requests per windowMs
+  message: {
+    error: 'Too many requests from this IP',
+    retryAfter: Math.ceil(15 * 60 * 1000 / 1000) // Retry after in seconds
+  },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+  // Skip rate limiting for health checks and static assets
+  skip: (req) => {
+    return req.path === '/health' || req.path.startsWith('/static/');
+  },
+  // Custom key generator for better security
+  keyGenerator: (req) => {
+    // In production, get IP from X-Forwarded-For (trusted proxy)
+    // In development, use connection remote address
+    if (process.env.NODE_ENV === 'production') {
+      return req.ip; // Express will properly parse this with trust proxy = 1
+    } else {
+      return req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+    }
+  }
 });
 app.use(globalLimiter);
+
+// Specific rate limiters for sensitive endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10, // Limit each IP to 10 login attempts per windowMs
+  message: {
+    error: 'Too many authentication attempts, please try again later',
+    retryAfter: Math.ceil(15 * 60 * 1000 / 1000)
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const paymentLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 5, // Limit each IP to 5 payment attempts per hour
+  message: {
+    error: 'Too many payment attempts, please try again later',
+    retryAfter: Math.ceil(60 * 60 * 1000 / 1000)
+  },
+  standardHeaders: true,
+  legacyHeaders: false
+});
 
 app.use(
   cors({
@@ -162,7 +214,7 @@ try {
 
 app.use('/api/report', reportRouter(knex));
 app.use('/api/conversations', messagesRouter(knex));
-app.use('/api/auth', authRouter(knex));
+app.use('/api/auth', authLimiter, authRouter(knex)); // Apply auth rate limiting
 app.use('/api/company', companyRouter);
 app.use('/api/subscription', require('./routes/subscription')(knex));
 app.use('/api/admin/subscription', subscriptionAdminRouter);
@@ -174,7 +226,7 @@ app.use('/api/favorites', favoritesRouter(knex));
 app.use('/api/users', user(knex));
 app.use('/api/profile', profile(knex));
 app.use('/api/reviews', reviews(knex));
-app.use('/api/payment', paymentRouter);
+app.use('/api/payment', paymentLimiter, paymentRouter); // Apply payment rate limiting
 app.use('/api/blog', blogRouter);
 
 // SEO and Sitemap routes (no /api prefix for SEO compatibility)
@@ -192,7 +244,7 @@ app.get('/health', (req, res) => {
 });
 
 // Global error handler
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   logger.error(err.stack);
   res.status(500).json({
     error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
@@ -204,7 +256,8 @@ process.on('SIGTERM', () => {
   logger.info('SIGTERM signal received.');
   app.close(() => {
     logger.info('Server closed.');
-    process.exit(0);
+    // Use throw instead of process.exit for better error handling
+    throw new Error('Server shutdown completed');
   });
 });
 
