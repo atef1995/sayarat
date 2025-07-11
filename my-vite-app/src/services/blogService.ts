@@ -46,17 +46,16 @@ const apiRequest = async <T>(
   options: RequestInit = {}
 ): Promise<T> => {
   try {
-    const token = localStorage.getItem("token");
-    const defaultHeaders: HeadersInit = {
-      "Content-Type": "application/json",
-    };
+    const defaultHeaders: HeadersInit = {};
 
-    if (token) {
-      defaultHeaders.Authorization = `Bearer ${token}`;
+    // Only set Content-Type if body is not FormData
+    if (!(options.body instanceof FormData)) {
+      defaultHeaders["Content-Type"] = "application/json";
     }
 
     const config: RequestInit = {
       ...options,
+      credentials: "include", // Include session cookies
       headers: {
         ...defaultHeaders,
         ...options.headers,
@@ -286,7 +285,9 @@ export const createBlogPost = async (
   const response = await apiRequest<BlogPostResponse>("/posts", {
     method: "POST",
     body: formData,
-    headers: {}, // Remove Content-Type to let browser set it for FormData
+    headers: {
+      credentials: "include",
+    },
   });
 
   return response.data!;
@@ -316,7 +317,9 @@ export const updateBlogPost = async (
   const response = await apiRequest<BlogPostResponse>(`/posts/${id}`, {
     method: "PUT",
     body: formData,
-    headers: {}, // Remove Content-Type to let browser set it for FormData
+    headers: {
+      credentials: "include",
+    },
   });
 
   return response.data!;
@@ -328,6 +331,9 @@ export const updateBlogPost = async (
 export const deleteBlogPost = async (postId: number): Promise<void> => {
   await apiRequest(`/posts/${postId}`, {
     method: "DELETE",
+    headers: {
+      credentials: "include",
+    },
   });
 };
 
@@ -342,6 +348,9 @@ export const togglePostLike = async (
     data: { liked: boolean; likes_count: number };
   }>(`/posts/${postId}/like`, {
     method: "POST",
+    headers: {
+      credentials: "include",
+    },
   });
 
   return response.data;
@@ -376,7 +385,7 @@ export const uploadBlogImage = async (
   }>("/upload/image", {
     method: "POST",
     body: formData,
-    // Don't set Content-Type header, let browser set it for FormData
+    credentials: "include", // Ensure cookies are sent for auth
   });
 
   return response.data;
@@ -504,6 +513,7 @@ export const createBlogTag = async (tagData: {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        credentials: "include",
       },
       body: JSON.stringify({
         name: tagData.name,
@@ -542,6 +552,10 @@ export const addBlogComment = async (
     `/posts/${commentData.post_id}/comments`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        credentials: "include", // Ensure cookies are sent for auth
+      },
       body: JSON.stringify(commentData),
     }
   );
@@ -560,6 +574,10 @@ export const replyToBlogComment = async (
     `/comments/${commentId}/reply`,
     {
       method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        credentials: "include", // Ensure cookies are sent for auth
+      },
       body: JSON.stringify({ content }),
     }
   );

@@ -34,7 +34,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log("User isCompany:", data.user?.isCompany);
 
       // Update auth state based on response
-
       setUser(data.user ?? null);
       setIsAuthenticated(data.isAuthenticated ?? false);
       localStorage.setItem("isAuthenticated", "true");
@@ -83,8 +82,8 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(true);
         localStorage.setItem("isAuthenticated", "true");
 
-        // Set session check interval
-        const interval = setInterval(checkSession, 5 * 60 * 1000);
+        // Set session check interval every 6 hours
+        const interval = setInterval(checkSession, 6 * 60 * 60 * 1000);
         setSessionCheckInterval(interval);
         setUser(data.user as User);
       } else {

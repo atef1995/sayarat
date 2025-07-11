@@ -1,13 +1,11 @@
 /* BlogEditorPage.css */
 .blog-editor-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 }
 
 /* Header */
 .blog-editor-page-header {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
   padding: 2rem 0;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -28,7 +26,6 @@
 }
 
 .blog-editor-breadcrumb .ant-breadcrumb-link:hover {
-  color: white;
 }
 
 .blog-editor-breadcrumb .ant-breadcrumb-separator {
@@ -36,7 +33,6 @@
 }
 
 .blog-editor-page-title {
-  color: white !important;
   margin-bottom: 0;
   font-size: 2.5rem;
   font-weight: bold;
@@ -66,7 +62,6 @@
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   border: none;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.95);
   -webkit-backdrop-filter: blur(10px);
   backdrop-filter: blur(10px);
 }
@@ -175,7 +170,6 @@
 /* Print styles */
 @media print {
   .blog-editor-page-header {
-    background: white !important;
     color: black !important;
     box-shadow: none;
     border-bottom: 2px solid #ccc;

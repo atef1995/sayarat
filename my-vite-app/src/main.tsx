@@ -38,6 +38,9 @@ import Payment from "./components/Payment.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import BlogDetail from "./components/blog/BlogDetail.tsx";
 import BlogEditorPage from "./pages/BlogEditorPage.tsx";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -50,265 +53,267 @@ createRoot(document.getElementById("root")!).render(
       <AntdApp>
         <AuthProvider>
           <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<App />} />
-              <Route
-                path="/profile"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={UserProfile}></ProtectedRoute>
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/login"
-                element={
-                  <MyLayout>
-                    <Login />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/signup"
-                element={
-                  <MyLayout>
-                    <SignupForm />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/verify-email"
-                element={
-                  <MyLayout>
-                    <VerifyEmail />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/reset-password/:token"
-                element={
-                  <MyLayout>
-                    <ResetPassword />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/reset-password-req"
-                element={
-                  <MyLayout>
-                    <ResetPasswordReq />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/my-listings"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={UserListings} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/favorites"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={Favorites} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/create-listing"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={CreateListing} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/payment"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={Payment} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/edit-listing/:id"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={EditListing} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/create-account"
-                element={
-                  <MyLayout>
-                    <SignupForm />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/company-dashboard"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={CompanyDashboard} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/company-signup"
-                element={
-                  <MyLayout>
-                    <CompanySignupForm />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/company-payment"
-                element={
-                  <MyLayout>
-                    <CompanyPayment />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/company-payment/success"
-                element={
-                  <MyLayout>
-                    <CompanyPaymentSuccess />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/company-payment/cancel"
-                element={
-                  <MyLayout>
-                    <CompanyPaymentCancel />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/car-listing/:id"
-                element={
-                  <MyLayout>
-                    <CarListing />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/messages"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={MessagesPage} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/conversation/:conversationId/"
-                element={
-                  <MyLayout>
-                    <ProtectedRoute component={ConversationDetail} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/user/:username"
-                element={
-                  <MyLayout>
-                    <User />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/report/:id/:toReport"
-                element={
-                  <MyLayout>
-                    <ReportListing />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/search/:id"
-                element={
-                  <MyLayout>
-                    <ReportListing />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/create-ad"
-                element={
-                  <MyLayout>
-                    <AdvertiserForm />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/subscription/success"
-                element={
-                  <MyLayout>
-                    <SubscriptionSuccess />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/subscription/cancel"
-                element={
-                  <MyLayout>
-                    <SubscriptionCancel />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/subscription/test"
-                element={
-                  <MyLayout>
-                    <SubscriptionTestPage />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/privacy"
-                element={
-                  <MyLayout>
-                    <PrivacyPolicy />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/blog"
-                element={
-                  <MyLayout>
-                    <BlogPage />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/blog/create"
-                element={
-                  <MyLayout>
-                    <AdminRoute component={BlogEditorPage} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/blog/edit/:id"
-                element={
-                  <MyLayout>
-                    <AdminRoute component={BlogEditorPage} />
-                  </MyLayout>
-                }
-              />
-              <Route
-                path="/blog/:slug/:id"
-                element={
-                  <MyLayout>
-                    <BlogDetail />
-                  </MyLayout>
-                }
-              />
-            </Routes>
+            <QueryClientProvider client={queryClient}>
+              <Routes>
+                <Route path="/" element={<App />} />
+                <Route
+                  path="/profile"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={UserProfile}></ProtectedRoute>
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/login"
+                  element={
+                    <MyLayout>
+                      <Login />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/signup"
+                  element={
+                    <MyLayout>
+                      <SignupForm />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/verify-email"
+                  element={
+                    <MyLayout>
+                      <VerifyEmail />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/reset-password/:token"
+                  element={
+                    <MyLayout>
+                      <ResetPassword />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/reset-password-req"
+                  element={
+                    <MyLayout>
+                      <ResetPasswordReq />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/my-listings"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={UserListings} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/favorites"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={Favorites} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/create-listing"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={CreateListing} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/payment"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={Payment} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/edit-listing/:id"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={EditListing} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/create-account"
+                  element={
+                    <MyLayout>
+                      <SignupForm />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/company-dashboard"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={CompanyDashboard} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/company-signup"
+                  element={
+                    <MyLayout>
+                      <CompanySignupForm />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/company-payment"
+                  element={
+                    <MyLayout>
+                      <CompanyPayment />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/company-payment/success"
+                  element={
+                    <MyLayout>
+                      <CompanyPaymentSuccess />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/company-payment/cancel"
+                  element={
+                    <MyLayout>
+                      <CompanyPaymentCancel />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/car-listing/:id"
+                  element={
+                    <MyLayout>
+                      <CarListing />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/messages"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={MessagesPage} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/conversation/:conversationId/"
+                  element={
+                    <MyLayout>
+                      <ProtectedRoute component={ConversationDetail} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/user/:username"
+                  element={
+                    <MyLayout>
+                      <User />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/report/:id/:toReport"
+                  element={
+                    <MyLayout>
+                      <ReportListing />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/search/:id"
+                  element={
+                    <MyLayout>
+                      <ReportListing />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/create-ad"
+                  element={
+                    <MyLayout>
+                      <AdvertiserForm />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/subscription/success"
+                  element={
+                    <MyLayout>
+                      <SubscriptionSuccess />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/subscription/cancel"
+                  element={
+                    <MyLayout>
+                      <SubscriptionCancel />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/subscription/test"
+                  element={
+                    <MyLayout>
+                      <SubscriptionTestPage />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/privacy"
+                  element={
+                    <MyLayout>
+                      <PrivacyPolicy />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/blog"
+                  element={
+                    <MyLayout>
+                      <BlogPage />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/blog/create"
+                  element={
+                    <MyLayout>
+                      <AdminRoute component={BlogEditorPage} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/blog/edit/:id"
+                  element={
+                    <MyLayout>
+                      <AdminRoute component={BlogEditorPage} />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="/blog/:slug/:id"
+                  element={
+                    <MyLayout>
+                      <BlogDetail />
+                    </MyLayout>
+                  }
+                />
+              </Routes>
+            </QueryClientProvider>
           </BrowserRouter>
         </AuthProvider>
       </AntdApp>

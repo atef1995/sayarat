@@ -263,7 +263,6 @@
 .blog-detail-content ol.blog-list .blog-list-item::before {
   content: counter(blog-counter);
   background: linear-gradient(135deg, #1890ff, #40a9ff);
-  color: white;
   border-radius: 50%;
   width: 1.8em;
   height: 1.8em;

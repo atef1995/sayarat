@@ -287,7 +287,6 @@
 /* Error State */
 .seller-profile--error {
   border-color: #ff4d4f;
-  background: #fff2f0;
 }
 
 .dark .seller-profile--error {

@@ -107,6 +107,7 @@ export interface CreateBlogPostData {
   meta_title?: string;
   meta_description?: string;
   scheduled_for?: string;
+  slug: string;
 }
 
 export interface UpdateBlogPostData extends Partial<CreateBlogPostData> {
