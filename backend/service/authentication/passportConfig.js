@@ -25,7 +25,7 @@ class PassportConfig {
    */
   _configureLocalStrategy() {
     passport.use(
-      new LocalStrategy(async(username, password, cb) => {
+      new LocalStrategy(async (username, password, cb) => {
         try {
           const result = await this.authService.verifyCredentials(username, password);
           if (!result.success) {
@@ -56,12 +56,32 @@ class PassportConfig {
   _configureSessionSerialization() {
     passport.serializeUser((user, cb) => {
       process.nextTick(() => {
-        cb(null, { id: user.id, username: user.username });
+        const serializedUser = {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          is_admin: user.isAdmin || user.is_admin || false,
+          is_company: user.isCompany || user.is_company || false,
+          is_premium: user.isPremium || user.is_premium || false,
+          account_type: user.accountType || user.account_type || 'personal'
+        };
+
+        logger.info('User serialized for session:', {
+          userId: serializedUser.id,
+          username: serializedUser.username,
+          isAdmin: serializedUser.is_admin,
+          isCompany: serializedUser.is_company,
+          isPremium: serializedUser.is_premium,
+          accountType: serializedUser.account_type
+        });
+
+        cb(null, serializedUser);
       });
     });
 
     passport.deserializeUser((user, cb) => {
       process.nextTick(() => {
+        // Simply return the user from session - no DB lookup needed
         return cb(null, user);
       });
     });

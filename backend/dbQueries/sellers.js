@@ -1,4 +1,4 @@
-const getSellerByUsername = async(knex, username) => {
+const getSellerByUsername = async (knex, username) => {
   if (!username) {
     throw new Error('Username is required to fetch seller');
   }
@@ -19,6 +19,7 @@ const getSellerByUsername = async(knex, username) => {
       'is_company',
       'company_id',
       'is_premium',
+      'is_admin',
       'account_type',
       'picture'
     )
@@ -32,7 +33,7 @@ const getSellerByUsername = async(knex, username) => {
   return seller;
 };
 
-const getSellerById = async(knex, id) => {
+const getSellerById = async (knex, id) => {
   if (!id) {
     throw new Error('Seller ID is required to fetch seller');
   }
@@ -52,6 +53,7 @@ const getSellerById = async(knex, id) => {
       'is_company',
       'company_id',
       'is_premium',
+      'is_admin',
       'account_type',
       'picture'
     )

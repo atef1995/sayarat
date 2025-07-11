@@ -7,11 +7,16 @@
 
 const Joi = require('joi');
 const logger = require('../utils/logger');
+const { convertToArray } = require('../utils/listingsDbHelper');
 
 /**
  * Blog Post Validation Schema
  */
 const blogPostSchema = Joi.object({
+  slug: Joi.string().max(200).allow('').messages({
+    'string.max': 'الرابط يجب أن لا يتجاوز 200 حرف',
+    'string.empty': 'الرابط لا يمكن أن يكون فارغاً'
+  }),
   title: Joi.string().min(5).max(255).required().messages({
     'string.empty': 'عنوان المقال مطلوب',
     'string.min': 'عنوان المقال يجب أن يكون 5 أحرف على الأقل',
@@ -43,6 +48,9 @@ const blogPostSchema = Joi.object({
   }),
 
   is_featured: Joi.boolean().default(false),
+  featured_image: Joi.string().uri().allow('').messages({
+    'string.uri': 'رابط الصورة المميزة غير صحيح'
+  }),
 
   meta_title: Joi.string().max(255).allow('').messages({
     'string.max': 'عنوان SEO يجب أن لا يتجاوز 255 حرف'
@@ -357,6 +365,8 @@ const tagSchema = Joi.object({
 
 const validateBlogPost = (req, res, next) => {
   try {
+    const tags = convertToArray(req.body.tags);
+    req.body.tags = tags;
     const { error, value } = blogPostSchema.validate(req.body, {
       abortEarly: false,
       stripUnknown: true
@@ -555,40 +565,9 @@ const generateSlug = title => {
     title
       .toLowerCase()
       .trim()
-      // Replace Arabic characters with transliteration (simplified)
-      .replace(/[أإآ]/g, 'a')
-      .replace(/[ب]/g, 'b')
-      .replace(/[ت]/g, 't')
-      .replace(/[ث]/g, 'th')
-      .replace(/[ج]/g, 'j')
-      .replace(/[ح]/g, 'h')
-      .replace(/[خ]/g, 'kh')
-      .replace(/[د]/g, 'd')
-      .replace(/[ذ]/g, 'dh')
-      .replace(/[ر]/g, 'r')
-      .replace(/[ز]/g, 'z')
-      .replace(/[س]/g, 's')
-      .replace(/[ش]/g, 'sh')
-      .replace(/[ص]/g, 's')
-      .replace(/[ض]/g, 'd')
-      .replace(/[ط]/g, 't')
-      .replace(/[ظ]/g, 'z')
-      .replace(/[ع]/g, 'a')
-      .replace(/[غ]/g, 'gh')
-      .replace(/[ف]/g, 'f')
-      .replace(/[ق]/g, 'q')
-      .replace(/[ك]/g, 'k')
-      .replace(/[ل]/g, 'l')
-      .replace(/[م]/g, 'm')
-      .replace(/[ن]/g, 'n')
-      .replace(/[ه]/g, 'h')
-      .replace(/[و]/g, 'w')
-      .replace(/[ي]/g, 'y')
-      // Clean up
-      .replace(/[^\w\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .replace(/^-|-$/g, '')
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .substring(0, 200) // Limit to 200 characters
   );
 };
 

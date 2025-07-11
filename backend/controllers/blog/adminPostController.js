@@ -1,5 +1,7 @@
 const { getAllPosts: getAllPostsService, createPost: createPostService } = require('../../service/blog/index');
 const { generateSlug } = require('../../middleware/blogValidation');
+const logger = require('../../utils/logger');
+const { validateImages } = require('../../middleware/listingValidation');
 
 
 /**
@@ -52,11 +54,21 @@ const createPost = async (req, res) => {
     const postData = {
       ...req.body,
       author_id: req.user.id,
-      slug: generateSlug(req.body.title),
       featured_image: req.file ? req.file.filename : null
     };
 
+    logger.info('Creating new blog post with slug:', {
+      slug: postData.slug,
+    });
+
     const post = await createPostService(postData);
+
+    if (post.success === false) {
+      return res.status(400).json({
+        success: false,
+        error: post.message || 'خطأ في إنشاء المقال'
+      });
+    }
 
     logger.info('Blog post created:', {
       postId: post.id,
@@ -359,6 +371,52 @@ const toggleFeaturedPost = async (req, res) => {
   }
 };
 
+/**
+ * Upload blog image
+ */
+const uploadBlogImage = async (req, res) => {
+  try {
+    const file = req.file;
+
+    if (!file) {
+      return res.status(400).json({
+        success: false,
+        error: 'No image file provided'
+      });
+    }
+
+    validateImages([file]);
+
+    // Use the existing image handler
+    const { handleImageUpload } = require('../../imageHandler');
+    const imageUrls = await handleImageUpload([file]);
+
+    if (!imageUrls || imageUrls.length === 0) {
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to upload image'
+      });
+    }
+
+    const imageUrl = imageUrls[0].url;
+    const filename = imageUrls[0].filename || file.originalname;
+
+    res.json({
+      success: true,
+      data: {
+        url: imageUrl,
+        filename: filename
+      }
+    });
+  } catch (error) {
+    logger.error('Error uploading blog image:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to upload image'
+    });
+  }
+};
+
 module.exports = {
   // Admin post controllers
   getAllPosts,
@@ -370,4 +428,5 @@ module.exports = {
   unpublishPost,
   schedulePost,
   toggleFeaturedPost,
+  uploadBlogImage,
 }

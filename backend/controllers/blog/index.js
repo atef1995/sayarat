@@ -95,6 +95,7 @@ module.exports = {
   unpublishPost: adminPostController.unpublishPost,
   schedulePost: adminPostController.schedulePost,
   toggleFeaturedPost: adminPostController.toggleFeaturedPost,
+  uploadBlogImage: adminPostController.uploadBlogImage,
   togglePostLike: postController.togglePostLike,
   trackPostView: postController.trackPostView,
 

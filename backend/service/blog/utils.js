@@ -9,23 +9,6 @@
 const logger = require('../../utils/logger');
 
 /**
- * Generate a URL-friendly slug from title
- * @param {string} title - The title to convert to slug
- * @returns {string} The generated slug
- */
-const generateSlug = (title) => {
-  if (!title || typeof title !== 'string') {
-    throw new Error('Title must be a non-empty string');
-  }
-
-  return title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/\s+/g, '-')
-    .trim();
-};
-
-/**
  * Validate post data
  * @param {Object} postData - The post data to validate
  * @returns {Object} Validation result with errors if any
@@ -41,8 +24,8 @@ const validatePostData = (postData) => {
     errors.push('Content is required and must be a non-empty string');
   }
 
-  if (!postData.author_id || typeof postData.author_id !== 'number') {
-    errors.push('Author ID is required and must be a number');
+  if (!postData.author_id || typeof postData.author_id !== 'string') {
+    errors.push('Author ID is required and must be a valid identifier');
   }
 
   if (!postData.category_id || typeof postData.category_id !== 'number') {
@@ -235,7 +218,6 @@ const buildPaginationMeta = (page, limit, total) => {
 };
 
 module.exports = {
-  generateSlug,
   validatePostData,
   sanitizeContent,
   formatPostData,
@@ -249,7 +231,6 @@ module.exports = {
 
 module.exports = {
   validatePostData,
-  generateSlug,
   sanitizeContent,
   formatPostData,
   parseFilters,

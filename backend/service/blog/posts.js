@@ -9,7 +9,6 @@
 const db = require('../../config/database');
 const logger = require('../../utils/logger');
 const {
-  generateSlug,
   validatePostData,
   formatPostData,
   parseFilters,
@@ -239,16 +238,6 @@ const getPosts = async searchParams => {
  * @returns {Promise<Object>} The created post
  */
 const createPost = async (postData) => {
-  // Validate input data
-  const validation = validatePostData(postData);
-  if (!validation.isValid) {
-    return {
-      success: false,
-      message: 'Validation failed',
-      errors: validation.errors
-    };
-  }
-
   const trx = await db.transaction();
 
   try {
@@ -259,7 +248,7 @@ const createPost = async (postData) => {
       featured_image,
       author_id,
       category_id,
-      status = 'draft',
+      status,
       is_featured = false,
       reading_time,
       car_make,
@@ -267,15 +256,29 @@ const createPost = async (postData) => {
       car_year,
       rating,
       steps,
-      tags = []
+      tags = [],
+      slug
     } = postData;
 
-    // Generate slug from title
-    const slug = generateSlug(title);
+    logger.info('Creating new blog post', {
+      postData
+    });
 
-    // Check if slug exists and make it unique
-    const existingPost = await trx('blog_posts').where('slug', slug).first();
-    const finalSlug = existingPost ? `${slug}-${Date.now()}` : slug;
+    // Use provided slug or fallback to null if not provided
+    let finalSlug = slug || null;
+
+    // Check if slug exists and make it unique (only if slug is provided)
+    if (finalSlug) {
+      try {
+        const existingPost = await trx('blog_posts').where('slug', finalSlug).first();
+        if (existingPost) {
+          finalSlug = `${finalSlug}-${Date.now()}`;
+        }
+      } catch (slugError) {
+        // If slug column doesn't exist, we'll handle it in the insert
+        logger.warn('Slug column may not exist, proceeding without slug uniqueness check:', slugError.message);
+      }
+    }
 
     // Convert markdown content to HTML if needed
     let finalContent = content;
@@ -432,12 +435,10 @@ const updatePost = async (postId, updateData) => {
 
     if (title !== undefined) {
       updateObj.title = title;
-      // Update slug if title changes
-      updateObj.slug = title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, '')
-        .replace(/\s+/g, '-')
-        .trim();
+      // Only update slug if explicitly provided in updateData
+      if (updateData.slug !== undefined) {
+        updateObj.slug = updateData.slug;
+      }
     }
 
     if (content !== undefined) {

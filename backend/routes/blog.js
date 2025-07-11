@@ -95,37 +95,40 @@ router.post('/posts/:id/view', blogController.trackPostView);
  */
 
 // Get all posts (including drafts) - Admin only
-router.get('/admin/posts', ensureAuthenticated, requireAdmin, blogController.getAllPosts);
+router.get('/admin/posts', requireAdmin, blogController.getAllPosts);
 
 // Create new blog post
-router.post('/posts', ensureAuthenticated, upload.single('featured_image'), validateBlogPost, blogController.createPost);
+router.post('/posts', requireAdmin, upload.single('featured_image'), validateBlogPost, blogController.createPost);
+
+// Upload blog image
+router.post('/upload/image', requireAdmin, upload.single('image'), blogController.uploadBlogImage);
 
 // Update blog post
 router.put(
   '/posts/:id',
-  ensureAuthenticated,
+  requireAdmin,
   upload.single('featured_image'),
   validateBlogPost,
   blogController.updatePost
 );
 
 // Delete blog post
-router.delete('/posts/:id', ensureAuthenticated, blogController.deletePost);
+router.delete('/posts/:id', requireAdmin, blogController.deletePost);
 
 // Bulk delete blog posts
-router.delete('/posts', ensureAuthenticated, requireAdmin, blogController.bulkDeletePosts);
+router.delete('/posts', requireAdmin, blogController.bulkDeletePosts);
 
 // Publish a draft post
-router.patch('/posts/:id/publish', ensureAuthenticated, blogController.publishPost);
+router.patch('/posts/:id/publish', requireAdmin, blogController.publishPost);
 
 // Unpublish a post (convert to draft)
-router.patch('/posts/:id/unpublish', ensureAuthenticated, blogController.unpublishPost);
+router.patch('/posts/:id/unpublish', requireAdmin, blogController.unpublishPost);
 
 // Schedule a post
-router.patch('/posts/:id/schedule', ensureAuthenticated, blogController.schedulePost);
+router.patch('/posts/:id/schedule', requireAdmin, blogController.schedulePost);
 
 // Feature/unfeature a post
-router.patch('/posts/:id/feature', ensureAuthenticated, requireAdmin, blogController.toggleFeaturedPost);
+router.patch('/posts/:id/feature', requireAdmin, blogController.toggleFeaturedPost);
 
 /**
  * Category Management Routes (Admin Only)
@@ -157,7 +160,7 @@ router.get('/tags', blogController.getTags);
 router.get('/tags/:identifier', blogController.getTag);
 
 // Create new tag
-router.post('/tags', ensureAuthenticated, validateBlogTag, blogController.createTag);
+router.post('/tags', requireAdmin, validateBlogTag, blogController.createTag);
 
 // Update tag
 router.put('/tags/:id', ensureAuthenticated, requireAdmin, validateBlogTag, blogController.updateTag);

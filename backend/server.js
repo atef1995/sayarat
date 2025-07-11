@@ -43,45 +43,16 @@ if (process.env.NODE_ENV === 'production') {
 
 const { setupAutoExpire: _setupAutoExpire, setupAutoDeleteDisabledListings: _setupAutoDeleteDisabledListings } = require('./service/autoExpireListings');
 const logger = require('./utils/logger');
+const { getEnhancedConnections } = require('./utils/EnhancedServerConnections');
 
 const knex = require('./config/database');
 const redisUrl = process.env.NODE_ENV === 'production' ? process.env.REDIS_URL : 'redis://localhost:6379';
 logger.info(`Using Redis URL: ${redisUrl}`);
 
-// Initialize Redis client
-const redisClient = createClient({
-  url: redisUrl
-});
+// Initialize enhanced connections with retry logic
+const enhancedConnections = getEnhancedConnections();
 
-redisClient.connect().catch(logger.error);
-
-/**
- * Clean up temporary files on server startup
- * Follows Single Responsibility Principle
- */
-const cleanupTempFiles = () => {
-  const uploadsDir = path.join(__dirname, 'uploads');
-  if (require('fs').existsSync(uploadsDir)) {
-    require('fs')
-      .readdirSync(uploadsDir)
-      .forEach(file => {
-        const filePath = path.join(uploadsDir, file);
-        try {
-          require('fs').unlinkSync(filePath);
-        } catch (error) {
-          logger.warn('Failed to cleanup temp file:', { error });
-        }
-      });
-  }
-};
-
-// Call on server startup
-cleanupTempFiles();
-
-// Security middleware
-app.use(helmet());
-
-// Secure rate limiting configuration
+// Rate limiting configuration
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 1000, // Limit each IP to 1000 requests per windowMs
@@ -106,7 +77,6 @@ const globalLimiter = rateLimit({
     }
   }
 });
-app.use(globalLimiter);
 
 // Specific rate limiters for sensitive endpoints
 const authLimiter = rateLimit({
@@ -131,26 +101,98 @@ const paymentLimiter = rateLimit({
   legacyHeaders: false
 });
 
-app.use(
-  cors({
-    origin: process.env.FRONTEND_URL,
-    credentials: true
-  })
-);
+/**
+ * Clean up temporary files on server startup
+ * Follows Single Responsibility Principle
+ */
+const cleanupTempFiles = () => {
+  const uploadsDir = path.join(__dirname, 'uploads');
+  if (require('fs').existsSync(uploadsDir)) {
+    require('fs')
+      .readdirSync(uploadsDir)
+      .forEach(file => {
+        const filePath = path.join(uploadsDir, file);
+        try {
+          require('fs').unlinkSync(filePath);
+        } catch (error) {
+          logger.warn('Failed to cleanup temp file:', { error });
+        }
+      });
+  }
+};
 
-// Request logging
-app.use(
-  morgan('dev', {
-    stream: {
-      write: message => logger.info(message.trim())
-    }
-  })
-);
+/**
+ * Initialize all connections and setup server
+ * This ensures proper startup order and error handling
+ */
+async function initializeServer() {
+  try {
+    // Initialize Redis client with retry logic first
+    const redisClient = await enhancedConnections.initializeRedis(redisUrl);
+    logger.info('Redis client initialized with retry capabilities');
 
-// Session configuration
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
+    // Initialize database with retry logic
+    await enhancedConnections.initializeDatabase({
+      client: knex.client.config.client,
+      connection: knex.client.config.connection,
+      pool: knex.client.config.pool,
+      migrations: knex.client.config.migrations,
+      seeds: knex.client.config.seeds
+    });
+    logger.info('Database initialized with retry capabilities');
+
+    // Setup session configuration with initialized Redis client
+    setupSessionMiddleware(redisClient);
+
+    // Setup remaining middleware and routes
+    setupMiddleware();
+    setupRoutes();
+
+    // Start the server
+    startServer();
+
+  } catch (error) {
+    logger.error('Failed to initialize server connections', { error: error.message });
+    // Fallback to basic initialization
+    await fallbackInitialization();
+  }
+}
+
+/**
+ * Fallback initialization without retry logic
+ */
+async function fallbackInitialization() {
+  try {
+    logger.warn('Using fallback initialization without retry logic');
+
+    // Basic Redis client
+    const redisClient = createClient({ url: redisUrl });
+    await redisClient.connect();
+    logger.info('Basic Redis client connected');
+
+    // Setup session with basic client
+    setupSessionMiddleware(redisClient);
+    setupMiddleware();
+    setupRoutes();
+    startServer();
+
+  } catch (error) {
+    logger.error('Fallback initialization failed', { error: error.message });
+
+    // Final fallback - no Redis sessions
+    logger.warn('Starting server without Redis sessions');
+    setupSessionMiddleware(null);
+    setupMiddleware();
+    setupRoutes();
+    startServer();
+  }
+}
+
+/**
+ * Setup session middleware with optional Redis client
+ */
+function setupSessionMiddleware(redisClient) {
+  const sessionConfig = {
     secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false,
@@ -160,116 +202,211 @@ app.use(
       sameSite: 'lax',
       maxAge: 24 * 60 * 60 * 1000
     }
-  })
-);
+  };
 
-app.use(passport.authenticate('session'));
-
-// Middleware - Webhook must be before JSON parsing
-app.use(
-  '/api/webhook',
-  express.raw({
-    type: 'application/json',
-    limit: '1mb',
-    verify: (req, res, buf) => {
-      req.rawBody = buf;
+  // Add Redis store if client is available
+  if (redisClient) {
+    try {
+      sessionConfig.store = new RedisStore({ client: redisClient });
+      logger.info('Session configured with Redis store');
+    } catch (error) {
+      logger.error('Failed to setup Redis store, using memory store', { error: error.message });
     }
-  })
-);
+  } else {
+    logger.warn('Session configured with memory store (not recommended for production)');
+  }
 
-// Mount webhook route BEFORE general JSON parsing
-app.use('/api', webhookRouter(knex));
-
-app.use(express.json({ limit: '10mb' })); // Parse JSON request bodies
-app.use(cookieParser());
-
-app.use(
-  express.urlencoded({
-    limit: '50mb',
-    extended: true
-  })
-); // Parse URL-encoded request bodies
-
-app.get('/api/get-ip', (req, res) => {
-  const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
-  res.json({ ip });
-});
-
-// Make database available to all routes
-app.set('db', knex);
-
-// Add knex to all requests for sitemap routes
-app.use((req, res, next) => {
-  req.knex = knex;
-  next();
-});
-
-// Initialize subscription admin services
-try {
-  subscriptionAdminController.initializeAdminServices(knex);
-  logger.info('Subscription admin services initialized successfully');
-} catch (error) {
-  logger.error('Failed to initialize subscription admin services', { error: error.message });
+  app.use(session(sessionConfig));
+  app.use(passport.authenticate('session'));
 }
 
-app.use('/api/report', reportRouter(knex));
-app.use('/api/conversations', messagesRouter(knex));
-app.use('/api/auth', authLimiter, authRouter(knex)); // Apply auth rate limiting
-app.use('/api/company', companyRouter);
-app.use('/api/subscription', require('./routes/subscription')(knex));
-app.use('/api/admin/subscription', subscriptionAdminRouter);
-app.use('/api/ai', require('./routes/ai'));
-app.use('/api', cars(knex));
-app.use('/api/listings', listings(knex));
-app.use('/api', emailRouter(knex));
-app.use('/api/favorites', favoritesRouter(knex));
-app.use('/api/users', user(knex));
-app.use('/api/profile', profile(knex));
-app.use('/api/reviews', reviews(knex));
-app.use('/api/payment', paymentLimiter, paymentRouter); // Apply payment rate limiting
-app.use('/api/blog', blogRouter);
+/**
+ * Setup general middleware
+ */
+function setupMiddleware() {
+  // Security middleware
+  app.use(helmet());
 
-// SEO and Sitemap routes (no /api prefix for SEO compatibility)
-app.use('/', sitemapRouter);
+  // Rate limiting
+  app.use(globalLimiter);
 
-// Note: webhookRouter is already mounted above before JSON parsing
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    env: process.env.NODE_ENV || 'not-set',
-    port: PORT
+  // CORS
+  app.use(
+    cors({
+      origin: process.env.FRONTEND_URL,
+      credentials: true
+    })
+  );
+
+  // Request logging
+  app.use(
+    morgan('dev', {
+      stream: {
+        write: message => logger.info(message.trim())
+      }
+    })
+  );
+
+  // Webhook middleware (before JSON parsing)
+  app.use(
+    '/api/webhook',
+    express.raw({
+      type: 'application/json',
+      limit: '1mb',
+      verify: (req, res, buf) => {
+        req.rawBody = buf;
+      }
+    })
+  );
+
+  // JSON and URL-encoded parsing
+  app.use(express.json({ limit: '10mb' }));
+  app.use(cookieParser());
+  app.use(
+    express.urlencoded({
+      limit: '50mb',
+      extended: true
+    })
+  );
+
+  // Database middleware
+  app.set('db', knex);
+  app.use((req, res, next) => {
+    req.knex = knex;
+    next();
   });
-});
 
-// Global error handler
-app.use((err, req, res, _next) => {
-  logger.error(err.stack);
-  res.status(500).json({
-    error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+  // Enhanced connection middleware
+  const dbMiddleware = enhancedConnections.createDatabaseMiddleware();
+  const redisMiddleware = enhancedConnections.createRedisMiddleware();
+  app.use(dbMiddleware);
+  app.use(redisMiddleware);
+}
+
+/**
+ * Setup all routes
+ */
+function setupRoutes() {
+  // Utility endpoints
+  app.get('/api/get-ip', (req, res) => {
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || req.socket.remoteAddress;
+    res.json({ ip });
   });
-});
 
-// Graceful shutdown
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM signal received.');
-  app.close(() => {
-    logger.info('Server closed.');
-    // Use throw instead of process.exit for better error handling
-    throw new Error('Server shutdown completed');
+  // Initialize subscription admin services
+  try {
+    subscriptionAdminController.initializeAdminServices(knex);
+    logger.info('Subscription admin services initialized successfully');
+  } catch (error) {
+    logger.error('Failed to initialize subscription admin services', { error: error.message });
+  }
+
+  // Mount webhook route BEFORE other routes (already has raw middleware)
+  app.use('/api', webhookRouter(knex));
+
+  // API routes with rate limiting where appropriate
+  app.use('/api/report', reportRouter(knex));
+  app.use('/api/conversations', messagesRouter(knex));
+  app.use('/api/auth', authLimiter, authRouter(knex));
+  app.use('/api/company', companyRouter);
+  app.use('/api/subscription', require('./routes/subscription')(knex));
+  app.use('/api/admin/subscription', subscriptionAdminRouter);
+  app.use('/api/ai', require('./routes/ai'));
+  app.use('/api', cars(knex));
+  app.use('/api/listings', listings(knex));
+  app.use('/api', emailRouter(knex));
+  app.use('/api/favorites', favoritesRouter(knex));
+  app.use('/api/users', user(knex));
+  app.use('/api/profile', profile(knex));
+  app.use('/api/reviews', reviews(knex));
+  app.use('/api/payment', paymentLimiter, paymentRouter);
+  app.use('/api/blog', blogRouter);
+
+  // SEO and Sitemap routes (no /api prefix for SEO compatibility)
+  app.use('/', sitemapRouter);
+
+  // Health check endpoints
+  app.get('/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      env: process.env.NODE_ENV || 'not-set',
+      port: PORT
+    });
   });
-});
 
-// Initialize image processing (TensorFlow/NSFW detection) safely
-const { initializeImageProcessing } = require('./imageHandler');
-initializeImageProcessing().catch(err => {
-  logger.warn('Image processing initialization failed:', err.message);
-});
+  // Enhanced health check endpoint with connection status
+  app.get('/health/detailed', async (req, res) => {
+    try {
+      const healthResults = await enhancedConnections.performHealthChecks();
 
-// Start server
-app.listen(PORT, () => {
-  logger.info(`Server is running on port ${PORT}`);
+      const overallStatus = healthResults.database && healthResults.redis ? 'healthy' : 'degraded';
+      const statusCode = overallStatus === 'healthy' ? 200 : 503;
+
+      res.status(statusCode).json({
+        status: overallStatus,
+        timestamp: healthResults.timestamp,
+        env: process.env.NODE_ENV || 'not-set',
+        port: PORT,
+        connections: {
+          database: healthResults.database ? 'healthy' : 'unhealthy',
+          redis: healthResults.redis ? 'healthy' : 'unhealthy'
+        }
+      });
+    } catch (error) {
+      logger.error('Health check failed', { error: error.message });
+      res.status(503).json({
+        status: 'error',
+        timestamp: new Date().toISOString(),
+        error: 'Health check failed'
+      });
+    }
+  });
+
+  // Global error handler
+  app.use((err, req, res, _next) => {
+    logger.error(err.stack);
+    res.status(500).json({
+      error: process.env.NODE_ENV === 'development' ? err.message : 'Internal server error'
+    });
+  });
+}
+
+/**
+ * Start the server
+ */
+function startServer() {
+  // Initialize image processing (TensorFlow/NSFW detection) safely
+  const { initializeImageProcessing } = require('./imageHandler');
+  initializeImageProcessing().catch(err => {
+    logger.warn('Image processing initialization failed:', err.message);
+  });
+
+  // Start server
+  const server = app.listen(PORT, () => {
+    logger.info(`Server is running on port ${PORT}`);
+  });
+
+  // Graceful shutdown
+  process.on('SIGTERM', () => {
+    logger.info('SIGTERM signal received.');
+    server.close(() => {
+      logger.info('Server closed.');
+      // Use throw instead of process.exit for better error handling
+      throw new Error('Server shutdown completed');
+    });
+  });
+
+  return server;
+}
+
+// Call cleanup on startup
+cleanupTempFiles();
+
+// Initialize the server
+initializeServer().catch(error => {
+  logger.error('Server initialization failed', { error: error.message });
+  throw new Error('Server startup failed');
 });
 
 module.exports = app;

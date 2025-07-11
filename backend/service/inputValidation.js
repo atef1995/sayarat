@@ -41,16 +41,16 @@ const validateCarDetails = carDetails => {
  * @returns {boolean} - Returns true if the file type is valid.
  */
 const validateImageFileType = fileType => {
-  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
-  console.log(`Validating file type: ${fileType}`, typeof fileType);
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+  logger.info(`Validating file type: ${fileType}`, { type: typeof fileType });
 
   if (typeof fileType !== 'string') {
-    console.log('File type must be a string');
+    logger.info('File type must be a string');
     throw new Error('File type must be a string');
   }
   if (!allowedTypes.includes(fileType)) {
-    console.log(`Invalid file type: ${fileType}`);
-    throw new Error('Invalid file type. Allowed types are: jpeg, png, webp');
+    logger.info(`Invalid file type: ${fileType}`);
+    throw new Error(`Invalid file type. Allowed types are: ${allowedTypes.join(', ')}`);
   }
   return true;
 };

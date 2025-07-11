@@ -382,21 +382,19 @@ class AuthRouteHandlers {
         });
       }
 
-      const result = await this.userProfileService.getAuthenticatedUser(req.user.id);
-
-      if (!result.success) {
-        const statusCode = result.error === 'User not found' ? 404 : 500;
-        return res.status(statusCode).json({
-          success: false,
-          isAuthenticated: false,
-          error: result.error
-        });
-      }
-
+      // Simply return the session user data - no need to fetch from DB or update session
       res.json({
         success: true,
         isAuthenticated: true,
-        user: result.user
+        user: {
+          id: req.user.id,
+          username: req.user.username,
+          email: req.user.email,
+          isAdmin: req.user.is_admin || false,
+          isCompany: req.user.is_company || false,
+          isPremium: req.user.is_premium || false,
+          accountType: req.user.account_type || 'personal'
+        }
       });
     } catch (error) {
       logger.error('Auth check handler error:', {
