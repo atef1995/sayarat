@@ -65,8 +65,10 @@ const BlogCommentsManagement: React.FC = () => {
   const handleApproveComment = async (commentId: number) => {
     try {
       // TODO: Implement approve comment mutation
+      console.log("Approving comment:", commentId);
       message.success("تم الموافقة على التعليق");
     } catch (error) {
+      console.error("Approve comment error:", error);
       message.error("فشل في الموافقة على التعليق");
     }
   };
@@ -74,8 +76,10 @@ const BlogCommentsManagement: React.FC = () => {
   const handleRejectComment = async (commentId: number) => {
     try {
       // TODO: Implement reject comment mutation
+      console.log("Rejecting comment:", commentId);
       message.success("تم رفض التعليق");
     } catch (error) {
+      console.error("Reject comment error:", error);
       message.error("فشل في رفض التعليق");
     }
   };
@@ -83,8 +87,10 @@ const BlogCommentsManagement: React.FC = () => {
   const handleDeleteComment = async (commentId: number) => {
     try {
       // TODO: Implement delete comment mutation
+      console.log("Deleting comment:", commentId);
       message.success("تم حذف التعليق");
     } catch (error) {
+      console.error("Delete comment error:", error);
       message.error("فشل في حذف التعليق");
     }
   };
@@ -145,7 +151,7 @@ const BlogCommentsManagement: React.FC = () => {
     {
       title: "الإجراءات",
       key: "actions",
-      render: (_: any, record: BlogComment) => (
+      render: (_: unknown, record: BlogComment) => (
         <Space size="small">
           {record.status === "pending" && (
             <>

@@ -18,7 +18,7 @@ import {
   BarChartOutlined,
 } from "@ant-design/icons";
 import { useAuth } from "../hooks/useAuth";
-import { useBlogStats, useBlogPosts } from "../hooks/useBlogQueries";
+import { useBlogStats } from "../hooks/useBlogQueries";
 import BlogPostsManagement from "../components/blog/management/BlogPostsManagement";
 import BlogCategoriesManagement from "../components/blog/management/BlogCategoriesManagement";
 import BlogTagsManagement from "../components/blog/management/BlogTagsManagement";
@@ -45,10 +45,13 @@ const BlogManagement: React.FC = () => {
 
   // Fetch blog statistics
   const { data: blogStats } = useBlogStats();
-  const { data: allPosts } = useBlogPosts({
-    status: "all",
-    limit: 1,
-  });
+  // const { data: allPosts } = useBlogPosts({
+  //   status: "all",
+  //   limit: 1,
+  // });
+
+  // Use total count from posts pagination for statistics (for future use)
+  // const totalPosts = allPosts?.pagination?.totalItems || 0;
 
   // Check if user is admin
   if (!isAuthenticated || !user?.isAdmin) {

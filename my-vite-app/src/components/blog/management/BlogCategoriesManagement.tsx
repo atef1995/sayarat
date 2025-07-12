@@ -26,6 +26,12 @@ import { BlogCategory } from "../../../types/blogTypes";
 const { Title } = Typography;
 const { Search } = Input;
 
+interface CategoryFormValues {
+  name: string;
+  description?: string;
+  color?: string;
+}
+
 /**
  * BlogCategoriesManagement Component
  *
@@ -73,9 +79,11 @@ const BlogCategoriesManagement: React.FC = () => {
   const handleDeleteCategory = async (categoryId: number) => {
     try {
       // TODO: Implement delete category mutation
+      console.log("Deleting category:", categoryId);
       message.success("تم حذف الفئة بنجاح");
       refetch();
     } catch (error) {
+      console.error("Delete category error:", error);
       message.error("فشل في حذف الفئة");
     }
   };
@@ -83,20 +91,29 @@ const BlogCategoriesManagement: React.FC = () => {
   const handleToggleActive = async (categoryId: number, isActive: boolean) => {
     try {
       // TODO: Implement toggle active mutation
+      console.log("Toggling category:", categoryId, "to", !isActive);
       message.success(isActive ? "تم تفعيل الفئة" : "تم إلغاء تفعيل الفئة");
       refetch();
     } catch (error) {
+      console.error("Toggle active error:", error);
       message.error("فشل في تغيير حالة الفئة");
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: CategoryFormValues) => {
     try {
       if (editingCategory) {
         // TODO: Implement update category mutation
+        console.log(
+          "Updating category:",
+          editingCategory.id,
+          "with values:",
+          values
+        );
         message.success("تم تحديث الفئة بنجاح");
       } else {
         // TODO: Implement create category mutation
+        console.log("Creating category with values:", values);
         message.success("تم إنشاء الفئة بنجاح");
       }
       setIsModalVisible(false);
@@ -163,7 +180,7 @@ const BlogCategoriesManagement: React.FC = () => {
     {
       title: "الإجراءات",
       key: "actions",
-      render: (_: any, record: BlogCategory) => (
+      render: (_: unknown, record: BlogCategory) => (
         <Space size="small">
           <Tooltip title="تحرير">
             <Button

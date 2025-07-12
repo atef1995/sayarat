@@ -23,6 +23,11 @@ import { useTags } from "../../../hooks/useBlogQueries";
 import { BlogTag } from "../../../types/blogTypes";
 
 const { Title } = Typography;
+
+interface TagFormValues {
+  name: string;
+  color?: string;
+}
 const { Search } = Input;
 
 /**
@@ -58,25 +63,30 @@ const BlogTagsManagement: React.FC = () => {
   const handleDeleteTag = async (tagId: number) => {
     try {
       // TODO: Implement delete tag mutation
+      console.log("Deleting tag:", tagId);
       message.success("تم حذف العلامة بنجاح");
       refetch();
     } catch (error) {
+      console.error("Delete tag error:", error);
       message.error("فشل في حذف العلامة");
     }
   };
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: TagFormValues) => {
     try {
       if (editingTag) {
         // TODO: Implement update tag mutation
+        console.log("Updating tag:", editingTag.id, "with values:", values);
         message.success("تم تحديث العلامة بنجاح");
       } else {
         // TODO: Implement create tag mutation
+        console.log("Creating tag with values:", values);
         message.success("تم إنشاء العلامة بنجاح");
       }
       setIsModalVisible(false);
       refetch();
     } catch (error) {
+      console.error("Submit tag error:", error);
       message.error("فشل في حفظ العلامة");
     }
   };
@@ -105,7 +115,7 @@ const BlogTagsManagement: React.FC = () => {
     {
       title: "الإجراءات",
       key: "actions",
-      render: (_: any, record: BlogTag) => (
+      render: (_: unknown, record: BlogTag) => (
         <Space size="small">
           <Tooltip title="تحرير">
             <Button

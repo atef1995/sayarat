@@ -33,7 +33,7 @@ export const useBlogEditor = (mode: "create" | "edit", id?: string) => {
 
       // Return existing post data if editing
       if (mode === "edit" && id) {
-        const post = await blogService.getBlogPost(id);
+        const post = await blogService.getBlogPostById(id);
         if (post) {
           setSelectedTags(post.tags?.map((tag: BlogTag) => tag.id) || []);
           return post;

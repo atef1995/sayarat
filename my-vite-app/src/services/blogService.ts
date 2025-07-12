@@ -109,6 +109,13 @@ class BlogService {
   }
 
   /**
+   * Get single blog post by ID
+   */
+  async getBlogPostById(id: string | number): Promise<BlogPost> {
+    return blogApiClient.getPostById(id);
+  }
+
+  /**
    * Legacy method for backward compatibility
    */
   async getPost(
@@ -147,9 +154,7 @@ class BlogService {
   /**
    * Toggle post like
    */
-  async toggleLike(
-    postId: string
-  ): Promise<{
+  async toggleLike(postId: string): Promise<{
     success: boolean;
     action?: string;
     liked?: boolean;

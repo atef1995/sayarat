@@ -154,6 +154,16 @@ class BlogApiClient {
     return response.data;
   }
 
+  async getPostById(id: string | number): Promise<BlogPost> {
+    const response = await apiClient.get<BlogPostResponse>(
+      `${BLOG_ENDPOINTS.POSTS}/id/${id}`
+    );
+    if (!response.data) {
+      throw new Error("Post not found");
+    }
+    return response.data;
+  }
+
   async createPost(postData: CreateBlogPostData): Promise<BlogPost> {
     const formData = apiClient.createFormData(
       postData as unknown as Record<string, unknown>
@@ -240,18 +250,9 @@ class BlogApiClient {
   }
 
   async createTag(tagData: { name: string; slug?: string }): Promise<BlogTag> {
-    // Generate slug if not provided
-    const generateSlug = (title: string): string => {
-      return title
-        .toLowerCase()
-        .replace(/[^\w\s-]/g, "")
-        .replace(/\s+/g, "-")
-        .trim();
-    };
-
     const payload = {
       name: tagData.name,
-      slug: tagData.slug || generateSlug(tagData.name),
+      slug: tagData.slug,
     };
 
     const response = await apiClient.post<ApiResponse<BlogTag>>(

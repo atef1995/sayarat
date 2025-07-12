@@ -3,6 +3,7 @@ import { Modal, Form, message } from "antd";
 import { useBlogEditor } from "../../../hooks/useBlogEditor";
 import { useBlogForm, BlogFormData } from "../../../hooks/useBlogForm";
 import { BlogPost } from "../../../types/blogTypes";
+import blogService from "../../../services/blogService";
 import { BlogContentForm } from "../BlogContentForm";
 import { BlogCarInfoForm } from "../BlogCarInfoForm";
 import { BlogPublishSidebar } from "../BlogPublishSidebar";
@@ -60,9 +61,9 @@ const BlogEditorModal: React.FC<BlogEditorModalProps> = ({
     status: "draft" | "published"
   ) => {
     try {
-      // Save logic similar to useBlogForm but without navigation
-      const response = await saveBlogPost(values, status);
-      if (response) {
+      // Save logic that actually calls the backend
+      const savedPost = await saveBlogPost(values, status);
+      if (savedPost) {
         message.success(
           `تم ${status === "published" ? "نشر" : "حفظ"} المنشور بنجاح`
         );
@@ -75,15 +76,44 @@ const BlogEditorModal: React.FC<BlogEditorModalProps> = ({
     }
   };
 
-  // Simplified save function for modal context
+  // Real save function that calls the backend
   const saveBlogPost = async (
     values: BlogFormData,
     status: "draft" | "published"
   ) => {
-    // This is a placeholder - in a real implementation, you would
-    // integrate with your blog service here
-    console.log("Saving post:", { values, status, mode, id });
-    return Promise.resolve(true);
+    try {
+      const postData = {
+        ...values,
+        status,
+        tags: selectedTags.map((tagId) => tagId.toString()), // Convert to strings as expected by API
+        // Ensure all required fields are included
+        meta_title: values.meta_title || values.title,
+        meta_description: values.meta_description || values.excerpt,
+      };
+
+      console.log(
+        "🔍 FRONTEND - Sending post data:",
+        JSON.stringify(postData, null, 2)
+      );
+
+      let result;
+      if (mode === "edit" && id) {
+        // Update existing post
+        result = await blogService.updateBlogPost({
+          id: parseInt(id),
+          ...postData,
+        });
+      } else {
+        // Create new post
+        result = await blogService.createBlogPost(postData);
+      }
+
+      console.log("✅ FRONTEND - Blog post saved successfully:", result);
+      return result;
+    } catch (error) {
+      console.error("❌ FRONTEND - Failed to save blog post:", error);
+      throw error;
+    }
   };
 
   useEffect(() => {
