@@ -10,6 +10,8 @@ When developing a new feature start with coding the skeleton of the feature, the
 
 - apply modular architecture to the files you are working on.
 
+- Create files in the appropriate directories based on their functionality.
+
 - use dry principles to create reusable code.
 
 - use error boundaries to handle errors gracefully.
@@ -18,7 +20,7 @@ When developing a new feature start with coding the skeleton of the feature, the
 
 ### Fixing Issues
 
-- **Identify the Issue**: Clearly define the problem you are addressing. Document any related issues or bugs in the codebase.
+- **Identify the Issue**: Clearly define the problem you are addressing. Document any related issues or bugs in the codebase by marking them with `#TODO` or `#BUG` comments.
 - **Fix the Code**: Implement the necessary changes to resolve the issue. Ensure that the fix is well-tested and does not introduce new bugs.
 - **Systematically fix the code**: Follow a systematic approach to fix the code, ensuring that all related components and utilities are updated accordingly.
 
@@ -37,12 +39,18 @@ When developing a new feature start with coding the skeleton of the feature, the
 - **Dependency Injection**: Use dependency injection for better testability and flexibility.
 - **Use SOLID Principles**: Follow SOLID principles for object-oriented design to ensure maintainability and scalability.
 - **Testing**: Write unit tests for functions and modules to ensure reliability.
-- **Documentation**: Document functions and modules clearly, including usage examples and parameter descriptions.
+- **Documentation**: Document functions and modules clearly in the file, including usage examples and parameter descriptions.
 - **NODEjS Best Practices**: Follow Node.js best practices for asynchronous programming, error handling, and performance optimization.
 - **Security Best Practices**: Follow security best practices, such as sanitizing inputs and avoiding inline styles.
 
 - **Code Modularity**: Break down large files into smaller, manageable modules.
 - **Reusable code/classes**: Create reusable code/classes for common patterns.
+- **Avoid Side Effects**: Ensure functions do not have side effects that can affect other parts of the application.
+- **Performance Optimization**: Optimize code for performance, especially in critical paths.
+- **Code Comments**: Use comments to explain complex logic or important decisions in the code.
+- **Code Consistency**: Maintain consistent coding style across the codebase.
+- **Error Handling**: Implement robust error handling to gracefully manage unexpected situations.
+- **Max File Size**: Keep files under 300 lines of code to ensure readability and maintainability.
 - **Testability**: Ensure code/classes are easily testable by keeping them stateless where possible.
 
 ## current nodejs development environment

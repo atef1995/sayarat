@@ -6,6 +6,10 @@ applyTo: "**/*.tsx"
 
 These guidelines are designed to ensure consistency, maintainability, and performance in the development of TSX components within our codebase. Please adhere to these practices when creating or modifying components.
 
+### Important Note
+
+dark mode is handled by Ant Design theming in the root, and Tailwind CSS is used for utility-first styling. Ensure that all components are compatible with these frameworks. do not hardcode dark mode colors or styles; instead, use Ant Design's theming capabilities and Tailwind CSS classes for styling.
+
 ### Fixing Issues
 
 - **Identify the Issue**: Clearly define the problem you are addressing. Document any related issues or bugs in the codebase.
@@ -69,6 +73,11 @@ These guidelines are designed to ensure consistency, maintainability, and perfor
 - **Internationalization (i18n)**: If applicable, ensure components support internationalization for multi-language support.
 - **Security Best Practices**: Follow security best practices, such as sanitizing inputs and avoiding inline styles.
 - **Code Splitting**: Use dynamic imports for large components to improve initial load time.
+- **Max File Size**: Keep component files under 300 lines of code to maintain readability and manageability.
+
+## Styling Guidelines
+
 - **Responsive Design**: Ensure components are responsive and work well on different screen sizes.
 - **AntDesign Integration**: use Ant Design, follow its guidelines for theming and component usage.
 - **Tailwind CSS**: use Tailwind CSS, ensure classes are applied correctly and follow best practices for utility-first CSS.
+- **Dark Mode Support**: Ant Design theming is used for dark mode support.
