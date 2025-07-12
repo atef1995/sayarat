@@ -38,9 +38,8 @@ import Payment from "./components/Payment.tsx";
 import BlogPage from "./pages/BlogPage.tsx";
 import BlogDetail from "./components/blog/BlogDetail.tsx";
 import BlogEditorPage from "./pages/BlogEditorPage.tsx";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-const queryClient = new QueryClient();
+import { QueryProvider } from "./providers/QueryProvider.tsx";
+import BlogManagement from "./pages/BlogManagement.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -51,9 +50,9 @@ createRoot(document.getElementById("root")!).render(
       }}
     >
       <AntdApp>
-        <AuthProvider>
-          <BrowserRouter>
-            <QueryClientProvider client={queryClient}>
+        <QueryProvider>
+          <AuthProvider>
+            <BrowserRouter>
               <Routes>
                 <Route path="/" element={<App />} />
                 <Route
@@ -289,6 +288,14 @@ createRoot(document.getElementById("root")!).render(
                   }
                 />
                 <Route
+                  path="/blog/management"
+                  element={
+                    <MyLayout>
+                      <AdminRoute component={BlogManagement} />
+                    </MyLayout>
+                  }
+                />
+                <Route
                   path="/blog/create"
                   element={
                     <MyLayout>
@@ -313,9 +320,9 @@ createRoot(document.getElementById("root")!).render(
                   }
                 />
               </Routes>
-            </QueryClientProvider>
-          </BrowserRouter>
-        </AuthProvider>
+            </BrowserRouter>
+          </AuthProvider>
+        </QueryProvider>
       </AntdApp>
     </ConfigProvider>
   </StrictMode>

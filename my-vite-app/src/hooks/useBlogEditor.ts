@@ -23,8 +23,8 @@ export const useBlogEditor = (mode: "create" | "edit", id?: string) => {
         blogService.getBlogTags(),
       ]);
 
-      if (categoriesRes) {
-        setCategories(categoriesRes);
+      if (categoriesRes?.success && categoriesRes.data) {
+        setCategories(categoriesRes.data);
       }
 
       if (tagsRes) {

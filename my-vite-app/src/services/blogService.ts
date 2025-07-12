@@ -1,11 +1,18 @@
 /**
  * Blog Service
  *
- * Frontend service for handling blog-related API calls.
- * Implements proper error handling, type safety, and modular architecture.
+ * High-level service layer for blog functionality.
+ * Implements facade pattern to provide a simple interface to complex subsystems.
+ * Follows Single Responsibility Principle by delegating API calls to specialized clients.
  */
 
-import { loadApiConfig } from "../config/apiConfig";
+import { blogApiClient } from "../utils/blogApiClient";
+import {
+  isNetworkError as apiIsNetworkError,
+  isAuthError as apiIsAuthError,
+  isValidationError as apiIsValidationError,
+  isServerError as apiIsServerError,
+} from "../utils/apiClient";
 import {
   BlogPost,
   BlogCategory,
@@ -13,11 +20,6 @@ import {
   BlogComment,
   BlogSearchParams,
   BlogPaginationResponse,
-  BlogPostResponse,
-  BlogPostsResponse,
-  BlogCategoriesResponse,
-  BlogTagsResponse,
-  BlogCommentsResponse,
   BlogStats,
   CreateBlogPostData,
   UpdateBlogPostData,
@@ -25,740 +27,366 @@ import {
   BlogCategoryForm,
 } from "../types/blogTypes";
 
-const { apiUrl } = loadApiConfig();
-
-// Type guard for File objects
-const isFile = (value: unknown): value is File => {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    "name" in value &&
-    "size" in value &&
-    "type" in value
-  );
-};
+// #TODO: Implement caching layer with TTL for frequently accessed data
+// #TODO: Add offline support with background sync
+// #TODO: Implement rate limiting for user actions
+// #TODO: Add analytics tracking for user interactions
 
 /**
- * Generic API request handler with error handling
+ * Blog Service Class implementing Facade pattern
+ * Provides a simplified interface to blog-related operations
  */
-const apiRequest = async <T>(
-  endpoint: string,
-  options: RequestInit = {}
-): Promise<T> => {
-  try {
-    const defaultHeaders: HeadersInit = {};
+class BlogService {
+  private static instance: BlogService;
 
-    // Only set Content-Type if body is not FormData
-    if (!(options.body instanceof FormData)) {
-      defaultHeaders["Content-Type"] = "application/json";
+  private constructor() {}
+
+  /**
+   * Get singleton instance
+   */
+  public static getInstance(): BlogService {
+    if (!BlogService.instance) {
+      BlogService.instance = new BlogService();
     }
+    return BlogService.instance;
+  }
 
-    const config: RequestInit = {
-      ...options,
-      credentials: "include", // Include session cookies
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    };
+  /**
+   * Posts Management Methods
+   */
 
-    const response = await fetch(`${apiUrl}/blog${endpoint}`, config);
-
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
+  /**
+   * Get blog posts with filtering and pagination
+   */
+  async getBlogPosts(
+    params: BlogSearchParams = {}
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    try {
+      return await blogApiClient.getPosts(params);
+    } catch (error) {
+      console.error("Error in getBlogPosts:", error);
       throw new Error(
-        errorData.error || `HTTP ${response.status}: ${response.statusText}`
+        `Failed to fetch blog posts: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
       );
     }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Blog API request failed:", error);
-    throw error;
   }
-};
 
-/**
- * Blog Posts API Methods
- */
+  /**
+   * Get featured blog posts
+   */
+  async getFeaturedPosts(limit = 5): Promise<BlogPost[]> {
+    return blogApiClient.getFeaturedPosts(limit);
+  }
 
-/**
- * Get blog posts with filtering and pagination
- */
-/**
- * Enhanced getBlogPosts with better error handling and retry logic
- * Implements modular architecture and follows DRY principles
- *
- * #TODO: Add caching mechanism for frequently accessed blog posts
- * #TODO: Implement request deduplication for concurrent calls
- * #TODO: Add offline support with service worker integration
- */
-export const getBlogPosts = async (
-  params: BlogSearchParams = {}
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
+  /**
+   * Get trending blog posts
+   */
+  async getTrendingPosts(limit = 10, days = 7): Promise<BlogPost[]> {
+    return blogApiClient.getTrendingPosts(limit, days);
+  }
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
+  /**
+   * Get recent blog posts
+   */
+  async getRecentPosts(limit = 5): Promise<BlogPost[]> {
+    return blogApiClient.getRecentPosts(limit);
+  }
+
+  /**
+   * Get popular blog posts
+   */
+  async getPopularPosts(limit = 5): Promise<BlogPost[]> {
+    return blogApiClient.getPopularPosts(limit);
+  }
+
+  /**
+   * Get single blog post by slug
+   */
+  async getBlogPost(slug: string): Promise<BlogPost> {
+    return blogApiClient.getPost(slug);
+  }
+
+  /**
+   * Legacy method for backward compatibility
+   */
+  async getPost(
+    identifier: string
+  ): Promise<{ success: boolean; data?: BlogPost }> {
+    try {
+      const post = await blogApiClient.getPost(identifier);
+      return { success: true, data: post };
+    } catch (error) {
+      console.error("Error in getPost:", error);
+      return { success: false };
     }
-  });
+  }
 
-  const queryString = searchParams.toString();
-  const endpoint = `/posts${queryString ? `?${queryString}` : ""}`;
+  /**
+   * Create new blog post
+   */
+  async createBlogPost(postData: CreateBlogPostData): Promise<BlogPost> {
+    return blogApiClient.createPost(postData);
+  }
 
-  try {
-    const response = await apiRequest<{
-      success: boolean;
-      data: BlogPost[];
-      pagination?: BlogPaginationResponse<BlogPost>["pagination"];
-      error?: string;
-    }>(endpoint);
+  /**
+   * Update blog post
+   */
+  async updateBlogPost(postData: UpdateBlogPostData): Promise<BlogPost> {
+    return blogApiClient.updatePost(postData);
+  }
 
-    console.log("API Response:", response);
+  /**
+   * Delete blog post
+   */
+  async deleteBlogPost(postId: number): Promise<void> {
+    return blogApiClient.deletePost(postId);
+  }
 
-    // Handle the response structure with better error checking
-    if (response.success && Array.isArray(response.data)) {
+  /**
+   * Toggle post like
+   */
+  async toggleLike(
+    postId: string
+  ): Promise<{
+    success: boolean;
+    action?: string;
+    liked?: boolean;
+    likes_count?: number;
+  }> {
+    try {
+      const result = await blogApiClient.toggleLike(parseInt(postId, 10));
       return {
-        data: response.data,
-        pagination: response.pagination || {
-          currentPage: 1,
-          totalPages: Math.ceil(response.data.length / 12),
-          totalItems: response.data.length,
-          itemsPerPage: response.data.length,
-          hasNextPage: false,
-          hasPrevPage: false,
-        },
+        success: true,
+        action: result.liked ? "liked" : "unliked",
+        ...result,
       };
-    } else {
-      throw new Error(response.error || "Invalid response format from server");
+    } catch (error) {
+      console.error("Error in toggleLike:", error);
+      return { success: false };
     }
-  } catch (error) {
-    console.error("Error in getBlogPosts:", error);
-
-    // Re-throw with more context for debugging
-    const errorMessage =
-      error instanceof Error ? error.message : "Unknown error";
-    throw new Error(`Failed to fetch blog posts: ${errorMessage}`);
   }
-};
 
-/**
- * Get featured blog posts
- */
-export const getFeaturedPosts = async (limit = 5): Promise<BlogPost[]> => {
-  const response = await apiRequest<{ success: boolean; data: BlogPost[] }>(
-    `/posts/featured?limit=${limit}`
-  );
-  return response.data;
-};
-
-/**
- * Get trending blog posts
- */
-export const getTrendingPosts = async (
-  limit = 10,
-  days = 7
-): Promise<BlogPost[]> => {
-  const response = await apiRequest<{ success: boolean; data: BlogPost[] }>(
-    `/posts/trending?limit=${limit}&days=${days}`
-  );
-  return response.data;
-};
-
-/**
- * Get recent blog posts
- */
-export const getRecentPosts = async (limit = 5): Promise<BlogPost[]> => {
-  const response = await apiRequest<{ success: boolean; data: BlogPost[] }>(
-    `/posts/recent?limit=${limit}`
-  );
-  return response.data;
-};
-
-/**
- * Get popular blog posts sorted by backend weighted score
- */
-export const getPopularPosts = async (limit = 5): Promise<BlogPost[]> => {
-  const response = await apiRequest<{ success: boolean; data: BlogPost[] }>(
-    `/posts/popular?limit=${limit}`
-  );
-  return response.data;
-};
-
-/**
- * Get single blog post by slug
- */
-export const getBlogPost = async (slug: string): Promise<BlogPost> => {
-  const response = await apiRequest<BlogPostResponse>(`/posts/${slug}`);
-  return response.data!;
-};
-
-/**
- * Get posts by category
- */
-export const getPostsByCategory = async (
-  categorySlug: string,
-  page = 1,
-  limit = 10
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const response = await apiRequest<BlogPostsResponse>(
-    `/category/${categorySlug}/posts?page=${page}&limit=${limit}`
-  );
-  return response.data!;
-};
-
-/**
- * Get posts by tag
- */
-export const getPostsByTag = async (
-  tagSlug: string,
-  page = 1,
-  limit = 10
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const response = await apiRequest<BlogPostsResponse>(
-    `/tag/${tagSlug}/posts?page=${page}&limit=${limit}`
-  );
-  return response.data!;
-};
-
-/**
- * Get posts by author
- */
-export const getPostsByAuthor = async (
-  username: string,
-  page = 1,
-  limit = 10
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const response = await apiRequest<BlogPostsResponse>(
-    `/author/${username}/posts?page=${page}&limit=${limit}`
-  );
-  return response.data!;
-};
-
-/**
- * Search blog posts
- */
-export const searchBlogPosts = async (params: {
-  query: string;
-  page?: number;
-  limit?: number;
-  category?: string;
-  tag?: string;
-  car_make?: string;
-  car_model?: string;
-}): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
+  /**
+   * Track post view
+   */
+  async trackView(postId: string): Promise<{ success: boolean }> {
+    try {
+      await blogApiClient.trackView(parseInt(postId, 10));
+      return { success: true };
+    } catch (error) {
+      console.warn("Failed to track view:", error);
+      return { success: false };
     }
-  });
-
-  const response = await apiRequest<BlogPostsResponse>(
-    `/search?${searchParams.toString()}`
-  );
-  return response.data!;
-};
-
-/**
- * Create new blog post
- */
-export const createBlogPost = async (
-  postData: CreateBlogPostData
-): Promise<BlogPost> => {
-  const formData = new FormData();
-
-  Object.entries(postData).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (isFile(value)) {
-        formData.append(key, value);
-      } else {
-        formData.append(key, String(value));
-      }
-    }
-  });
-
-  const response = await apiRequest<BlogPostResponse>("/posts", {
-    method: "POST",
-    body: formData,
-    headers: {
-      credentials: "include",
-    },
-  });
-
-  return response.data!;
-};
-
-/**
- * Update blog post
- */
-export const updateBlogPost = async (
-  postData: UpdateBlogPostData
-): Promise<BlogPost> => {
-  const { id, ...updateData } = postData;
-  const formData = new FormData();
-
-  Object.entries(updateData).forEach(([key, value]) => {
-    if (value !== undefined && value !== null) {
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (isFile(value)) {
-        formData.append(key, value);
-      } else {
-        formData.append(key, String(value));
-      }
-    }
-  });
-
-  const response = await apiRequest<BlogPostResponse>(`/posts/${id}`, {
-    method: "PUT",
-    body: formData,
-    headers: {
-      credentials: "include",
-    },
-  });
-
-  return response.data!;
-};
-
-/**
- * Delete blog post
- */
-export const deleteBlogPost = async (postId: number): Promise<void> => {
-  await apiRequest(`/posts/${postId}`, {
-    method: "DELETE",
-    headers: {
-      credentials: "include",
-    },
-  });
-};
-
-/**
- * Toggle post like
- */
-export const togglePostLike = async (
-  postId: number
-): Promise<{ liked: boolean; likes_count: number }> => {
-  const response = await apiRequest<{
-    success: boolean;
-    data: { liked: boolean; likes_count: number };
-  }>(`/posts/${postId}/like`, {
-    method: "POST",
-    headers: {
-      credentials: "include",
-    },
-  });
-
-  return response.data;
-};
-
-/**
- * Track post view
- */
-export const trackPostView = async (postId: number): Promise<void> => {
-  try {
-    await apiRequest(`/posts/${postId}/view`, {
-      method: "POST",
-    });
-  } catch (error) {
-    // Don't throw error for view tracking failures
-    console.warn("Failed to track post view:", error);
   }
-};
 
-/**
- * Upload image for blog post
- */
-export const uploadBlogImage = async (
-  file: File
-): Promise<{ url: string; filename: string }> => {
-  const formData = new FormData();
-  formData.append("image", file);
+  /**
+   * Search Methods
+   */
 
-  const response = await apiRequest<{
-    success: boolean;
-    data: { url: string; filename: string };
-  }>("/upload/image", {
-    method: "POST",
-    body: formData,
-    credentials: "include", // Ensure cookies are sent for auth
-  });
-
-  return response.data;
-};
-
-/**
- * Get a single blog post by ID or slug
- */
-const getPost = async (identifier: string): Promise<BlogPostResponse> => {
-  return apiRequest<BlogPostResponse>(`/posts/${identifier}`);
-};
-
-/**
- * Track a blog post view
- */
-const trackView = async (postId: string): Promise<{ success: boolean }> => {
-  return apiRequest<{ success: boolean }>(`/posts/${postId}/view`, {
-    method: "POST",
-  });
-};
-
-/**
- * Toggle like for a blog post
- */
-const toggleLike = async (
-  postId: string
-): Promise<{ success: boolean; action: string }> => {
-  return apiRequest<{ success: boolean; action: string }>(
-    `/posts/${postId}/like`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      credentials: "include", // Ensure cookies are sent for auth
-    }
-  );
-};
-
-/**
- * Categories API Methods
- */
-
-/**
- * Get all blog categories
- */
-export const getBlogCategories = async (
-  includeInactive = false
-): Promise<BlogCategory[]> => {
-  const endpoint = `/categories${
-    includeInactive ? "?include_inactive=true" : ""
-  }`;
-  const response = await apiRequest<BlogCategoriesResponse>(endpoint);
-
-  // Handle the response format - categories API returns { success: true, data: [...] }
-  if (response.success && response.data) {
-    return response.data;
-  } else {
-    throw new Error(response.error || "Failed to fetch blog categories");
+  /**
+   * Search blog posts
+   */
+  async searchBlogPosts(
+    params: BlogSearchParams
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.searchPosts(params);
   }
-};
 
-/**
- * Create new category (Admin only)
- */
-export const createBlogCategory = async (
-  categoryData: BlogCategoryForm
-): Promise<BlogCategory> => {
-  const response = await apiRequest<{ success: boolean; data: BlogCategory }>(
-    "/categories",
-    {
-      method: "POST",
-      body: JSON.stringify(categoryData),
-    }
-  );
-
-  return response.data;
-};
-
-/**
- * Tags API Methods
- */
-
-/**
- * Get all blog tags
- */
-export const getBlogTags = async (): Promise<BlogTag[]> => {
-  const response = await apiRequest<
-    BlogTagsResponse | { data: BlogTag[]; pagination: unknown }
-  >("/tags");
-
-  // Handle both old and new response formats
-  // New format: { data: [...], pagination: {...} }
-  // Old format: { success: true, data: [...] }
-  if ("data" in response && Array.isArray(response.data)) {
-    return response.data;
-  } else if ("success" in response && response.success && response.data) {
-    return response.data;
-  } else if (Array.isArray(response)) {
-    return response;
-  } else {
-    throw new Error("Invalid response format from tags API");
+  /**
+   * Get posts by category
+   */
+  async getPostsByCategory(
+    categorySlug: string,
+    page = 1,
+    limit = 10
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getPostsByCategory(categorySlug, page, limit);
   }
-};
 
-/**
- * Create new blog tag
- */
-export const createBlogTag = async (tagData: {
-  name: string;
-  slug?: string;
-}): Promise<BlogTag> => {
-  // Generate slug if not provided
-  const generateSlug = (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .trim();
-  };
+  /**
+   * Get posts by tag
+   */
+  async getPostsByTag(
+    tagSlug: string,
+    page = 1,
+    limit = 10
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getPostsByTag(tagSlug, page, limit);
+  }
 
-  const response = await apiRequest<{ success: boolean; data: BlogTag }>(
-    "/tags",
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        credentials: "include",
-      },
-      body: JSON.stringify({
-        name: tagData.name,
-        slug: tagData.slug || generateSlug(tagData.name),
-      }),
+  /**
+   * Get posts by author
+   */
+  async getPostsByAuthor(
+    username: string,
+    page = 1,
+    limit = 10
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getPostsByAuthor(username, page, limit);
+  }
+
+  /**
+   * Categories Management Methods
+   */
+
+  /**
+   * Get all blog categories
+   */
+  async getBlogCategories(
+    includeInactive = false
+  ): Promise<{ success: boolean; data: BlogCategory[]; error?: string }> {
+    try {
+      const categories = await blogApiClient.getCategories(includeInactive);
+      return { success: true, data: categories };
+    } catch (error) {
+      console.error("Error in getBlogCategories:", error);
+      return {
+        success: false,
+        data: [],
+        error:
+          error instanceof Error ? error.message : "Failed to fetch categories",
+      };
     }
-  );
-  return response.data;
-};
+  }
 
-/**
- * Comments API Methods
- */
+  /**
+   * Create new category
+   */
+  async createBlogCategory(
+    categoryData: BlogCategoryForm
+  ): Promise<BlogCategory> {
+    return blogApiClient.createCategory(categoryData);
+  }
 
-/**
- * Get comments for a blog post
- */
-export const getBlogComments = async (
-  postId: number,
-  page = 1,
-  limit = 10
-): Promise<BlogPaginationResponse<BlogComment>> => {
-  const response = await apiRequest<BlogCommentsResponse>(
-    `/posts/${postId}/comments?page=${page}&limit=${limit}`
-  );
-  return response.data!;
-};
+  /**
+   * Tags Management Methods
+   */
 
-/**
- * Add comment to blog post
- */
-export const addBlogComment = async (
-  commentData: BlogCommentForm
-): Promise<BlogComment> => {
-  const response = await apiRequest<{ success: boolean; data: BlogComment }>(
-    `/posts/${commentData.post_id}/comments`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        credentials: "include", // Ensure cookies are sent for auth
-      },
-      body: JSON.stringify(commentData),
-    }
-  );
+  /**
+   * Get all blog tags
+   */
+  async getBlogTags(): Promise<BlogTag[]> {
+    return blogApiClient.getTags();
+  }
 
-  return response.data;
-};
+  /**
+   * Create new blog tag
+   */
+  async createBlogTag(tagData: {
+    name: string;
+    slug?: string;
+  }): Promise<BlogTag> {
+    return blogApiClient.createTag(tagData);
+  }
 
-/**
- * Reply to a comment
- */
-export const replyToBlogComment = async (
-  commentId: number,
-  content: string
-): Promise<BlogComment> => {
-  const response = await apiRequest<{ success: boolean; data: BlogComment }>(
-    `/comments/${commentId}/reply`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        credentials: "include", // Ensure cookies are sent for auth
-      },
-      body: JSON.stringify({ content }),
-    }
-  );
+  /**
+   * Comments Management Methods
+   */
 
-  return response.data;
-};
+  /**
+   * Get comments for a blog post
+   */
+  async getBlogComments(
+    postId: number,
+    page = 1,
+    limit = 10
+  ): Promise<BlogPaginationResponse<BlogComment>> {
+    return blogApiClient.getComments(postId, page, limit);
+  }
 
-/**
- * Car-Specific API Methods
- */
+  /**
+   * Add comment to blog post
+   */
+  async addBlogComment(commentData: BlogCommentForm): Promise<BlogComment> {
+    return blogApiClient.addComment(commentData);
+  }
 
-/**
- * Get car market news
- */
-export const getCarMarketNews = async (
-  params: BlogSearchParams = {}
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
+  /**
+   * Reply to a comment
+   */
+  async replyToBlogComment(
+    commentId: number,
+    content: string
+  ): Promise<BlogComment> {
+    return blogApiClient.replyToComment(commentId, content);
+  }
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
-    }
-  });
+  /**
+   * Car-Specific Methods
+   */
 
-  const queryString = searchParams.toString();
-  const endpoint = `/car-news${queryString ? `?${queryString}` : ""}`;
+  /**
+   * Get car market news
+   */
+  async getCarMarketNews(
+    params: BlogSearchParams = {}
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getCarMarketNews(params);
+  }
 
-  const response = await apiRequest<BlogPostsResponse>(endpoint);
-  return response.data!;
-};
+  /**
+   * Get car reviews
+   */
+  async getCarReviews(
+    params: BlogSearchParams = {}
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getCarReviews(params);
+  }
 
-/**
- * Get car reviews
- */
-export const getCarReviews = async (
-  params: BlogSearchParams = {}
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
+  /**
+   * Get car guides
+   */
+  async getCarGuides(
+    params: BlogSearchParams = {}
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getCarGuides(params);
+  }
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
-    }
-  });
+  /**
+   * Get posts for specific car make/model
+   */
+  async getCarModelPosts(
+    make: string,
+    model: string,
+    params: BlogSearchParams = {}
+  ): Promise<BlogPaginationResponse<BlogPost>> {
+    return blogApiClient.getCarModelPosts(make, model, params);
+  }
 
-  const queryString = searchParams.toString();
-  const endpoint = `/car-reviews${queryString ? `?${queryString}` : ""}`;
+  /**
+   * File Upload Methods
+   */
 
-  const response = await apiRequest<BlogPostsResponse>(endpoint);
-  return response.data!;
-};
+  /**
+   * Upload image for blog post
+   */
+  async uploadBlogImage(
+    file: File
+  ): Promise<{ url: string; filename: string }> {
+    return blogApiClient.uploadImage(file);
+  }
 
-/**
- * Get car guides
- */
-export const getCarGuides = async (
-  params: BlogSearchParams = {}
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
+  /**
+   * Analytics Methods
+   */
 
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
-    }
-  });
+  /**
+   * Get blog statistics
+   */
+  async getBlogStats(): Promise<BlogStats> {
+    return blogApiClient.getStats();
+  }
+}
 
-  const queryString = searchParams.toString();
-  const endpoint = `/car-guides${queryString ? `?${queryString}` : ""}`;
+// Create and export singleton instance
+const blogServiceInstance = BlogService.getInstance();
 
-  const response = await apiRequest<BlogPostsResponse>(endpoint);
-  return response.data!;
-};
+// Export error handling utilities with new names for backward compatibility
+export const isNetworkError = apiIsNetworkError;
+export const isAuthError = apiIsAuthError;
+export const isValidationError = apiIsValidationError;
+export const isServerError = apiIsServerError;
 
-/**
- * Get posts for specific car make/model
- */
-export const getCarModelPosts = async (
-  make: string,
-  model: string,
-  params: BlogSearchParams = {}
-): Promise<BlogPaginationResponse<BlogPost>> => {
-  const searchParams = new URLSearchParams();
-
-  Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== "") {
-      searchParams.append(key, String(value));
-    }
-  });
-
-  const queryString = searchParams.toString();
-  const endpoint = `/cars/${make}/${model}/posts${
-    queryString ? `?${queryString}` : ""
-  }`;
-
-  const response = await apiRequest<BlogPostsResponse>(endpoint);
-  return response.data!;
-};
-
-/**
- * Analytics API Methods
- */
-
-/**
- * Get blog statistics
- */
-export const getBlogStats = async (): Promise<BlogStats> => {
-  const response = await apiRequest<{ success: boolean; data: BlogStats }>(
-    "/stats"
-  );
-  return response.data;
-};
-
-/**
- * Error Handling Utilities
- */
-
-/**
- * Check if an error is a network error
- */
-export const isNetworkError = (error: Error): boolean => {
-  return error.message.includes("fetch") || error.message.includes("network");
-};
-
-/**
- * Check if an error is an authentication error
- */
-export const isAuthError = (error: Error): boolean => {
-  return (
-    error.message.includes("401") || error.message.includes("Unauthorized")
-  );
-};
-
-/**
- * Check if an error is a validation error
- */
-export const isValidationError = (error: Error): boolean => {
-  return error.message.includes("400") || error.message.includes("validation");
-};
-
-const blogService = {
-  // Posts
-  getBlogPosts,
-  getFeaturedPosts,
-  getTrendingPosts,
-  getRecentPosts,
-  getPopularPosts,
-  getBlogPost,
-  getPost, // Add this
-  createBlogPost,
-  updateBlogPost,
-  deleteBlogPost,
-  searchBlogPosts,
-  uploadBlogImage,
-  trackView, // Add this
-  toggleLike, // Add this
-
-  // Categories & Tags
-  getBlogCategories,
-  createBlogCategory,
-  getBlogTags,
-  createBlogTag,
-
-  // Comments
-  getBlogComments,
-  addBlogComment,
-  replyToBlogComment,
-
-  // Car-specific
-  getCarMarketNews,
-  getCarReviews,
-  getCarGuides,
-  getCarModelPosts,
-
-  // Analytics
-  getBlogStats,
-
-  // Utilities
-  isNetworkError,
-  isAuthError,
-  isValidationError,
-};
-
-export default blogService;
+export default blogServiceInstance;

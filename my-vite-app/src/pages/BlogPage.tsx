@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useContext } from "react";
+import React, { useState, useContext } from "react";
 import {
   Row,
   Col,
@@ -18,16 +18,18 @@ import {
   AppstoreOutlined,
   UnorderedListOutlined,
   PlusOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
-import {
-  BlogPost,
-  BlogCategory,
-  BlogTag,
-  BlogSearchParams,
-  BlogPaginationResponse,
-} from "../types/blogTypes";
+import { BlogSearchParams, BlogPost } from "../types/blogTypes";
 import { AuthContext } from "../context/AuthContext";
-import blogService from "../services/blogService";
+import {
+  useBlogPosts,
+  useCategories,
+  useTags,
+  useFeaturedPosts,
+  useRecentPosts,
+  usePopularPosts,
+} from "../hooks/useBlogQueries";
 import { BlogList, BlogSidebar } from "../components/blog";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import ScrollableContainer from "../components/common/ScrollableContainer";
@@ -39,101 +41,65 @@ const { Text } = Typography;
 const { Search } = Input;
 
 /**
- * Custom hook for managing blog page state and logic
- * Implements separation of concerns by keeping data logic separate from UI
+ * Modern hook for managing blog page state using React Query
+ * Implements caching, background updates, and optimistic UI patterns
  */
 const useBlogPage = () => {
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [categories, setCategories] = useState<BlogCategory[]>([]);
-  const [tags, setTags] = useState<BlogTag[]>([]);
-  const [featuredPosts, setFeaturedPosts] = useState<BlogPost[]>([]);
-  const [recentPosts, setRecentPosts] = useState<BlogPost[]>([]);
-  const [popularPosts, setPopularPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [pagination, setPagination] = useState<
-    BlogPaginationResponse<BlogPost>["pagination"] | null
-  >(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [selectedTag, setSelectedTag] = useState("");
   const [sortBy, setSortBy] = useState("latest");
 
-  /**
-   * Fetch blog posts with current filters
-   */
-  const fetchPosts = useCallback(async () => {
-    try {
-      setLoading(true);
-      const params: BlogSearchParams = {
-        page: currentPage,
-        limit: 12,
-        search: searchQuery || undefined,
-        category: selectedCategory || undefined,
-        tag: selectedTag || undefined,
-        sort: sortBy as "latest" | "oldest" | "popular" | "trending",
-        status: "published",
-      };
+  // Build search parameters
+  const searchParams: BlogSearchParams = {
+    page: currentPage,
+    limit: 12,
+    search: searchQuery || undefined,
+    category: selectedCategory || undefined,
+    tag: selectedTag || undefined,
+    sort: sortBy as "latest" | "oldest" | "popular" | "trending",
+    status: "published",
+  };
 
-      const response = await blogService.getBlogPosts(params);
-      console.log("Fetched posts:", response);
+  // React Query hooks for data fetching
+  const {
+    data: postsResponse,
+    isLoading: postsLoading,
+    error: postsError,
+    refetch: refetchPosts,
+  } = useBlogPosts(searchParams);
 
-      setPosts(response.data);
-      setPagination(response.pagination);
-    } catch (error) {
-      console.error("Failed to fetch posts:", error);
-      message.error("Failed to load blog posts");
-    } finally {
-      setLoading(false);
+  const { data: categories, isLoading: categoriesLoading } = useCategories();
+
+  const { data: tags, isLoading: tagsLoading } = useTags();
+
+  const { data: featuredPosts, isLoading: featuredLoading } =
+    useFeaturedPosts(6);
+
+  const { data: recentPosts, isLoading: recentLoading } = useRecentPosts(5);
+
+  const { data: popularPosts, isLoading: popularLoading } = usePopularPosts(5);
+
+  // Derived data
+  const posts = postsResponse?.data || [];
+  const pagination = postsResponse?.pagination || null;
+  const loading = postsLoading || categoriesLoading || tagsLoading;
+
+  // Error handling
+  React.useEffect(() => {
+    if (postsError) {
+      message.error("فشل في تحميل المنشورات");
     }
-  }, [currentPage, searchQuery, selectedCategory, selectedTag, sortBy]);
-
-  /**
-   * Fetch sidebar data
-   */
-  const fetchSidebarData = useCallback(async () => {
-    try {
-      const [categoriesRes, tagsRes, recentRes, popularRes] = await Promise.all(
-        [
-          blogService.getBlogCategories(),
-          blogService.getBlogTags(),
-          blogService.getRecentPosts(5),
-          blogService.getPopularPosts(5),
-        ]
-      );
-
-      setCategories(categoriesRes);
-      setTags(tagsRes);
-      setRecentPosts(recentRes);
-      setPopularPosts(popularRes);
-    } catch (error) {
-      console.error("Failed to fetch sidebar data:", error);
-    }
-  }, []);
-
-  /**
-   * Fetch featured posts
-   */
-  const fetchFeaturedPosts = useCallback(async () => {
-    try {
-      const response = await blogService.getBlogPosts({
-        limit: 6,
-        featured: true,
-        status: "published",
-      });
-      setFeaturedPosts(response.data);
-    } catch (error) {
-      console.error("Failed to fetch featured posts:", error);
-    }
-  }, []);
+  }, [postsError]);
 
   return {
     posts,
-    categories,
-    tags,
-    featuredPosts,
-    recentPosts,
-    popularPosts,
+    categories: categories || [],
+    tags: tags || [],
+    featuredPosts: featuredPosts || [],
+    recentPosts: recentPosts || [],
+    popularPosts: popularPosts || [],
     loading,
     pagination,
     currentPage,
@@ -141,14 +107,16 @@ const useBlogPage = () => {
     selectedCategory,
     selectedTag,
     sortBy,
-    fetchPosts,
-    fetchSidebarData,
-    fetchFeaturedPosts,
     setCurrentPage,
     setSearchQuery,
     setSelectedCategory,
     setSelectedTag,
     setSortBy,
+    refetchPosts,
+    // Loading states for individual sections
+    featuredLoading,
+    recentLoading,
+    popularLoading,
   };
 };
 
@@ -189,25 +157,12 @@ const BlogPage: React.FC = () => {
     selectedCategory,
     selectedTag,
     sortBy,
-    fetchPosts,
-    fetchSidebarData,
-    fetchFeaturedPosts,
     setCurrentPage,
     setSearchQuery,
     setSelectedCategory,
     setSelectedTag,
     setSortBy,
   } = useBlogPage();
-
-  // Fetch data on component mount
-  useEffect(() => {
-    fetchPosts();
-  }, [fetchPosts]);
-
-  useEffect(() => {
-    fetchSidebarData();
-    fetchFeaturedPosts();
-  }, [fetchSidebarData, fetchFeaturedPosts]);
 
   /**
    * Handle search
@@ -252,8 +207,6 @@ const BlogPage: React.FC = () => {
    * Handle post click
    */
   const handlePostClick = (post: BlogPost) => {
-    // #TODO: Navigate to blog post detail page
-    console.log("Navigate to post:", post.slug);
     navigate(`/blog/${post.slug}/${post.id}`);
   };
 
@@ -302,21 +255,32 @@ const BlogPage: React.FC = () => {
               md={{ span: 4, order: 5 }}
             >
               {user?.isAdmin && (
-                <Button
-                  type="primary"
-                  icon={<PlusOutlined />}
-                  size="large"
-                  block
-                  onClick={handleCreatePost}
-                  style={{
-                    background:
-                      "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                    border: "none",
-                    boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
-                  }}
-                >
-                  {"إنشاء مقال"}
-                </Button>
+                <>
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    size="large"
+                    block
+                    onClick={handleCreatePost}
+                    style={{
+                      background:
+                        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                      border: "none",
+                      boxShadow: "0 4px 12px rgba(102, 126, 234, 0.4)",
+                    }}
+                  >
+                    {"إنشاء مقال"}
+                  </Button>
+                  <Button
+                    type="primary"
+                    icon={<ToolOutlined />}
+                    size="large"
+                    block
+                    onClick={() => navigate("/blog/management")}
+                  >
+                    {"إدارة المدونة"}
+                  </Button>
+                </>
               )}
             </Col>
             <Col

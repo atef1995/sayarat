@@ -1,143 +1,82 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { AuthContext } from "./AuthContext";
-import { User, ApiResponse, AuthCheckResponse } from "../types/api.types";
-import { loadApiConfig } from "../config/apiConfig";
+import { useAuth } from "../hooks/useAuth";
+import { authService } from "../services/authService";
+import {
+  AuthContextType,
+  LoginCredentials,
+  AuthResponse,
+} from "../types/auth.types";
 
-const { apiUrl } = loadApiConfig();
+/**
+ * AuthProviderContent - Internal component that provides auth context
+ * This is separated to use hooks after QueryClientProvider is available
+ * Fixed to prevent infinite loops
+ */
+const AuthProviderContent = ({ children }: { children: React.ReactNode }) => {
+  const auth = useAuth();
 
-const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [sessionCheckInterval, setSessionCheckInterval] =
-    useState<NodeJS.Timeout | null>(null);
-  console.log("isauth:", isAuthenticated);
-
-  const checkSession = async () => {
-    if (!localStorage.getItem("isAuthenticated")) return;
-    try {
-      const response = await fetch(`${apiUrl}/auth/check`, {
-        credentials: "include",
-      });
-
-      if (!response.ok) {
-        console.log("Session check failed, logging out");
-
-        await logout();
-        return;
-      }
-      const data: AuthCheckResponse = await response.json();
-      console.log("Session check response:", data);
-      console.log("User data from auth check:", data.user);
-      console.log("User accountType:", data.user?.accountType);
-      console.log("User isCompany:", data.user?.isCompany);
-
-      // Update auth state based on response
-      setUser(data.user ?? null);
-      setIsAuthenticated(data.isAuthenticated ?? false);
-      localStorage.setItem("isAuthenticated", "true");
-    } catch (error) {
-      console.error("Session check failed:", error);
-      logout();
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  // Initialize auth state from localStorage on mount
   useEffect(() => {
-    const isAuth = localStorage.getItem("isAuthenticated");
-    checkSession();
-    setIsAuthenticated(isAuth === "true");
-
-    return () => {
-      if (sessionCheckInterval) {
-        clearInterval(sessionCheckInterval);
+    const initializeAuth = async () => {
+      const storedAuth = authService.getAuthState();
+      if (storedAuth?.isAuthenticated) {
+        // Only check session if we're not already loading and data is stale
+        if (!auth.isLoading && auth.user === null) {
+          await auth.checkSession();
+        }
       }
     };
+
+    // Only initialize if not already authenticated or loading
+    if (!auth.isAuthenticated && !auth.isLoading) {
+      initializeAuth();
+    }
+    // Only run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const login = async (
-    username: User["username"],
-    password: string
-  ): Promise<ApiResponse> => {
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${apiUrl}/auth/login`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data: ApiResponse = await response.json();
-      console.log({ data });
-
-      if (response.ok && data.success) {
-        setUser(data.user as User);
-        console.log("user data:", data.user);
-
-        setIsAuthenticated(true);
-        localStorage.setItem("isAuthenticated", "true");
-
-        // Set session check interval every 6 hours
-        const interval = setInterval(checkSession, 6 * 60 * 60 * 1000);
-        setSessionCheckInterval(interval);
-        setUser(data.user as User);
-      } else {
-        throw new Error(data.error || "Login failed");
-      }
-      return data;
-    } catch (err) {
-      setError(err as string);
-      return { success: false, error: err as string };
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await fetch(`${apiUrl}/auth/logout`, {
-        method: "POST",
-        credentials: "include",
-      });
-      setUser(null);
-      setIsAuthenticated(false);
-      localStorage.removeItem("isAuthenticated");
-
-      if (sessionCheckInterval) {
-        clearInterval(sessionCheckInterval);
-      }
-      // if (!response.ok) {
-      //   throw Error("error logging out");
-      // }
-    } catch (err) {
-      setError("Failed to logout");
-      console.error(err);
-      setIsAuthenticated(false);
-    } finally {
-      setIsLoading(false);
-    }
+  // Create adapter to match AuthContextType interface
+  const authContextValue: AuthContextType = {
+    isAuthenticated: auth.isAuthenticated,
+    isLoading: auth.isLoading,
+    user: auth.user,
+    error: auth.error,
+    login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+      return await auth.login(credentials);
+    },
+    logout: async (): Promise<void> => {
+      await auth.logout();
+    },
+    checkSession: async (): Promise<void> => {
+      await auth.checkSession();
+    },
+    clearError: auth.clearError,
+    permissions: auth.permissions,
+    isLoggingIn: auth.isLoggingIn,
+    isLoggingOut: auth.isLoggingOut,
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        isLoading,
-        user,
-        error,
-        login,
-        logout,
-        checkSession,
-      }}
-    >
+    <AuthContext.Provider value={authContextValue}>
       {children}
     </AuthContext.Provider>
   );
+};
+
+/**
+ * AuthProvider - Main authentication provider component
+ *
+ * Features:
+ * - TanStack Query integration for optimized state management
+ * - Automatic session validation and refresh
+ * - Persistent authentication state
+ * - Error handling and retry logic
+ *
+ * Note: Expects to be wrapped by QueryProvider for TanStack Query context
+ */
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  return <AuthProviderContent>{children}</AuthProviderContent>;
 };
 
 export default AuthProvider;

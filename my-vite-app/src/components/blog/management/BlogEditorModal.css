@@ -1,0 +1,46 @@
+.blog-editor-modal {
+  max-width: 1400px;
+}
+
+.blog-editor-modal .ant-modal-body {
+  padding: 16px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.modal-content-container {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+/* Responsive adjustments for the modal */
+@media (max-width: 768px) {
+  .blog-editor-modal {
+    margin: 0;
+    padding: 8px;
+  }
+
+  .blog-editor-modal .ant-modal-content {
+    border-radius: 8px;
+  }
+
+  .modal-content-container {
+    max-height: 70vh;
+  }
+}
+
+/* Ensure grid layout works well in modal */
+.blog-editor-modal .ant-form {
+  width: 100%;
+}
+
+.blog-editor-modal .grid {
+  width: 100%;
+  gap: 1rem;
+}
+
+@media (min-width: 1024px) {
+  .blog-editor-modal .grid {
+    gap: 1.5rem;
+  }
+}

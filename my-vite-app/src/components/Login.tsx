@@ -21,15 +21,17 @@ const Login = () => {
     setIsLoading(true);
     const { username, password } = values;
     try {
-      const data = await login(username, password);
+      // Pass credentials as an object, not individual parameters
+      const data = await login({ username, password });
 
       if (data.success === true) {
-        navigate("/");
+        navigate(-1);
       } else {
         message.error(String(data.error));
       }
     } catch (err) {
-      console.log(err);
+      console.log("Login error:", err);
+      message.error("فشل في تسجيل الدخول");
     } finally {
       setIsLoading(false);
     }
@@ -39,9 +41,7 @@ const Login = () => {
     if (isAuthenticated) {
       navigate(-1);
     }
-
-    return;
-  }, []);
+  }, [isAuthenticated, navigate]);
 
   return (
     <Card className="min-w-[400px] min-h-fit h-56">

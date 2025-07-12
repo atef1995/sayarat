@@ -68,26 +68,3 @@ export const useListing = (id: CarInfo["id"] | undefined): UseListingState => {
     refetch,
   };
 };
-
-/**
- * Hook for backward compatibility - returns CarInfo with seller data
- * @deprecated Use useListing instead for better separation of concerns
- */
-export const useListingLegacy = (id: CarInfo["id"] | undefined) => {
-  const { listing, loading, error, refetch } = useListing(id);
-
-  const legacyCarInfo = listing
-    ? {
-        ...listing.car,
-        first_name: listing.seller.first_name,
-        username: listing.seller.username,
-      }
-    : null;
-
-  return {
-    car: legacyCarInfo,
-    loading,
-    error,
-    refetch,
-  };
-};
