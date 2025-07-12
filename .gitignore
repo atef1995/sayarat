@@ -14,3 +14,6 @@ my-vite-app/.env
 my-vite-app/.env.development
 my-vite-app/.env.production
 .env.example
+.github/instructions/
+.github/instructions/js insturctions.instructions.md
+.github/instructions/tsx instructions.instructions.md

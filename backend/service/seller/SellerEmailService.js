@@ -25,7 +25,7 @@ class SellerEmailService {
         email,
         name: firstName || 'عزيزي العميل'
       },
-      subject: 'تحقق من بريدك الإلكتروني - Cars Bids',
+      subject: 'تحقق من بريدك الإلكتروني - sayarat.autos',
       params,
       requestId
     });

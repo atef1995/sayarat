@@ -21,6 +21,9 @@ FROM nginx:stable-alpine
 # Copy built files from the build stage
 COPY --from=build /app/dist /usr/share/nginx/html
 
+# Copy custom nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
 # Install curl for health checks (optional)
 RUN apk add --no-cache curl
 
