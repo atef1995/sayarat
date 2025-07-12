@@ -44,6 +44,9 @@ router.get('/posts/popular', blogController.getPopularPosts);
 // Get single blog post by slug
 router.get('/posts/:slug', blogController.getPostBySlug);
 
+// Get single blog post by ID
+router.get('/posts/id/:id', blogController.getPostById);
+
 // Get posts by category
 router.get('/category/:slug/posts', blogController.getPostsByCategory);
 
@@ -257,7 +260,7 @@ router.get('/admin/export-analytics', ensureAuthenticated, requireAdmin, blogCon
 /**
  * Error handling middleware specific to blog routes
  */
-router.use((error, req, res, next) => {
+router.use((error, req, res, _next) => {
   logger.error('Blog API Error:', {
     error: error.message,
     stack: error.stack,

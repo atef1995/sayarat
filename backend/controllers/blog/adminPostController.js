@@ -1,7 +1,7 @@
 const { getAllPosts: getAllPostsService, createPost: createPostService } = require('../../service/blog/index');
-const { generateSlug } = require('../../middleware/blogValidation');
 const logger = require('../../utils/logger');
 const { validateImages } = require('../../middleware/listingValidation');
+const blogService = require('../../service/blog/index');
 
 
 /**
@@ -54,7 +54,6 @@ const createPost = async (req, res) => {
     const postData = {
       ...req.body,
       author_id: req.user.id,
-      featured_image: req.file ? req.file.filename : null
     };
 
     logger.info('Creating new blog post with slug:', {
@@ -104,16 +103,7 @@ const createPost = async (req, res) => {
 const updatePost = async (req, res) => {
   try {
     const { id } = req.params;
-    const updateData = {
-      ...req.body,
-      slug: req.body.title ? generateSlug(req.body.title) : undefined
-    };
-
-    if (req.file) {
-      updateData.featured_image = req.file.filename;
-    }
-
-    const post = await blogService.updatePost(id, updateData, req.user.id);
+    const post = await blogService.updatePost(id, req.body, req.user.id);
 
     if (!post) {
       return res.status(404).json({

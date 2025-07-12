@@ -164,6 +164,35 @@ const getPostBySlug = async (req, res) => {
 };
 
 /**
+ * Get single blog post by ID
+ */
+const getPostById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const result = await blogService.getPostById(id);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        error: 'المقال غير موجود'
+      });
+    }
+
+    return res.json({
+      success: true,
+      data: result.data
+    });
+  } catch (error) {
+    logger.error('Get post by ID error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'حدث خطأ في جلب المقال'
+    });
+  }
+};
+
+/**
  * Get posts by category
  */
 const getPostsByCategory = async (req, res) => {
@@ -336,6 +365,7 @@ module.exports = {
   getRecentPosts,
   getPopularPosts,
   getPostBySlug,
+  getPostById,
   getPostsByCategory,
   getPostsByTag,
   getPostsByAuthor,

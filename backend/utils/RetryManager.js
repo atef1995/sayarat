@@ -48,12 +48,6 @@ class RetryManager {
           this.onRetry(attempt, operationName, lastError, context);
         }
 
-        logger.info(`${operationName}: Attempt ${attempt + 1}/${this.maxRetries + 1}`, {
-          attempt: attempt + 1,
-          maxAttempts: this.maxRetries + 1,
-          operationName
-        });
-
         const result = await operation();
 
         if (attempt > 0) {

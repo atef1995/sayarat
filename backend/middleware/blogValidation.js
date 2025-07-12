@@ -152,7 +152,7 @@ const blogPostSchema = Joi.object({
     'any.only': 'مستوى الصعوبة غير صحيح'
   }),
 
-  estimated_time: Joi.string().max(50).allow('').messages({
+  reading_time: Joi.string().max(50).allow('').messages({
     'string.max': 'الوقت المقدر يجب أن لا يتجاوز 50 حرف'
   }),
 

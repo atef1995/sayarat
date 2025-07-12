@@ -20,6 +20,7 @@ const {
 const { updateCategoryPostsCount } = require('./categories');
 const { updateTagPostsCount } = require('./tags');
 const { markdownToHtml } = require('../../utils/markdownUtils');
+const { convertToArray } = require('../../utils/listingsDbHelper');
 
 // #TODO: Migrate remaining post-related functions from blogService.js
 // Functions still to migrate:
@@ -257,11 +258,16 @@ const createPost = async (postData) => {
       rating,
       steps,
       tags = [],
-      slug
+      slug,
+      meta_title,
+      meta_description
     } = postData;
 
     logger.info('Creating new blog post', {
-      postData
+      postData,
+      meta_title,
+      meta_description,
+      tags
     });
 
     // Use provided slug or fallback to null if not provided
@@ -308,6 +314,8 @@ const createPost = async (postData) => {
         status,
         is_featured,
         reading_time: finalReadingTime,
+        meta_title: meta_title || title, // Fallback to title if not provided
+        meta_description: meta_description || excerpt, // Fallback to excerpt if not provided
         car_make,
         car_model,
         car_year,
@@ -411,78 +419,16 @@ const getPostById = async (identifier) => {
  */
 const updatePost = async (postId, updateData) => {
   const trx = await db.transaction();
+  const tags = updateData.tags;
+  logger.info('tags:', tags);
+
+  delete updateData.tags;
+  delete updateData.required_tools;
+  logger.info('updateData:', updateData);
 
   try {
-    const {
-      title,
-      content,
-      excerpt,
-      featured_image,
-      category_id,
-      status,
-      is_featured,
-      reading_time,
-      car_make,
-      car_model,
-      car_year,
-      rating,
-      steps,
-      tags = []
-    } = updateData;
-
-    // Prepare update object
-    const updateObj = {};
-
-    if (title !== undefined) {
-      updateObj.title = title;
-      // Only update slug if explicitly provided in updateData
-      if (updateData.slug !== undefined) {
-        updateObj.slug = updateData.slug;
-      }
-    }
-
-    if (content !== undefined) {
-      updateObj.content = content;
-    }
-    if (excerpt !== undefined) {
-      updateObj.excerpt = excerpt;
-    }
-    if (featured_image !== undefined) {
-      updateObj.featured_image = featured_image;
-    }
-    if (category_id !== undefined) {
-      updateObj.category_id = category_id;
-    }
-    if (status !== undefined) {
-      updateObj.status = status;
-      if (status === 'published') {
-        updateObj.published_at = new Date();
-      }
-    }
-    if (is_featured !== undefined) {
-      updateObj.is_featured = is_featured;
-    }
-    if (reading_time !== undefined) {
-      updateObj.reading_time = reading_time;
-    }
-    if (car_make !== undefined) {
-      updateObj.car_make = car_make;
-    }
-    if (car_model !== undefined) {
-      updateObj.car_model = car_model;
-    }
-    if (car_year !== undefined) {
-      updateObj.car_year = car_year;
-    }
-    if (rating !== undefined) {
-      updateObj.rating = rating;
-    }
-    if (steps !== undefined) {
-      updateObj.steps = steps ? JSON.stringify(steps) : null;
-    }
-
     // Update the post
-    const [updatedPost] = await trx('blog_posts').where('id', postId).update(updateObj).returning('*');
+    const [updatedPost] = await trx('blog_posts').where('id', postId).update(updateData).returning('*');
 
     if (!updatedPost) {
       await trx.rollback();
@@ -491,7 +437,6 @@ const updatePost = async (postId, updateData) => {
         message: 'Blog post not found'
       };
     }
-
     // Handle tags update if provided
     if (tags.length >= 0) {
       // Remove existing tags
@@ -501,7 +446,7 @@ const updatePost = async (postId, updateData) => {
       if (tags.length > 0) {
         const tagInserts = tags.map(tagId => ({
           post_id: postId,
-          tag_id: tagId
+          tag_id: parseInt(tagId, 10)
         }));
 
         await trx('blog_post_tags').insert(tagInserts);
