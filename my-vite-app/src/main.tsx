@@ -280,6 +280,121 @@ createRoot(document.getElementById("root")!).render(
                   }
                 />
                 <Route
+                  path="/sitemap"
+                  element={
+                    <MyLayout>
+                      <div className="container mx-auto px-4 py-8">
+                        <h1 className="text-3xl font-bold mb-6">
+                          خريطة الموقع
+                        </h1>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                          <div>
+                            <h2 className="text-xl font-semibold mb-4">
+                              الصفحات الرئيسية
+                            </h2>
+                            <ul className="space-y-2">
+                              <li>
+                                <a
+                                  href="/"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  الرئيسية
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/search"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  البحث
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/companies"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  الشركات
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/blog"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  المدونة
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-semibold mb-4">
+                              الحساب
+                            </h2>
+                            <ul className="space-y-2">
+                              <li>
+                                <a
+                                  href="/login"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  تسجيل الدخول
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/signup"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  إنشاء حساب
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/profile"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  الملف الشخصي
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                          <div>
+                            <h2 className="text-xl font-semibold mb-4">
+                              معلومات
+                            </h2>
+                            <ul className="space-y-2">
+                              <li>
+                                <a
+                                  href="/privacy"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  سياسة الخصوصية
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/terms"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  شروط الاستخدام
+                                </a>
+                              </li>
+                              <li>
+                                <a
+                                  href="/contact"
+                                  className="text-blue-600 hover:underline"
+                                >
+                                  اتصل بنا
+                                </a>
+                              </li>
+                            </ul>
+                          </div>
+                        </div>
+                      </div>
+                    </MyLayout>
+                  }
+                />
+                <Route
                   path="/blog"
                   element={
                     <MyLayout>
