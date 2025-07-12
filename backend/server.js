@@ -323,7 +323,7 @@ function setupRoutes() {
   app.use('/api/blog', blogRouter);
 
   // SEO and Sitemap routes (no /api prefix for SEO compatibility)
-  app.use('/', sitemapRouter);
+  app.use('/', sitemapRouter(knex));
 
   // Health check endpoints
   app.get('/health', (req, res) => {

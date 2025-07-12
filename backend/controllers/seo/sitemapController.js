@@ -18,6 +18,23 @@ class SitemapController {
   constructor() {
     this.cache = new Map();
     this.cacheTimeout = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    // Bind methods to preserve 'this' context
+    this.getSitemapIndex = this.getSitemapIndex.bind(this);
+    this.getStaticSitemap = this.getStaticSitemap.bind(this);
+    this.getCarsSitemap = this.getCarsSitemap.bind(this);
+    this.getCompaniesSitemap = this.getCompaniesSitemap.bind(this);
+    this.getBlogSitemap = this.getBlogSitemap.bind(this);
+    this.getCategoriesSitemap = this.getCategoriesSitemap.bind(this);
+    this.getRobotsTxt = this.getRobotsTxt.bind(this);
+    this.getSitemapStats = this.getSitemapStats.bind(this);
+    this.clearCache = this.clearCache.bind(this);
+    this.getCarsForSitemap = this.getCarsForSitemap.bind(this);
+    this.getCompaniesForSitemap = this.getCompaniesForSitemap.bind(this);
+    this.getBlogPostsForSitemap = this.getBlogPostsForSitemap.bind(this);
+    this.getCategoriesForSitemap = this.getCategoriesForSitemap.bind(this);
+    this.getCitiesForSitemap = this.getCitiesForSitemap.bind(this);
+    this.getArabicMetadata = this.getArabicMetadata.bind(this);
   }
 
   /**
