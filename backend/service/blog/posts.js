@@ -95,7 +95,7 @@ const getPosts = async searchParams => {
       .leftJoin('blog_likes as bl', function () {
         this.on('bp.id', '=', 'bl.post_id');
         if (userId) {
-          this.andOn('bl.user_id', '=', userId);
+          this.andWhere('bl.user_id', '=', userId);
         }
       })
       .where('bp.status', 'published');

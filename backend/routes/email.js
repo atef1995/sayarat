@@ -13,7 +13,7 @@ function emailRouter(knex) {
   const emailService = new brevoEmailService();
   const generator = new ReqIdGenerator();
 
-  router.post('/reset-password-request', async(req, res) => {
+  router.post('/reset-password-request', async (req, res) => {
     const reqId = generator.generateRequestId();
     const { email } = req.body;
     const resetToken = generateResetToken(); // Implement token generation logic
@@ -29,6 +29,12 @@ function emailRouter(knex) {
     const emailExists = await checkIfEmailExists(email, knex);
     if (!emailExists) {
       return res.status(400).json({ error: 'error' });
+    }
+
+    // Get user details for the email
+    const user = await knex('sellers').where({ email }).first();
+    if (!user) {
+      return res.status(400).json({ error: 'User not found' });
     }
 
     // check if the token already exists for the email and not expired
@@ -54,7 +60,7 @@ function emailRouter(knex) {
           .catch(err => reject(err));
       });
 
-      const resetPasswordResult = await emailService.sendResetPasswordEmail(email, firstName, reqId, resetToken);
+      const resetPasswordResult = await emailService.sendResetPasswordEmail(email, user.first_name || 'User', reqId, resetToken);
 
       if (!resetPasswordResult.success) {
         logger.error('Failed to send reset password email:', {
@@ -72,7 +78,7 @@ function emailRouter(knex) {
     }
   });
 
-  router.post('/reset-password', async(req, res) => {
+  router.post('/reset-password', async (req, res) => {
     const { token, password } = req.body;
 
     if (!token || !password) {
@@ -129,7 +135,7 @@ function emailRouter(knex) {
     }
   });
 
-  router.post('/verify-email', async(req, res) => {
+  router.post('/verify-email', async (req, res) => {
     const { token } = req.body;
     const reqId = generator.generateRequestId();
 
@@ -154,15 +160,22 @@ function emailRouter(knex) {
           email: emailVerified.email,
           stack: result.stack
         });
-        return;
+        // Don't fail the verification just because notification email failed
+        // The email is already verified successfully
       }
+
+      // Always return success if email verification succeeded
       res.status(200).json({ success: true, message: 'Email Verified!' });
     } catch (error) {
-      logger.error('Error sending email verification:', {
+      logger.error('Error sending email verification notification:', {
         error: error.message,
         email: emailVerified.email,
         stack: error.stack
       });
+
+      // Still return success since email verification succeeded
+      // Only the notification email failed
+      res.status(200).json({ success: true, message: 'Email Verified!' });
     }
   });
   return router;

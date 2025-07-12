@@ -357,7 +357,7 @@ const getPostBySlug = async (slug, userId = null) => {
       .leftJoin('blog_likes as bl', function () {
         this.on('bp.id', '=', 'bl.post_id');
         if (userId) {
-          this.andOn('bl.user_id', '=', userId);
+          this.on('bl.user_id', '=', db.raw('?', [userId]));
         }
       })
       .where('bp.slug', slug)

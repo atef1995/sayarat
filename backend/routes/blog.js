@@ -207,14 +207,32 @@ router.delete('/admin/comments/:id', ensureAuthenticated, requireAdmin, blogCont
  * Analytics Routes (Admin Only)
  */
 
-// // Get blog analytics dashboard data
-// router.get('/admin/analytics', ensureAuthenticated, requireAdmin, blogController.getBlogAnalytics);
+// Get blog analytics dashboard data
+router.get('/admin/analytics', ensureAuthenticated, requireAdmin, blogController.getBlogAnalytics);
 
-// // Get post performance metrics
-// router.get('/admin/posts/:id/analytics', ensureAuthenticated, requireAdmin, blogController.getPostAnalytics);
+// Get post performance metrics
+router.get('/admin/posts/:id/analytics', ensureAuthenticated, requireAdmin, blogController.getPostAnalytics);
 
-// // Get popular search terms
-// router.get('/admin/search-analytics', ensureAuthenticated, requireAdmin, blogController.getSearchAnalytics);
+// Get top performing posts
+router.get('/admin/top-posts', ensureAuthenticated, requireAdmin, blogController.getTopPosts);
+
+// Get popular search terms
+router.get('/admin/search-analytics', ensureAuthenticated, requireAdmin, blogController.getSearchAnalytics);
+
+// Get user engagement analytics
+router.get('/admin/user-engagement', ensureAuthenticated, requireAdmin, blogController.getUserEngagementAnalytics);
+
+// Get category analytics
+router.get('/admin/category-analytics', ensureAuthenticated, requireAdmin, blogController.getCategoryAnalytics);
+
+// Get tag analytics
+router.get('/admin/tag-analytics', ensureAuthenticated, requireAdmin, blogController.getTagAnalytics);
+
+// Get real-time stats
+router.get('/admin/realtime-stats', ensureAuthenticated, requireAdmin, blogController.getRealTimeStats);
+
+// Export analytics data
+router.get('/admin/export-analytics', ensureAuthenticated, requireAdmin, blogController.exportAnalytics);
 
 /**
  * Import/Export Routes (Admin Only)

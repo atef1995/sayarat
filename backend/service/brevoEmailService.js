@@ -98,7 +98,7 @@ class BrevoEmailService {
       // Prepare email data
       const emailData = {
         sender: {
-          name: process.env.EMAIL_FROM_NAME || 'Cars Bids',
+          name: process.env.EMAIL_FROM_NAME || 'sayarat',
           email: process.env.EMAIL_FROM || 'noreply@carsbids.com'
         },
         to: [
@@ -174,7 +174,7 @@ class BrevoEmailService {
         email: paymentIntent.metadata.email,
         name: customerName
       },
-      subject: 'تم الدفع بنجاح - Cars Bids',
+      subject: 'تم الدفع بنجاح - sayarat',
       params,
       requestId
     });
@@ -213,7 +213,7 @@ class BrevoEmailService {
         email,
         name: customerName
       },
-      subject: 'فشل الدفع - Cars Bids',
+      subject: 'فشل الدفع - sayarat',
       params,
       requestId
     });
@@ -249,7 +249,7 @@ class BrevoEmailService {
         email,
         name: customerName
       },
-      subject: 'تم الدفع بنجاح - Cars Bids',
+      subject: 'تم الدفع بنجاح - sayarat',
       params,
       requestId
     });
@@ -286,7 +286,7 @@ class BrevoEmailService {
         email,
         name: customerName
       },
-      subject: 'فشل الدفع - Cars Bids',
+      subject: 'فشل الدفع - sayarat',
       params,
       requestId
     });
@@ -304,7 +304,7 @@ class BrevoEmailService {
 
     const params = {
       verificationUrl,
-      supportUrl: `${process.env.SUPPORT_URL}/contact`,
+      supportUrl: `${process.env.SUPPORT_URL}`,
       currentYear: new Date().getFullYear()
     };
 
@@ -314,7 +314,7 @@ class BrevoEmailService {
         email,
         name: firstName || 'عزيزي العميل'
       },
-      subject: 'تحقق من بريدك الإلكتروني - Cars Bids',
+      subject: 'تحقق من بريدك الإلكتروني - sayarat',
       params,
       requestId
     });
@@ -333,7 +333,7 @@ class BrevoEmailService {
 
     const params = {
       resetUrl,
-      supportUrl: `${process.env.SUPPORT_URL}/contact`,
+      supportUrl: `${process.env.SUPPORT_URL}`,
       currentYear: new Date().getFullYear()
     };
 
@@ -343,7 +343,7 @@ class BrevoEmailService {
         email,
         name: firstName || 'عزيزي العميل'
       },
-      subject: 'إعادة تعيين كلمة المرور - Cars Bids',
+      subject: 'إعادة تعيين كلمة المرور - sayarat',
       params,
       requestId
     });
@@ -370,7 +370,7 @@ class BrevoEmailService {
         email,
         name: firstName || 'عزيزي العميل'
       },
-      subject: 'تم التحقق من بريدك الإلكتروني - Cars Bids',
+      subject: 'تم التحقق من بريدك الإلكتروني - sayarat',
       params,
       requestId
     });
@@ -399,7 +399,7 @@ class BrevoEmailService {
         email: testEmail,
         name: 'مستخدم تجريبي'
       },
-      subject: '[TEST] تم الدفع بنجاح - Cars Bids',
+      subject: '[TEST] تم الدفع بنجاح - sayarat',
       params: testParams,
       requestId
     });
@@ -428,7 +428,7 @@ class BrevoEmailService {
         email: adminData.email,
         name: `${adminData.firstName} ${adminData.lastName}`
       },
-      subject: `مرحباً بكم في Cars Bids - ${companyData.name}`,
+      subject: `مرحباً بكم في sayarat - ${companyData.name}`,
       params,
       requestId
     });
@@ -459,7 +459,7 @@ class BrevoEmailService {
         email: adminData.email,
         name: `${adminData.firstName} ${adminData.lastName}`
       },
-      subject: `تم تفعيل اشتراك شركة ${companyData.name} - Cars Bids`,
+      subject: `تم تفعيل اشتراك شركة ${companyData.name} - sayarat`,
       params,
       requestId
     });

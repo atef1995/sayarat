@@ -41,7 +41,7 @@ class AuthService {
       if (!passwordValid) {
         return {
           success: false,
-          message: 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+          error: 'اسم المستخدم أو كلمة المرور غير صحيحة.'
         };
       } // Update last_login timestamp
       try {
@@ -211,7 +211,7 @@ class AuthService {
 
     return {
       success: false,
-      message: 'البريد الإلكتروني غير مفعل'
+      error: 'البريد الإلكتروني غير مفعل'
     };
   }
 }

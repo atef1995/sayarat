@@ -14,6 +14,7 @@ const likeService = require('./likes');
 const viewService = require('./views');
 const utilsService = require('./utils');
 const commentService = require('./comments');
+const analyticsService = require('./analytics');
 
 module.exports = {
   // Core Post operations
@@ -82,5 +83,17 @@ module.exports = {
 
 
   // Utility operations
-  ...utilsService
+  ...utilsService,
+
+  // Analytics operations
+  getAnalytics: analyticsService.getAnalytics,
+  getBlogAnalytics: analyticsService.getBlogAnalytics,
+  getPostAnalytics: analyticsService.getPostAnalytics,
+  getTopPosts: analyticsService.getTopPosts,
+  getCategoryAnalytics: analyticsService.getCategoryAnalytics,
+  getTagAnalytics: analyticsService.getTagAnalytics,
+  getRealTimeStats: analyticsService.getRealTimeStats,
+  getSearchAnalytics: analyticsService.getSearchAnalytics,
+  getUserEngagementAnalytics: analyticsService.getUserEngagementAnalytics,
+  exportAnalytics: analyticsService.exportAnalytics,
 };
