@@ -1,8 +1,7 @@
 import { ReactNode, useCallback, useEffect, useState, Suspense } from "react";
-import { Layout, Menu, theme, Button, Spin, Row, Col } from "antd";
+import { Layout, Menu, theme, Spin, Row, Col } from "antd";
 import { Content, Header, Footer } from "antd/es/layout/layout";
 import {
-  ArrowLeftOutlined,
   BookOutlined,
   CarFilled,
   HeartFilled,
@@ -268,13 +267,6 @@ function MyLayout({ children }: { children: ReactNode }) {
             borderRadius: borderRadiusLG,
           }}
         >
-          {location.pathname.length > 1 && (
-            <div className="relative flex justify-end items-end z-50 w-full px-4">
-              <Button className="w-12 my-2" onClick={() => navigate(-1)}>
-                <ArrowLeftOutlined />
-              </Button>
-            </div>
-          )}
           <Suspense fallback={<Spin size="large" />}>{children}</Suspense>
         </Content>
         {location.pathname.startsWith("/messages") ? null : (
