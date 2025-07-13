@@ -34,7 +34,7 @@ function emailRouter(knex) {
     // Get user details for the email
     const user = await knex('sellers').where({ email }).first();
     if (!user) {
-      return res.status(400).json({ error: 'User not found' });
+      return res.status(400).json({ error: 'المستخدم غير موجود' });
     }
 
     // check if the token already exists for the email and not expired
@@ -43,7 +43,7 @@ function emailRouter(knex) {
       .andWhere('reset_token_expiry', '>', new Date())
       .first();
     if (existingToken) {
-      return res.status(400).json({ error: 'Reset token already exists and is not expired' });
+      return res.status(400).json({ error: 'تفقد البريد الإلكتروني الخاص بك، قد يكون هناك طلب إعادة تعيين كلمة المرور قيد المعالجة' });
     }
 
     try {
@@ -60,7 +60,7 @@ function emailRouter(knex) {
           .catch(err => reject(err));
       });
 
-      const resetPasswordResult = await emailService.sendResetPasswordEmail(email, user.first_name || 'User', reqId, resetToken);
+      const resetPasswordResult = await emailService.sendResetPasswordEmail(email, user.first_name || 'User', reqId, resetToken, user.username);
 
       if (!resetPasswordResult.success) {
         logger.error('Failed to send reset password email:', {
@@ -68,13 +68,13 @@ function emailRouter(knex) {
           email: to.email,
           stack: resetPasswordResult.stack
         });
-        return res.status(500).json({ error: 'Failed to send reset password email' });
+        return res.status(500).json({ error: 'فشل في إرسال بريد إعادة تعيين كلمة المرور' });
       }
 
-      res.json({ success: true, message: 'Reset password email sent successfully' });
+      res.json({ success: true, message: 'تم إرسال بريد إعادة تعيين كلمة المرور بنجاح' });
     } catch (err) {
       logger.error('Error during reset password process:', err);
-      res.status(500).json({ error: 'Failed to send reset password email' });
+      res.status(500).json({ error: 'فشل في إرسال بريد إعادة تعيين كلمة المرور' });
     }
   });
 
@@ -83,14 +83,22 @@ function emailRouter(knex) {
 
     if (!token || !password) {
       logger.warn('Missing token or password in request body');
-      return res.status(400).json({ error: 'Token and password are required' });
+      return res.status(400).json({ error: 'الرمز وكلمة المرور مطلوبة' });
     }
 
-    logger.info('token:', { token });
+    if (token.length !== 64) {
+      logger.warn('Invalid token length:', { tokenLength: token.length });
+      res.setTimeout(2000, () => {
+        return res.status(400).json({ error: 'خطأ في إعادة تعيين كلمة المرور' });
+      });
+      return;
+    }
 
-    const validPassword = validatePassword(password);
-    if (!validPassword) {
-      return res.status(400).json({ error: 'Invalid password format' });
+    try {
+      validatePassword(password);
+    } catch (error) {
+      logger.error('Password validation error:', { error: error.message });
+      return res.status(400).json({ error: error.message });
     }
 
     try {
@@ -99,18 +107,27 @@ function emailRouter(knex) {
         .andWhere('reset_token_expiry', '>', new Date())
         .first();
 
+      const now = new Date();
+      logger.info('Current time:', { now: now.toISOString() });
+
       if (!user) {
-        logger.warn('Invalid or expired token:', { token });
-        return res.status(400).json({ error: 'Invalid or expired token' });
+        logger.warn('user not found or token expired:', { token });
+        return res.status(400).json({ error: 'الرمز غير صالح أو منتهي الصلاحية' });
       }
 
-      const now = new Date();
+      logger.info('Token expiry time:', { expiry: user.reset_token_expiry });
+
       if (new Date(user.reset_token_expiry) < now) {
-        return res.status(400).json({ error: 'Token has expired' });
+        logger.warn('Token has expired:', {
+          token,
+          expiry: user.reset_token_expiry,
+          current: now.toISOString()
+        });
+        return res.status(400).json({ error: 'الرمز غير صالح أو منتهي الصلاحية يرجى طلب اعادة تعيين كلمة المرور مرة أخرى' });
       }
 
       const salt = crypto.randomBytes(16).toString('hex'); // Generate a new salt
-      logger.log('salt:', salt);
+      logger.info('Generated salt for password reset');
 
       const hashedPassword = await new Promise((resolve, reject) => {
         crypto.pbkdf2(password, salt, 310000, 32, 'sha256', (err, hash) => {
@@ -128,10 +145,15 @@ function emailRouter(knex) {
         reset_token_expiry: null
       });
 
-      res.json({ success: true, message: 'Password reset successfully' });
+      logger.info('Password reset successful for user:', { userId: user.id });
+      res.json({ success: true, message: 'تم إعادة تعيين كلمة المرور بنجاح' });
     } catch (err) {
-      logger.error('Error during password reset:', { err });
-      res.status(500).json({ error: 'Failed to reset password' });
+      logger.error('Error during password reset:', {
+        error: err.message,
+        stack: err.stack,
+        token: token ? 'provided' : 'missing'
+      });
+      res.status(500).json({ error: 'فشل في إعادة تعيين كلمة المرور' });
     }
   });
 

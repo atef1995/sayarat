@@ -328,13 +328,14 @@ class BrevoEmailService {
    * @return {Promise<Object>} Email send result
    *
    */
-  async sendResetPasswordEmail(email, firstName, requestId, resetToken) {
+  async sendResetPasswordEmail(email, firstName, requestId, resetToken, username) {
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
     const params = {
       resetUrl,
       supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear()
+      currentYear: new Date().getFullYear(),
+      username: username
     };
 
     return await this.sendTemplatedEmail({

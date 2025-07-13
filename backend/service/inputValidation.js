@@ -122,12 +122,39 @@ const validatePassword = password => {
   const passwordSchema = Joi.string()
     .min(8)
     .max(100)
-    .pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
+    .custom((value, helpers) => {
+      // Check for lowercase letter
+      if (!/[a-z]/.test(value)) {
+        return helpers.error('password.lowercase');
+      }
+
+      // Check for uppercase letter
+      if (!/[A-Z]/.test(value)) {
+        return helpers.error('password.uppercase');
+      }
+
+      // Check for number
+      if (!/\d/.test(value)) {
+        return helpers.error('password.number');
+      }
+
+      // Check for special character (more comprehensive set)
+      if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~`]/.test(value)) {
+        return helpers.error('password.special');
+      }
+
+      return value;
+    })
     .messages({
-      'string.pattern.base':
-        'Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.'
+      'password.lowercase': 'Password must contain at least one lowercase letter',
+      'password.uppercase': 'Password must contain at least one uppercase letter',
+      'password.number': 'Password must contain at least one number',
+      'password.special': 'Password must contain at least one special character',
+      'string.min': 'Password must be at least 8 characters long',
+      'string.max': 'Password must not exceed 100 characters'
     })
     .required();
+
   const { error } = passwordSchema.validate(password);
   if (error) {
     throw new Error(error.details[0].message);
