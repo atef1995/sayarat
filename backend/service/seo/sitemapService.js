@@ -701,7 +701,7 @@ ${sitemapElements}
   generateFallbackCarSlug(car) {
     const slugGenerator = require('../../utils/slugGenerator');
     const title = car.title || `${car.make}-${car.model}-${car.year}` || `car-${car.id}`;
-    return slugGenerator.generateSlug(title, 'car', car.id);
+    return slugGenerator.generateSlug(title, { includeId: true, id: car.id });
   }
 
   /**
@@ -712,7 +712,7 @@ ${sitemapElements}
   generateFallbackCompanySlug(company) {
     const slugGenerator = require('../../utils/slugGenerator');
     const name = company.name || `company-${company.id}`;
-    return slugGenerator.generateSlug(name, 'company', company.id);
+    return slugGenerator.generateSlug(name, { includeId: true, id: company.id });
   }
 
   /**
@@ -723,7 +723,7 @@ ${sitemapElements}
   generateFallbackPostSlug(post) {
     const slugGenerator = require('../../utils/slugGenerator');
     const title = post.title || `post-${post.id}`;
-    return slugGenerator.generateSlug(title, 'post', post.id);
+    return slugGenerator.generateSlug(title, { includeId: true, id: post.id });
   }
 
   /**
