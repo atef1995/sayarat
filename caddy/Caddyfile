@@ -10,6 +10,15 @@ sayarat.autos, www.sayarat.autos {
         reverse_proxy backend:5000
     }
 
-    # Proxy all other requests to frontend
+    # Proxy sitemap and SEO files to backend
+    handle /sitemap*.xml {
+        reverse_proxy backend:5000
+    }
+    
+    handle /robots.txt {
+        reverse_proxy backend:5000
+    }
+
+    # Proxy all other requests to frontend (catch-all - must be last)
     reverse_proxy frontend:80
 }
