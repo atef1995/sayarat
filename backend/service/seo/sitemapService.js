@@ -53,9 +53,15 @@ class SitemapService {
     this.targetRegion = 'SY'; // Syria country code
     this.defaultTimezone = 'Asia/Damascus';
 
-    // Initialize Arabic metadata service
-    const ArabicMetadataService = require('./arabicMetadataService');
-    this.arabicService = new ArabicMetadataService();
+    // Initialize Arabic metadata service with error handling
+    try {
+      const ArabicMetadataService = require('./arabicMetadataService');
+      this.arabicService = new ArabicMetadataService();
+      logger.info('Arabic metadata service initialized successfully');
+    } catch (error) {
+      logger.warn('Failed to initialize Arabic metadata service:', error);
+      this.arabicService = null;
+    }
   }
 
   /**
@@ -173,6 +179,22 @@ class SitemapService {
    */
   async generateCarsSitemap() {
     try {
+      // Test database connection first
+      if (!this.knex) {
+        throw new Error('Database connection not available');
+      }
+
+      // Simple query to test database
+      const testResult = await this.knex.raw('SELECT 1 as test');
+      logger.info('Database connection test successful:', testResult);
+
+      // Check if listed_cars table exists
+      const tableExists = await this.knex.schema.hasTable('listed_cars');
+      if (!tableExists) {
+        logger.error('Table listed_cars does not exist');
+        throw new Error('Table listed_cars does not exist');
+      }
+
       const cars = await this.knex('listed_cars')
         .select([
           'id',
@@ -184,51 +206,77 @@ class SitemapService {
           'location',
           'make',
           'model',
-          'year',
-          'car_type',
-          'fuel_type',
-          'gearbox',
-          'color',
-          'meta_description',
-          'meta_keywords'
+          'year'
         ])
         .where('status', 'active')
-        .whereNull('deleted_at')
         .orderBy('updated_at', 'desc')
         .limit(50000); // Google sitemap limit
 
-      const urls = cars.map(car => {
-        // Use database slug or generate fallback
-        const carSlug = car.slug || this.generateFallbackCarSlug(car);
+      logger.info(`Found ${cars.length} active cars for sitemap`);
 
-        // Enhance car data with Arabic metadata
-        const enhancedCar = this.arabicService.enhanceCarData(car);
+      if (cars.length === 0) {
+        logger.warn('No active cars found for sitemap');
+        // Return empty sitemap instead of failing
+        return this.generateSitemapXML([]);
+      }
+
+      const urls = cars.map(car => {
+        // Note: carSlug generation is kept for potential future use
+        // Currently using car.id directly for URL consistency with frontend routes
+
+        // Enhance car data with Arabic metadata (make this optional)
+        let enhancedCar = car;
+        try {
+          if (this.arabicService && typeof this.arabicService.enhanceCarData === 'function') {
+            enhancedCar = this.arabicService.enhanceCarData(car) || car;
+          }
+        } catch (error) {
+          logger.warn(`Failed to enhance car data for car ${car.id}:`, error);
+          // Use fallback values
+          enhancedCar = {
+            ...car,
+            arabic_car_type: car.car_type || '',
+            arabic_fuel_type: car.fuel_type || '',
+            arabic_gearbox: car.gearbox || '',
+            arabic_city: car.location || '',
+            arabic_color: car.color || '',
+            arabic_metadata: {
+              region: 'سوريا',
+              market: 'الشرق الأوسط',
+              language: 'العربية'
+            }
+          };
+        }
 
         return {
-          loc: `${this.baseUrl}/car/${carSlug}`,
+          loc: `${this.baseUrl}/car-listing/${car.id}`,
           lastmod: new Date(car.updated_at).toISOString(),
           changefreq: 'weekly',
           priority: this.calculateCarPriority(car),
-          alternateUrls: this.generateAlternateUrls(`/car/${carSlug}`),
+          alternateUrls: this.generateAlternateUrls(`/car-listing/${car.id}`),
           // Enhanced Arabic-specific metadata
-          arabicTitle: car.title,
-          arabicCarType: enhancedCar.arabic_car_type,
-          arabicFuelType: enhancedCar.arabic_fuel_type,
-          arabicGearbox: enhancedCar.arabic_gearbox,
-          arabicCity: enhancedCar.arabic_city,
-          arabicColor: enhancedCar.arabic_color,
-          location: car.location,
+          arabicTitle: car.title || '',
+          arabicCarType: enhancedCar.arabic_car_type || '',
+          arabicFuelType: enhancedCar.arabic_fuel_type || '',
+          arabicGearbox: enhancedCar.arabic_gearbox || '',
+          arabicCity: enhancedCar.arabic_city || '',
+          arabicColor: enhancedCar.arabic_color || '',
+          location: car.location || '',
           geoTarget: 'SY',
-          metaDescription: car.meta_description,
-          keywords: car.meta_keywords,
-          arabicMetadata: enhancedCar.arabic_metadata
+          metaDescription: car.meta_description || '',
+          keywords: car.meta_keywords || '',
+          arabicMetadata: enhancedCar.arabic_metadata || {}
         };
       });
 
-      logger.info(`Generated cars sitemap with ${urls.length} entries and Arabic metadata`);
+      logger.info(`Generated cars sitemap with ${urls.length} entries`);
       return this.generateSitemapXML(urls);
     } catch (error) {
-      logger.error('Error generating cars sitemap:', error);
+      logger.error('Error generating cars sitemap:', {
+        message: error.message,
+        stack: error.stack,
+        type: error.constructor.name
+      });
       throw error;
     }
   }
@@ -254,18 +302,40 @@ class SitemapService {
           'meta_keywords'
         ])
         .where('status', 'active')
-        .whereNull('deleted_at')
         .orderBy('updated_at', 'desc');
 
       const urls = companies.map(company => {
         // Use database slug or generate fallback
-        const companySlug = company.slug || this.generateFallbackCompanySlug(company);
+        let companySlug;
+        try {
+          companySlug = company.slug || this.generateFallbackCompanySlug(company);
+        } catch (error) {
+          logger.warn(`Failed to generate slug for company ${company.id}:`, error);
+          companySlug = `company-${company.id}`;
+        }
 
-        // Enhance company data with Arabic metadata
-        const enhancedCompany = this.arabicService.enhanceCompanyData({
-          ...company,
-          location: company.city || company.location
-        });
+        // Enhance company data with Arabic metadata (make this optional)
+        let enhancedCompany = company;
+        try {
+          if (this.arabicService && typeof this.arabicService.enhanceCompanyData === 'function') {
+            enhancedCompany = this.arabicService.enhanceCompanyData({
+              ...company,
+              location: company.city || company.location
+            }) || company;
+          }
+        } catch (error) {
+          logger.warn(`Failed to enhance company data for company ${company.id}:`, error);
+          // Use fallback values
+          enhancedCompany = {
+            ...company,
+            arabic_city: company.city || company.location || '',
+            arabic_metadata: {
+              region: 'سوريا',
+              market: 'الشرق الأوسط',
+              language: 'العربية'
+            }
+          };
+        }
 
         return {
           loc: `${this.baseUrl}/company/${companySlug}`,
@@ -273,13 +343,13 @@ class SitemapService {
           changefreq: 'monthly',
           priority: 0.7,
           alternateUrls: this.generateAlternateUrls(`/company/${companySlug}`),
-          companyName: company.company_name || company.name,
-          arabicCity: enhancedCompany.arabic_city,
+          companyName: company.company_name || company.name || '',
+          arabicCity: enhancedCompany.arabic_city || '',
           location: company.city || company.location || 'Syria',
           geoTarget: 'SY',
-          metaDescription: company.meta_description,
-          keywords: company.meta_keywords,
-          arabicMetadata: enhancedCompany.arabic_metadata
+          metaDescription: company.meta_description || '',
+          keywords: company.meta_keywords || '',
+          arabicMetadata: enhancedCompany.arabic_metadata || {}
         };
       });
 
@@ -341,8 +411,31 @@ class SitemapService {
   async generateCategoriesSitemap() {
     try {
       // Get car categories and cities from Arabic metadata service
-      const carCategories = this.arabicService.getAllCarTypes();
-      const cities = this.arabicService.getAllCities();
+      let carCategories = [];
+      let cities = [];
+
+      try {
+        if (this.arabicService && typeof this.arabicService.getAllCarTypes === 'function') {
+          carCategories = this.arabicService.getAllCarTypes() || [];
+        }
+        if (this.arabicService && typeof this.arabicService.getAllCities === 'function') {
+          cities = this.arabicService.getAllCities() || [];
+        }
+      } catch (error) {
+        logger.warn('Failed to get categories/cities from Arabic service:', error);
+        // Use fallback categories
+        carCategories = [
+          { slug: 'sedan', arabic: 'سيدان', english: 'sedan' },
+          { slug: 'suv', arabic: 'جبلية', english: 'suv' },
+          { slug: 'pickup', arabic: 'بيكأب', english: 'pickup' },
+          { slug: 'hatchback', arabic: 'هاتشباك', english: 'hatchback' }
+        ];
+        cities = [
+          { slug: 'damascus', arabic: 'دمشق', english: 'damascus' },
+          { slug: 'aleppo', arabic: 'حلب', english: 'aleppo' },
+          { slug: 'homs', arabic: 'حمص', english: 'homs' }
+        ];
+      }
 
       const urls = [
         // Car type categories with Arabic metadata
@@ -403,16 +496,32 @@ class SitemapService {
       { carType: 'hatchback', fuelType: 'bensin', priority: 0.7 }
     ];
 
-    return popularCombinations.map(combo => ({
-      loc: `${this.baseUrl}/search?carType=${combo.carType}&fuelType=${combo.fuelType}`,
-      lastmod: new Date().toISOString(),
-      changefreq: 'weekly',
-      priority: combo.priority,
-      alternateUrls: this.generateAlternateUrls(`/search?carType=${combo.carType}&fuelType=${combo.fuelType}`),
-      arabicCarType: this.arabicService.getArabicCarType(combo.carType),
-      arabicFuelType: this.arabicService.getArabicFuelType(combo.fuelType),
-      geoTarget: 'SY'
-    }));
+    return popularCombinations.map(combo => {
+      let arabicCarType = combo.carType;
+      let arabicFuelType = combo.fuelType;
+
+      try {
+        if (this.arabicService && typeof this.arabicService.getArabicCarType === 'function') {
+          arabicCarType = this.arabicService.getArabicCarType(combo.carType) || combo.carType;
+        }
+        if (this.arabicService && typeof this.arabicService.getArabicFuelType === 'function') {
+          arabicFuelType = this.arabicService.getArabicFuelType(combo.fuelType) || combo.fuelType;
+        }
+      } catch (error) {
+        logger.warn('Failed to get Arabic translations for search combinations:', error);
+      }
+
+      return {
+        loc: `${this.baseUrl}/search?carType=${combo.carType}&fuelType=${combo.fuelType}`,
+        lastmod: new Date().toISOString(),
+        changefreq: 'weekly',
+        priority: combo.priority,
+        alternateUrls: this.generateAlternateUrls(`/search?carType=${combo.carType}&fuelType=${combo.fuelType}`),
+        arabicCarType: arabicCarType,
+        arabicFuelType: arabicFuelType,
+        geoTarget: 'SY'
+      };
+    });
   }
 
   /**
