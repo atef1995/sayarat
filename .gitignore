@@ -2,6 +2,9 @@ my-vite-app/node_modules
 my-vite-app/.env.development
 my-vite-app/.env.production
 backend/node_modules
+backend/cmd.md
+my-vite-app/.env.example
+backend/logs/
 myenv
 us_car_models_data_master
 .env
@@ -17,3 +20,4 @@ my-vite-app/.env.production
 .github/instructions/
 .github/instructions/js insturctions.instructions.md
 .github/instructions/tsx instructions.instructions.md
+.github/
