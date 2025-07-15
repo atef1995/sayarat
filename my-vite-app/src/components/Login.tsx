@@ -25,7 +25,7 @@ const Login = () => {
       const data = await login({ username, password });
 
       if (data.success === true) {
-        navigate(-1);
+        navigate("/");
       } else {
         message.error(String(data.error));
       }

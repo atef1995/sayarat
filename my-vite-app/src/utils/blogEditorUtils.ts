@@ -5,17 +5,6 @@ import { message } from "antd";
  */
 export const BlogEditorUtils = {
   /**
-   * Generate a URL-friendly slug from a title
-   */
-  generateSlug: (title: string): string => {
-    return title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .trim();
-  },
-
-  /**
    * Validate uploaded image file
    */
   validateImageFile: (file: File): boolean => {

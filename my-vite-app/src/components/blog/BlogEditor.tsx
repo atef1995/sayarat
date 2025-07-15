@@ -116,6 +116,7 @@ const BlogEditor: React.FC<BlogEditorProps> = ({ mode }) => {
           reading_time: post.reading_time,
           featured_image: post.featured_image,
           slug: post.slug, // Ensure slug is set if available
+          tags: post.tags?.map((tag: { id: number }) => tag.id) || [],
         });
 
         // Set image preview if there's a featured image
