@@ -10,7 +10,12 @@ module.exports = {
   testEnvironment: 'node',
 
   // Test file patterns
-  testMatch: ['**/test/**/*.test.js', '**/test/**/*.spec.js'],
+  testMatch: [
+    '**/test/**/*.test.js',
+    '**/test/**/*.spec.js',
+    '**/tests/**/*.test.js',
+    '**/tests/**/*.spec.js'
+  ],
 
   // Coverage configuration
   collectCoverageFrom: ['service/**/*.js', '!service/**/index.js', '!**/node_modules/**'],

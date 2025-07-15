@@ -1,0 +1,16 @@
+{
+  "testEnvironment": "node",
+  "roots": ["<rootDir>/tests"],
+  "testMatch": ["**/__tests__/**/*.js", "**/?(*.)+(spec|test).js"],
+  "collectCoverageFrom": [
+    "service/**/*.js",
+    "utils/**/*.js",
+    "middleware/**/*.js",
+    "!**/node_modules/**",
+    "!**/coverage/**"
+  ],
+  "setupFilesAfterEnv": ["<rootDir>/test/setup.js"],
+  "testTimeout": 30000,
+  "modulePathIgnorePatterns": ["<rootDir>/test/"],
+  "testPathIgnorePatterns": ["<rootDir>/test/", "<rootDir>/node_modules/"]
+}

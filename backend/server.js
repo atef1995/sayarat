@@ -79,15 +79,22 @@ const globalLimiter = rateLimit({
 });
 
 // Specific rate limiters for sensitive endpoints
+// Increased max attempts and added skip logic to exclude auth check endpoints
+// Only applies to actual login/signup attempts, not auth verification calls
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 10, // Limit each IP to 10 login attempts per windowMs
+  max: 15, // Allow up to 15 authentication attempts per IP per windowMs
   message: {
     error: 'Too many authentication attempts, please try again later',
     retryAfter: Math.ceil(15 * 60 * 1000 / 1000)
   },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  // Skip rate limiting for auth check endpoints (called on page refresh)
+  skip: (req) => {
+    // Skip for GET requests (auth checks) and only limit POST/PUT requests (actual login attempts)
+    return req.method === 'GET' || req.path.includes('/check') || req.path.includes('/verify') || req.path.includes('/status');
+  }
 });
 
 const paymentLimiter = rateLimit({
