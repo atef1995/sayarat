@@ -28,7 +28,7 @@ const verifyEmailToken = async (knex, token) => {
       email_verified: true
     });
 
-    return { success: true, message: 'Email verified successfully', email: user.email, name: user.first_name };
+    return { success: true, message: 'Email verified successfully', email: user.email, firstName: user.first_name };
   } catch (error) {
     logger.error('Error verifying email token:', { error: error.message, stack: error.stack });
     return { success: false, message: 'Failed to verify email token' };

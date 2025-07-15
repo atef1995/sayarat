@@ -161,35 +161,74 @@ function emailRouter(knex) {
     const { token } = req.body;
     const reqId = generator.generateRequestId();
 
+    logger.info('Email verification request received:', {
+      reqId,
+      tokenProvided: !!token,
+      tokenLength: token ? token.length : 0
+    });
+
     if (!token) {
+      logger.warn('Email verification failed - no token provided:', { reqId });
       return res.status(400).json({ success: false, error: 'Error' });
     }
 
+    logger.info('Attempting email verification:', { reqId, token: token.substring(0, 8) + '...' });
+
     const emailVerified = await verifyEmailToken(knex, token);
+
+    logger.info('Email verification result:', {
+      reqId,
+      success: emailVerified.success,
+      message: emailVerified.message,
+      email: emailVerified.email,
+      firstName: emailVerified.firstName
+    });
+
     if (!emailVerified.success) {
+      logger.warn('Email verification failed:', {
+        reqId,
+        message: emailVerified.message,
+        token: token.substring(0, 8) + '...'
+      });
       return res.status(400).json({ success: false, error: emailVerified.message });
     }
 
     try {
+      logger.info('Sending email verification notification:', {
+        reqId,
+        email: emailVerified.email,
+        firstName: emailVerified.firstName
+      });
+
       const result = await emailService.sendEmailVerifiedNotification(
         emailVerified.email,
         emailVerified.firstName,
         reqId
       );
+
       if (!result.success) {
         logger.error('Failed to send email verification notification:', {
+          reqId,
           error: result.error,
           email: emailVerified.email,
           stack: result.stack
         });
         // Don't fail the verification just because notification email failed
         // The email is already verified successfully
+      } else {
+        logger.info('Email verification notification sent successfully:', {
+          reqId,
+          email: emailVerified.email,
+          messageId: result.messageId
+        });
       }
 
       // Always return success if email verification succeeded
+      logger.info('Email verification completed successfully:', { reqId, email: emailVerified.email });
       res.status(200).json({ success: true, message: 'Email Verified!' });
     } catch (error) {
       logger.error('Error sending email verification notification:', {
+        reqId,
         error: error.message,
         email: emailVerified.email,
         stack: error.stack
@@ -197,6 +236,7 @@ function emailRouter(knex) {
 
       // Still return success since email verification succeeded
       // Only the notification email failed
+      logger.info('Email verification succeeded despite notification error:', { reqId, email: emailVerified.email });
       res.status(200).json({ success: true, message: 'Email Verified!' });
     }
   });

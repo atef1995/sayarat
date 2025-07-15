@@ -2,6 +2,7 @@ const axios = require('axios');
 const fs = require('fs').promises;
 const path = require('path');
 const logger = require('../utils/logger');
+const emailTemplateService = require('./emailTemplateService');
 
 /**
  * Brevo Email Service for sending templated emails
@@ -10,7 +11,7 @@ class BrevoEmailService {
   /**
    * @param {Object} options - Configuration options
    */
-  constructor(options = {}) {
+  constructor(_options = {}) {
     this.apiKey = process.env.BREVO_API_KEY;
     this.baseUrl = 'https://api.brevo.com/v3';
     this.templateCache = new Map();
@@ -22,35 +23,43 @@ class BrevoEmailService {
   }
 
   /**
-   * Load and cache email template
-   * @param {string} templateName - Name of the template file
-   * @returns {Promise<string>} Template content
+   * Load and generate email template using the new template service
+   * @param {string} templateName - Name of the template to use
+   * @param {Object} params - Template parameters
+   * @returns {Promise<string>} Generated HTML content
    */
-  async loadTemplate(templateName) {
-    if (this.templateCache.has(templateName)) {
-      return this.templateCache.get(templateName);
-    }
-
+  async loadTemplate(templateName, params = {}) {
     try {
-      const templatePath = path.join(__dirname, '../email-templates', `${templateName}.html`);
-      const templateContent = await fs.readFile(templatePath, 'utf8');
-
-      // Cache the template for future use
-      this.templateCache.set(templateName, templateContent);
-
-      return templateContent;
+      // Use the new email template service to generate HTML
+      return await emailTemplateService.generateEmail(templateName, params);
     } catch (error) {
-      logger.error(`Failed to load email template: ${templateName}`, error);
-      throw new Error(`Email template not found: ${templateName}`);
+      logger.error(`Failed to generate email template: ${templateName}`, error);
+
+      // Fallback to old template system if new system fails
+      if (this.templateCache.has(templateName)) {
+        return this.templateCache.get(templateName);
+      }
+
+      try {
+        const templatePath = path.join(__dirname, '../email-templates', `${templateName}.html`);
+        const templateContent = await fs.readFile(templatePath, 'utf8');
+        this.templateCache.set(templateName, templateContent);
+        return templateContent;
+      } catch (fallbackError) {
+        logger.error(`Fallback template loading also failed: ${templateName}`, fallbackError);
+        throw new Error(`Email template not found: ${templateName}`);
+      }
     }
   }
 
   /**
    * Replace template parameters with actual values
+   * @deprecated This method is deprecated. Use emailTemplateService.generateEmail() instead.
    * @param {string} template - HTML template content
    * @param {Object} params - Parameters to replace
    * @returns {string} Processed template
-   */ processTemplate(template, params) {
+   */
+  processTemplate(template, params) {
     let processedTemplate = template;
 
     // Replace Brevo-style parameters {{ params.key }}
@@ -75,9 +84,9 @@ class BrevoEmailService {
 
     return processedTemplate;
   }
-
   /**
    * Send email using Brevo API with template
+   * @deprecated This method is deprecated. All email methods now use emailTemplateService directly for better consistency and maintainability.
    * @param {Object} options - Email options
    * @param {string} options.templateName - Name of the template to use
    * @param {Object} options.to - Recipient information
@@ -88,18 +97,21 @@ class BrevoEmailService {
    */
   async sendTemplatedEmail({ templateName, to, subject, params, requestId }) {
     try {
-      // Load and process template
-      const template = await this.loadTemplate(templateName);
-      const htmlContent = this.processTemplate(template, {
+      // Generate HTML content using the new template service
+      const htmlContent = await this.loadTemplate(templateName, {
         ...params,
-        currentYear: new Date().getFullYear()
+        currentYear: new Date().getFullYear(),
+        siteUrl: process.env.CLIENT_URL || 'https://sayarat.com',
+        supportEmail: 'atef@sayarat.autos',
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`,
+        userEmail: to.email,
       });
 
       // Prepare email data
       const emailData = {
         sender: {
           name: process.env.EMAIL_FROM_NAME || 'sayarat',
-          email: process.env.EMAIL_FROM || 'noreply@carsbids.com'
+          email: process.env.EMAIL_FROM || 'atef@sayarat.autos'
         },
         to: [
           {
@@ -156,28 +168,72 @@ class BrevoEmailService {
    * @returns {Promise<Object>} Email send result
    */
   async sendPaymentSuccessEmail(paymentIntent, requestId) {
-    const customerName = paymentIntent.metadata?.name || paymentIntent.metadata?.customerName || 'عزيزي العميل';
+    try {
+      const customerName = paymentIntent.metadata?.name || paymentIntent.metadata?.customerName || 'عزيزي العميل';
 
-    const params = {
-      customerName,
-      paymentId: paymentIntent.id,
-      amount: (paymentIntent.amount / 100).toFixed(2),
-      currency: paymentIntent.currency.toUpperCase(),
-      paymentDate: new Date().toLocaleDateString('ar-SA'),
-      listingType: paymentIntent.metadata?.listingType || 'إعلان مميز',
-      orderUrl: `${process.env.CLIENT_URL}/orders/${paymentIntent.id}`
-    };
+      // Use the new template service for payment success emails
+      const htmlContent = await emailTemplateService.generatePaymentSuccessEmail({
+        customerName,
+        paymentId: paymentIntent.id,
+        amount: (paymentIntent.amount / 100).toFixed(2),
+        currency: paymentIntent.currency.toUpperCase(),
+        paymentDate: new Date().toLocaleDateString('ar-SA'),
+        listingType: paymentIntent.metadata?.listingType || 'إعلان مميز',
+        orderUrl: `${process.env.CLIENT_URL || 'https://sayarat.com'}/orders/${paymentIntent.id}`,
+        userEmail: paymentIntent.metadata.email,
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'success-payment',
-      to: {
-        email: paymentIntent.metadata.email,
-        name: customerName
-      },
-      subject: 'تم الدفع بنجاح - sayarat',
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email: paymentIntent.metadata.email,
+            name: customerName
+          }
+        ],
+        subject: 'تم الدفع بنجاح - سيارات',
+        htmlContent,
+        tags: ['payment-success', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Payment success email sent successfully', {
+        requestId,
+        recipient: paymentIntent.metadata.email,
+        paymentId: paymentIntent.id,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send payment success email', {
+        requestId,
+        recipient: paymentIntent.metadata.email,
+        paymentId: paymentIntent.id,
+        error: error.message
+      });
+      throw error;
+    }
   }
 
   /**
@@ -187,36 +243,79 @@ class BrevoEmailService {
    * @returns {Promise<Object>} Email send result
    */
   async sendPaymentFailedEmail(failedPaymentIntent, requestId) {
-    const customerName =
-      failedPaymentIntent.billing_details?.name || failedPaymentIntent.metadata?.name || 'عزيزي العميل';
+    try {
+      const customerName =
+        failedPaymentIntent.billing_details?.name || failedPaymentIntent.metadata?.name || 'عزيزي العميل';
 
-    const params = {
-      customerName,
-      paymentId: failedPaymentIntent.id,
-      amount: (failedPaymentIntent.amount / 100).toFixed(2),
-      currency: failedPaymentIntent.currency.toUpperCase(),
-      attemptDate: new Date().toLocaleDateString('ar-SA'),
-      errorMessage: failedPaymentIntent.last_payment_error?.message || null,
-      retryUrl: `${process.env.CLIENT_URL}/checkout/${failedPaymentIntent.id}`,
-      supportUrl: `${process.env.SUPPORT_URL}`
-    };
+      const email = failedPaymentIntent.billing_details?.email || failedPaymentIntent.metadata?.email;
 
-    const email = failedPaymentIntent.billing_details?.email || failedPaymentIntent.metadata?.email;
+      if (!email) {
+        throw new Error('No email address found for failed payment notification');
+      }
 
-    if (!email) {
-      throw new Error('No email address found for failed payment notification');
+      // Use the new template service for payment failed emails
+      const htmlContent = await emailTemplateService.generatePaymentFailedEmail({
+        customerName,
+        paymentId: failedPaymentIntent.id,
+        amount: (failedPaymentIntent.amount / 100).toFixed(2),
+        currency: failedPaymentIntent.currency.toUpperCase(),
+        attemptDate: new Date().toLocaleDateString('ar-SA'),
+        errorMessage: failedPaymentIntent.last_payment_error?.message || 'خطأ في معالجة الدفع',
+        retryUrl: `${process.env.CLIENT_URL || 'https://sayarat.com'}/checkout/${failedPaymentIntent.id}`,
+        userEmail: email,
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
+
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email,
+            name: customerName
+          }
+        ],
+        subject: 'فشل الدفع - سيارات',
+        htmlContent,
+        tags: ['payment-failed', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Payment failed email sent successfully', {
+        requestId,
+        recipient: email,
+        paymentId: failedPaymentIntent.id,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send payment failed email', {
+        requestId,
+        recipient: failedPaymentIntent.billing_details?.email || failedPaymentIntent.metadata?.email,
+        paymentId: failedPaymentIntent.id,
+        error: error.message
+      });
+      throw error;
     }
-
-    return await this.sendTemplatedEmail({
-      templateName: 'payment-failed',
-      to: {
-        email,
-        name: customerName
-      },
-      subject: 'فشل الدفع - sayarat',
-      params,
-      requestId
-    });
   }
 
   /**
@@ -300,24 +399,65 @@ class BrevoEmailService {
    * @return {Promise<Object>} Email send result
    * */
   async sendVerificationEmail(email, firstName, requestId, verificationToken) {
-    const verificationUrl = `${process.env.CLIENT_URL}/verify-email?token=${verificationToken}`;
+    try {
+      const verificationUrl = `${process.env.CLIENT_URL || 'https://sayarat.com'}/verify-email?token=${verificationToken}`;
 
-    const params = {
-      verificationUrl,
-      supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear()
-    };
+      // Use the new template service for verification emails
+      const htmlContent = await emailTemplateService.generateVerificationEmail({
+        userName: firstName || 'عزيزي العميل',
+        verificationUrl,
+        userEmail: email,
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'verify-email',
-      to: {
-        email,
-        name: firstName || 'عزيزي العميل'
-      },
-      subject: 'تحقق من بريدك الإلكتروني - sayarat',
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email,
+            name: firstName || 'عزيزي العميل'
+          }
+        ],
+        subject: 'تأكيد البريد الإلكتروني - سيارات',
+        htmlContent,
+        tags: ['verify-email', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Verification email sent successfully', {
+        requestId,
+        recipient: email,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send verification email', {
+        requestId,
+        recipient: email,
+        error: error.message
+      });
+      throw error;
+    }
   }
 
   /**
@@ -329,52 +469,133 @@ class BrevoEmailService {
    *
    */
   async sendResetPasswordEmail(email, firstName, requestId, resetToken, username) {
-    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    try {
+      const resetUrl = `${process.env.CLIENT_URL || 'https://sayarat.com'}/reset-password/${resetToken}`;
 
-    const params = {
-      resetUrl,
-      supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear(),
-      username: username
-    };
+      // Use the new template service for password reset emails
+      const htmlContent = await emailTemplateService.generatePasswordResetEmail({
+        userName: firstName || username || 'عزيزي العميل',
+        resetUrl,
+        userEmail: email,
+        expirationTime: '30 دقيقة',
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'reset-password',
-      to: {
-        email,
-        name: firstName || 'عزيزي العميل'
-      },
-      subject: 'إعادة تعيين كلمة المرور - sayarat',
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email,
+            name: firstName || username || 'عزيزي العميل'
+          }
+        ],
+        subject: 'إعادة تعيين كلمة المرور - سيارات',
+        htmlContent,
+        tags: ['password-reset', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Password reset email sent successfully', {
+        requestId,
+        recipient: email,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send password reset email', {
+        requestId,
+        recipient: email,
+        error: error.message
+      });
+      throw error;
+    }
   }
 
   /**
    * Send email verified success notification
    * @param {string} email - Email address that was verified
    * @param {string} firstName - First name of the user
+   * @param {string} requestId - Request tracking ID
    * @return {Promise<Object>} Email send result
-   *
    */
   async sendEmailVerifiedNotification(email, firstName, requestId) {
-    const params = {
-      name: firstName || 'عزيزي العميل',
-      homeUrl: process.env.CLIENT_URL,
-      supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear()
-    };
+    try {
+      // Use the new template service for email verified success emails
+      const htmlContent = await emailTemplateService.generateEmailVerifySuccessEmail({
+        userName: firstName || 'عزيزي العميل',
+        userEmail: email,
+        homeUrl: process.env.CLIENT_URL || 'https://sayarat.com',
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'email-verify-success',
-      to: {
-        email,
-        name: firstName || 'عزيزي العميل'
-      },
-      subject: 'تم التحقق من بريدك الإلكتروني - sayarat',
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email,
+            name: firstName || 'عزيزي العميل'
+          }
+        ],
+        subject: 'تم التحقق من بريدك الإلكتروني - سيارات',
+        htmlContent,
+        tags: ['email-verified', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Email verified notification sent successfully', {
+        requestId,
+        recipient: email,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send email verified notification', {
+        requestId,
+        recipient: email,
+        error: error.message
+      });
+      throw error;
+    }
   }
 
   /**
@@ -384,26 +605,68 @@ class BrevoEmailService {
    * @returns {Promise<Object>} Email send result
    */
   async sendTestEmail(testEmail, requestId) {
-    const testParams = {
-      customerName: 'مستخدم تجريبي',
-      paymentId: 'pi_test_123456789',
-      amount: '100.00',
-      currency: 'USD',
-      paymentDate: new Date().toLocaleDateString('ar-SA'),
-      listingType: 'إعلان مميز تجريبي',
-      orderUrl: `${process.env.CLIENT_URL}/orders/test`
-    };
+    try {
+      // Use the new template service for test emails
+      const htmlContent = await emailTemplateService.generatePaymentSuccessEmail({
+        customerName: 'مستخدم تجريبي',
+        paymentId: 'pi_test_123456789',
+        amount: '100.00',
+        currency: 'USD',
+        paymentDate: new Date().toLocaleDateString('ar-SA'),
+        listingType: 'إعلان مميز تجريبي',
+        orderUrl: `${process.env.CLIENT_URL || 'https://sayarat.com'}/orders/test`,
+        userEmail: testEmail,
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'success-payment',
-      to: {
-        email: testEmail,
-        name: 'مستخدم تجريبي'
-      },
-      subject: '[TEST] تم الدفع بنجاح - sayarat',
-      params: testParams,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email: testEmail,
+            name: 'مستخدم تجريبي'
+          }
+        ],
+        subject: '[TEST] تم الدفع بنجاح - سيارات',
+        htmlContent,
+        tags: ['test-email', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Test email sent successfully', {
+        requestId,
+        recipient: testEmail,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send test email', {
+        requestId,
+        recipient: testEmail,
+        error: error.message
+      });
+      throw error;
+    }
   }
   /**
    * Send welcome email to company admin
@@ -413,26 +676,66 @@ class BrevoEmailService {
    * @return {Promise<Object>} Email send result
    */
   async sendCompanyWelcomeEmail(adminData, companyData, requestId) {
-    const params = {
-      adminName: `${adminData.firstName} ${adminData.lastName}`,
-      companyName: companyData.name,
-      subscriptionType: companyData.subscriptionType === 'monthly' ? 'شهري' : 'سنوي',
-      loginUrl: `${process.env.CLIENT_URL}/login`,
-      dashboardUrl: `${process.env.CLIENT_URL}/dashboard`,
-      supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear()
-    };
+    try {
+      // Use the new template service for company welcome emails
+      const htmlContent = await emailTemplateService.generateCompanyWelcomeEmail({
+        userName: `${adminData.firstName} ${adminData.lastName}`,
+        companyName: companyData.name,
+        userEmail: adminData.email,
+        subscriptionType: companyData.subscriptionType === 'monthly' ? 'شهري' : 'سنوي',
+        dashboardUrl: `${process.env.CLIENT_URL || 'https://sayarat.com'}/company/dashboard`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'company-welcome',
-      to: {
-        email: adminData.email,
-        name: `${adminData.firstName} ${adminData.lastName}`
-      },
-      subject: `مرحباً بكم في sayarat - ${companyData.name}`,
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email: adminData.email,
+            name: `${adminData.firstName} ${adminData.lastName}`
+          }
+        ],
+        subject: `مرحباً بشركة ${companyData.name} في سيارات! 🏢`,
+        htmlContent,
+        tags: ['company-welcome', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Company welcome email sent successfully', {
+        requestId,
+        recipient: adminData.email,
+        company: companyData.name,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send company welcome email', {
+        requestId,
+        recipient: adminData.email,
+        company: companyData.name,
+        error: error.message
+      });
+      throw error;
+    }
   }
 
   /**
@@ -443,27 +746,68 @@ class BrevoEmailService {
    * @return {Promise<Object>} Email send result
    */
   async sendCompanyActivationEmail(adminData, companyData, requestId) {
-    const params = {
-      adminName: `${adminData.firstName} ${adminData.lastName}`,
-      companyName: companyData.name,
-      subscriptionType: companyData.subscriptionType === 'monthly' ? 'شهري' : 'سنوي',
-      activationDate: new Date().toLocaleDateString('ar-SA'),
-      dashboardUrl: `${process.env.CLIENT_URL}/dashboard`,
-      createListingUrl: `${process.env.CLIENT_URL}/create-listing`,
-      supportUrl: `${process.env.SUPPORT_URL}`,
-      currentYear: new Date().getFullYear()
-    };
+    try {
+      // Use the new template service for company activation emails
+      const htmlContent = await emailTemplateService.generateCompanyActivationEmail({
+        adminName: `${adminData.firstName} ${adminData.lastName}`,
+        companyName: companyData.name,
+        subscriptionType: companyData.subscriptionType === 'monthly' ? 'شهري' : 'سنوي',
+        activationDate: new Date().toLocaleDateString('ar-SA'),
+        dashboardUrl: `${process.env.CLIENT_URL || 'https://sayarat.com'}/company/dashboard`,
+        userEmail: adminData.email,
+        logoUrl: `${process.env.LOGO_URL || 'https://sayarat.com'}/logo.png`
+      });
 
-    return await this.sendTemplatedEmail({
-      templateName: 'company-activation',
-      to: {
-        email: adminData.email,
-        name: `${adminData.firstName} ${adminData.lastName}`
-      },
-      subject: `تم تفعيل اشتراك شركة ${companyData.name} - sayarat`,
-      params,
-      requestId
-    });
+      // Prepare email data
+      const emailData = {
+        sender: {
+          name: 'سيارات',
+          email: 'atef@sayarat.autos'
+        },
+        to: [
+          {
+            email: adminData.email,
+            name: `${adminData.firstName} ${adminData.lastName}`
+          }
+        ],
+        subject: `تم تفعيل اشتراك شركة ${companyData.name} - سيارات`,
+        htmlContent,
+        tags: ['company-activation', 'automated'],
+        headers: {
+          'X-Request-ID': requestId
+        }
+      };
+
+      // Send email via Brevo API
+      const response = await axios.post(`${this.baseUrl}/smtp/email`, emailData, {
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+          'api-key': this.apiKey
+        }
+      });
+
+      logger.info('Company activation email sent successfully', {
+        requestId,
+        recipient: adminData.email,
+        company: companyData.name,
+        messageId: response.data.messageId
+      });
+
+      return {
+        success: true,
+        messageId: response.data.messageId,
+        provider: 'brevo'
+      };
+    } catch (error) {
+      logger.error('Failed to send company activation email', {
+        requestId,
+        recipient: adminData.email,
+        company: companyData.name,
+        error: error.message
+      });
+      throw error;
+    }
   }
 }
 

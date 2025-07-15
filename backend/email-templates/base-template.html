@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>تأكيد البريد الإلكتروني - سيارات</title>
+    <title>{{ params.emailTitle || 'سيارات' }}</title>
     <style>
       body {
         margin: 0;
@@ -82,6 +82,22 @@
         color: white;
         text-decoration: none;
       }
+      .button-success {
+        background: linear-gradient(135deg, #52c41a, #389e0d);
+        box-shadow: 0 4px 12px rgba(82, 196, 26, 0.3);
+      }
+      .button-success:hover {
+        background: linear-gradient(135deg, #389e0d, #237804);
+        box-shadow: 0 6px 16px rgba(82, 196, 26, 0.4);
+      }
+      .button-warning {
+        background: linear-gradient(135deg, #fa8c16, #d46b08);
+        box-shadow: 0 4px 12px rgba(250, 140, 22, 0.3);
+      }
+      .button-warning:hover {
+        background: linear-gradient(135deg, #d46b08, #ad4e00);
+        box-shadow: 0 6px 16px rgba(250, 140, 22, 0.4);
+      }
       .security-note {
         background-color: #f8f9fa;
         border: 1px solid #dee2e6;
@@ -90,6 +106,33 @@
         margin: 25px 0;
         font-size: 14px;
         color: #6c757d;
+      }
+      .info-box {
+        background-color: #e6f7ff;
+        border: 1px solid #91d5ff;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+        font-size: 14px;
+        color: #096dd9;
+      }
+      .success-box {
+        background-color: #f6ffed;
+        border: 1px solid #b7eb8f;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+        font-size: 14px;
+        color: #389e0d;
+      }
+      .warning-box {
+        background-color: #fff7e6;
+        border: 1px solid #ffd591;
+        border-radius: 8px;
+        padding: 20px;
+        margin: 25px 0;
+        font-size: 14px;
+        color: #d46b08;
       }
       .footer {
         background-color: #f8f9fa;
@@ -128,6 +171,11 @@
       }
       .unsubscribe-link {
         color: #6c757d;
+        text-decoration: none;
+      }
+      .unsubscribe-link:hover {
+        color: #495057;
+        text-decoration: underline;
       }
       /* Mobile responsiveness */
       @media only screen and (max-width: 600px) {
@@ -146,47 +194,31 @@
         .button {
           padding: 14px 28px;
           font-size: 15px;
+          display: block;
+          margin: 10px 0;
+        }
+        .logo {
+          max-width: 120px;
         }
       }
     </style>
   </head>
   <body>
     <div class="email-container">
+      <!-- Header Section -->
       <div class="header">
-        <!-- Logo placeholder - Replace with your actual logo -->
         <img src="{{ params.logoUrl }}" alt="سيارات - شعار الموقع" class="logo" />
-        <h1>تأكيد البريد الإلكتروني</h1>
-      </div>
-      <div class="content">
-        <p class="welcome-text">مرحبًا {{ params.userName }}! 👋</p>
-        <p class="message">
-          شكرًا لانضمامك إلى <strong>سيارات</strong>، أفضل منصة لبيع وشراء السيارات في المنطقة! <br /><br />
-          لإكمال عملية التسجيل وتفعيل حسابك، يرجى تأكيد بريدك الإلكتروني من خلال الضغط على الزر أدناه:
-        </p>
-
-        <div class="button-container">
-          <a href="{{ params.verificationUrl }}" class="button"> ✅ تأكيد البريد الإلكتروني </a>
-        </div>
-
-        <div class="security-note">
-          <strong>📧 ملاحظة أمنية:</strong><br />
-          إذا لم تقم بالتسجيل في موقع سيارات، يرجى تجاهل هذا البريد الإلكتروني. لن يتم إنشاء أي حساب بدون تأكيد البريد
-          الإلكتروني.
-        </div>
-
-        <p class="message">بعد تأكيد البريد الإلكتروني، ستتمكن من:</p>
-        <ul class="benefits-list">
-          <li>🚗 نشر إعلانات بيع السيارات</li>
-          <li>💬 التواصل مع البائعين والمشترين</li>
-          <li>❤️ حفظ السيارات المفضلة</li>
-          <li>🔔 استلام إشعارات السيارات الجديدة</li>
-        </ul>
+        <h1>{{ params.headerTitle }}</h1>
       </div>
 
+      <!-- Content Section -->
+      <div class="content">{{ content }}</div>
+
+      <!-- Footer Section -->
       <div class="footer">
         <p class="footer-text">
           <strong>هل تحتاج مساعدة؟</strong><br />
-          إذا واجهت أي مشاكل في التأكيد، يرجى الاتصال بفريق الدعم على:
+          إذا واجهت أي مشاكل، يرجى الاتصال بفريق الدعم على:
         </p>
         <p class="footer-text">
           📧 البريد الإلكتروني: <a href="mailto:{{ params.supportEmail }}">{{ params.supportEmail }}</a><br />
@@ -206,7 +238,7 @@
           </p>
           <p class="footer-text">© {{ params.currentYear }} {{ params.companyName }}. جميع الحقوق محفوظة.</p>
           <p class="footer-text unsubscribe-text">
-            تم إرسال هذا البريد الإلكتروني إلى {{ params.userEmail }} لأنك قمت بالتسجيل في موقعنا.
+            تم إرسال هذا البريد الإلكتروني إلى {{ params.userEmail }} {{ params.emailReason }}.
             <br />
             <a href="{{ params.unsubscribeUrl }}" class="unsubscribe-link">إلغاء الاشتراك</a> |
             <a href="{{ params.privacyUrl }}" class="unsubscribe-link">سياسة الخصوصية</a>
