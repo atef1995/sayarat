@@ -1,5 +1,5 @@
 import { ReactNode, useCallback, useEffect, useState, Suspense } from "react";
-import { Layout, Menu, theme, Spin, Row, Col } from "antd";
+import { Layout, Menu, theme, Spin, Row, Col, Space, Tooltip } from "antd";
 import { Content, Header, Footer } from "antd/es/layout/layout";
 import {
   BookOutlined,
@@ -11,6 +11,8 @@ import {
   MessageFilled,
   SettingFilled,
   UserOutlined,
+  PlusOutlined,
+  StarFilled,
 } from "@ant-design/icons";
 import { Link, useLocation, useNavigate } from "react-router";
 import { useAuth } from "./hooks/useAuth";
@@ -18,6 +20,8 @@ import { fetchUnreadMessagesCount } from "./api/fetchMessages";
 import MessageIcon from "./components/icons/message";
 import { useSubscription } from "./hooks/useSubscription";
 import { StatusIndicator } from "./components/StatusBadge";
+import GuestCTABanner from "./components/GuestCTABanner";
+import FloatingJoinButton from "./components/FloatingJoinButton";
 import "./styles/status-effects.css";
 
 function MyLayout({ children }: { children: ReactNode }) {
@@ -70,8 +74,22 @@ function MyLayout({ children }: { children: ReactNode }) {
       onClick: () => navigate("/blog"),
     },
 
-    isAuthenticated
+    // Show prominent "بيع سيارتك" for non-authenticated users to encourage signup
+    !isAuthenticated
       ? {
+          key: "sell-car-guest",
+          icon: <CarFilled className="text-green-500" />,
+          label: (
+            <Tooltip title="سجل دخولك لتتمكن من بيع سيارتك بسهولة">
+              <span className="text-green-600 hover:text-white transition-colors duration-300 font-medium">
+                بيع سيارتك
+              </span>
+            </Tooltip>
+          ),
+          onClick: () => navigate("/signup"),
+          className: "hover:bg-green-50 transition-colors duration-200",
+        }
+      : {
           className: isPremium()
             ? "before:absolute before:w-full before:h-10 before:rounded-full before:bg-yellow-500/15 before:transition-all before:duration-300 hover:before:scale-110 before:blur-xl before:animate-pulse before:duration-[10000ms] before:ease-in-out"
             : undefined,
@@ -85,8 +103,8 @@ function MyLayout({ children }: { children: ReactNode }) {
             "بيع سيارتك"
           ),
           onClick: () => navigate("/create-listing"),
-        }
-      : null,
+        },
+
     isAuthenticated
       ? {
           key: "messages",
@@ -126,6 +144,26 @@ function MyLayout({ children }: { children: ReactNode }) {
           onClick: () => navigate("/company-dashboard"),
         }
       : null,
+
+    // Enhanced authentication menu for non-authenticated users
+    !isAuthenticated
+      ? {
+          key: "join-now",
+          icon: <PlusOutlined className="text-blue-500" />,
+          label: (
+            <Space>
+              <span className="text-blue-600 hover:text-white transition-colors duration-300 font-semibold">
+                انضم الآن
+              </span>
+              <StarFilled className="text-yellow-500 text-xs" />
+            </Space>
+          ),
+          onClick: () => navigate("/signup"),
+          className:
+            "bg-gradient-to-r hover:from-blue-100 hover:to-blue-200 transition-all duration-300 rounded-lg",
+        }
+      : null,
+
     isAuthenticated
       ? {
           key: "user-menu",
@@ -198,28 +236,10 @@ function MyLayout({ children }: { children: ReactNode }) {
         }
       : {
           key: "auth-menu",
-          icon: <UserOutlined />,
-          label: "الحساب",
-          children: [
-            {
-              key: "login",
-              icon: <LoginOutlined />,
-              label: "تسجيل الدخول",
-              onClick: () => navigate("/login"),
-            },
-            {
-              key: "register",
-              icon: <UserOutlined />,
-              label: "إنشاء حساب",
-              onClick: () => navigate("/signup"),
-            },
-            {
-              key: "company-signup",
-              icon: <UserOutlined />,
-              label: "إنشاء حساب شركة",
-              onClick: () => navigate("/company-signup"),
-            },
-          ],
+          icon: <LoginOutlined className="text-gray-600" />,
+          label: "تسجيل الدخول",
+          onClick: () => navigate("/login"),
+          className: "hover:bg-gray-50 transition-colors duration-200",
         },
   ].filter(Boolean);
   return (
@@ -267,6 +287,11 @@ function MyLayout({ children }: { children: ReactNode }) {
             borderRadius: borderRadiusLG,
           }}
         >
+          {/* Show CTA banner for non-authenticated users on homepage and car listings */}
+          {!isAuthenticated &&
+            (location.pathname === "/" ||
+              location.pathname.startsWith("/cars")) && <GuestCTABanner />}
+
           <Suspense fallback={<Spin size="large" />}>{children}</Suspense>
         </Content>
         {location.pathname.startsWith("/messages") ? null : (
@@ -343,6 +368,9 @@ function MyLayout({ children }: { children: ReactNode }) {
           </Footer>
         )}
       </Layout>
+
+      {/* Floating Join Button for non-authenticated users */}
+      {!isAuthenticated && <FloatingJoinButton />}
     </Layout>
   );
 }
