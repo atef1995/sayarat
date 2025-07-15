@@ -25,12 +25,17 @@ const Login = () => {
       const data = await login({ username, password });
 
       if (data.success === true) {
-        navigate("/");
+        console.log("Login successful, navigating to profile");
+        message.success("تم تسجيل الدخول بنجاح");
+
+        // Navigate immediately after successful login
+        navigate("/profile", { replace: true });
       } else {
-        message.error(String(data.error));
+        console.error("Login failed:", data.error);
+        message.error(String(data.error || "فشل في تسجيل الدخول"));
       }
     } catch (err) {
-      console.log("Login error:", err);
+      console.error("Login error:", err);
       message.error("فشل في تسجيل الدخول");
     } finally {
       setIsLoading(false);
@@ -38,10 +43,12 @@ const Login = () => {
   };
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate(-1);
+    // Only redirect if already authenticated and not currently logging in
+    if (isAuthenticated && !isLoading) {
+      console.log("User already authenticated, redirecting...");
+      navigate("/profile", { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, isLoading, navigate]);
 
   return (
     <Card className="min-w-[400px] min-h-fit h-56">
