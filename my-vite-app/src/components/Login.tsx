@@ -1,9 +1,10 @@
-import { Form, Input, Button, Card, Flex, Checkbox, App } from "antd";
+import { Form, Input, Button, Card, Flex, Checkbox, App, Divider } from "antd";
 import { UserOutlined, LockOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import Title from "antd/es/typography/Title";
+import FacebookLoginButton from "./FacebookLoginButton";
 
 interface LoginForm {
   username: string;
@@ -111,6 +112,16 @@ const Login = () => {
             تسجيل الدخول
           </Button>
           أو <a onClick={() => navigate("/signup")}>سجل الآن!</a>
+        </Form.Item>
+
+        <Divider plain>أو</Divider>
+
+        <Form.Item>
+          <FacebookLoginButton
+            block
+            loading={isLoading}
+            redirectTo="/profile"
+          />
         </Form.Item>
       </Form>
     </Card>

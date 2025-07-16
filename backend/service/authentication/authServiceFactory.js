@@ -2,6 +2,7 @@ const AuthService = require('./authService');
 const UserRegistrationService = require('./userRegistrationService');
 const UserProfileService = require('./userProfileService');
 const EmailVerificationService = require('./emailVerificationService');
+const FacebookAuthService = require('./facebookAuthService');
 const PassportConfig = require('./passportConfig');
 const AuthRouteHandlers = require('../../controllers/authController');
 const cache = require('../dbCache');
@@ -79,7 +80,8 @@ class AuthServiceFactory {
   createPassportConfig() {
     const authService = this.createAuthService();
     const emailService = this.createEmailVerificationService();
-    return new PassportConfig(authService, emailService);
+    const facebookAuthService = this.createFacebookAuthService();
+    return new PassportConfig(authService, emailService, facebookAuthService);
   }
   /**
    * Create auth route handlers instance
@@ -95,6 +97,13 @@ class AuthServiceFactory {
   }
 
   /**
+   * Create Facebook authentication service instance
+   */
+  createFacebookAuthService() {
+    return new FacebookAuthService(this.knex, this.createUserRegistrationService(), this.createReqIdGenerator());
+  }
+
+  /**
    * Create all services at once
    */
   createAllServices() {
@@ -104,6 +113,7 @@ class AuthServiceFactory {
       companyRegistrationService: this.createCompanyRegistrationService(),
       userProfileService: this.createUserProfileService(),
       emailVerificationService: this.createEmailVerificationService(),
+      facebookAuthService: this.createFacebookAuthService(),
       passportConfig: this.createPassportConfig(),
       authRouteHandlers: this.createAuthRouteHandlers(),
       reqIdGenerator: this.createReqIdGenerator()

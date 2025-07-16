@@ -40,6 +40,7 @@ import BlogDetail from "./components/blog/BlogDetail.tsx";
 import BlogEditorPage from "./pages/BlogEditorPage.tsx";
 import { QueryProvider } from "./providers/QueryProvider.tsx";
 import BlogManagement from "./pages/BlogManagement.tsx";
+import FacebookCallback from "./components/FacebookCallback.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -272,10 +273,18 @@ createRoot(document.getElementById("root")!).render(
                   }
                 />
                 <Route
-                  path="/privacy"
+                  path="/privacy-policy"
                   element={
                     <MyLayout>
                       <PrivacyPolicy />
+                    </MyLayout>
+                  }
+                />
+                <Route
+                  path="auth/facebook/callback"
+                  element={
+                    <MyLayout>
+                      <FacebookCallback />
                     </MyLayout>
                   }
                 />
@@ -365,7 +374,7 @@ createRoot(document.getElementById("root")!).render(
                             <ul className="space-y-2">
                               <li>
                                 <a
-                                  href="/privacy"
+                                  href="/privacy-policy"
                                   className="text-blue-600 hover:underline"
                                 >
                                   سياسة الخصوصية

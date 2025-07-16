@@ -1,14 +1,16 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local');
+const FacebookStrategy = require('passport-facebook').Strategy;
 const logger = require('../../utils/logger');
 
 /**
  * Passport configuration factory
  */
 class PassportConfig {
-  constructor(authService, emailVerificationService) {
+  constructor(authService, emailVerificationService, facebookAuthService = null) {
     this.authService = authService;
     this.emailVerificationService = emailVerificationService;
+    this.facebookAuthService = facebookAuthService;
   }
 
   /**
@@ -16,6 +18,9 @@ class PassportConfig {
    */
   configure() {
     this._configureLocalStrategy();
+    if (this.facebookAuthService) {
+      this._configureFacebookStrategy();
+    }
     this._configureSessionSerialization();
   }
 
@@ -50,6 +55,57 @@ class PassportConfig {
   }
 
   /**
+   * Configure Facebook authentication strategy
+   * @private
+   */
+  _configureFacebookStrategy() {
+    passport.use(
+      new FacebookStrategy(
+        {
+          clientID: process.env.FACEBOOK_APP_ID,
+          clientSecret: process.env.FACEBOOK_APP_SECRET,
+          callbackURL: process.env.FACEBOOK_CALLBACK_URL || '/auth/facebook/callback',
+          profileFields: ['id', 'displayName', 'name', 'emails', 'photos', 'gender', 'profileUrl']
+        },
+        async (accessToken, refreshToken, profile, cb) => {
+          try {
+            logger.info('Facebook authentication attempt:', {
+              facebookId: profile.id,
+              email: profile.emails?.[0]?.value,
+              displayName: profile.displayName
+            });
+
+            const result = await this.facebookAuthService.handleFacebookAuth(profile, accessToken);
+
+            if (!result.success) {
+              logger.warn('Facebook authentication failed:', {
+                facebookId: profile.id,
+                message: result.message
+              });
+              return cb(null, false, { message: result.message });
+            }
+
+            logger.info('Facebook authentication successful:', {
+              userId: result.user.id,
+              isNewUser: result.isNewUser,
+              accountLinked: result.accountLinked
+            });
+
+            return cb(null, result.user);
+          } catch (error) {
+            logger.error('Facebook authentication strategy error:', {
+              facebookId: profile.id,
+              error: error.message,
+              stack: error.stack
+            });
+            return cb(error);
+          }
+        }
+      )
+    );
+  }
+
+  /**
    * Configure session serialization
    * @private
    */
@@ -63,7 +119,9 @@ class PassportConfig {
           is_admin: user.isAdmin || user.is_admin || false,
           is_company: user.isCompany || user.is_company || false,
           is_premium: user.isPremium || user.is_premium || false,
-          account_type: user.accountType || user.account_type || 'personal'
+          account_type: user.accountType || user.account_type || 'personal',
+          auth_provider: user.authProvider || user.auth_provider || 'local',
+          facebook_id: user.facebookId || user.facebook_id || null
         };
 
         logger.info('User serialized for session:', {
@@ -72,7 +130,9 @@ class PassportConfig {
           isAdmin: serializedUser.is_admin,
           isCompany: serializedUser.is_company,
           isPremium: serializedUser.is_premium,
-          accountType: serializedUser.account_type
+          accountType: serializedUser.account_type,
+          authProvider: serializedUser.auth_provider,
+          facebookId: serializedUser.facebook_id
         });
 
         cb(null, serializedUser);

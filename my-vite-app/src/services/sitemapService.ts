@@ -103,7 +103,7 @@ export class SitemapGeneratorService {
       { path: "/about", priority: 0.6, changefreq: "monthly" as const },
       { path: "/contact", priority: 0.6, changefreq: "monthly" as const },
       { path: "/terms", priority: 0.4, changefreq: "yearly" as const },
-      { path: "/privacy", priority: 0.4, changefreq: "yearly" as const },
+      { path: "/privacy-policy", priority: 0.4, changefreq: "yearly" as const },
       { path: "/help", priority: 0.7, changefreq: "monthly" as const },
     ];
 

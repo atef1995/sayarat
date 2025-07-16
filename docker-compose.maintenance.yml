@@ -1,0 +1,28 @@
+# docker-compose.maintenance.yml
+# Use this to test maintenance mode locally
+# docker-compose -f docker-compose.yml -f docker-compose.maintenance.yml up
+
+services:
+  nginx:
+    volumes:
+      # Mount maintenance files
+      - ./nginx/maintenance.html:/var/www/maintenance.html:ro
+      - ./nginx/nginx-with-maintenance.conf:/etc/nginx/nginx.conf:ro
+      # Mount maintenance flag directory
+      - maintenance_flags:/var/www
+    environment:
+      - MAINTENANCE_MODE=0
+
+  # Maintenance control service (optional)
+  maintenance-control:
+    image: nginx:alpine
+    container_name: sayarat_maintenance_control
+    volumes:
+      - maintenance_flags:/var/www
+      - ./scripts:/scripts:ro
+    command: tail -f /dev/null # Keep container running
+    profiles:
+      - maintenance-tools
+
+volumes:
+  maintenance_flags:

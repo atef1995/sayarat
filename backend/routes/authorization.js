@@ -2,6 +2,7 @@ const express = require('express');
 const { ensureAuthenticated } = require('../middleware/auth');
 const cache = require('../service/dbCache');
 const logger = require('../utils/logger');
+const FacebookAuthRoutes = require('./facebookAuthRoutes');
 
 const AuthServiceFactory = require('../service/authentication/authServiceFactory');
 
@@ -30,7 +31,13 @@ function authRouter(knex) {
   } = authServiceFactory.createAllServices();
 
   // Configure Passport strategies
-  passportConfig.configure(); // Route definitions
+  passportConfig.configure();
+
+  // Setup Facebook authentication routes
+  const facebookAuthRoutes = new FacebookAuthRoutes();
+  router.use('/', facebookAuthRoutes.getRouter());
+
+  // Route definitions
 
   // Individual user registration
   router.post('/signup', authRouteHandlers.signup.bind(authRouteHandlers));

@@ -210,7 +210,7 @@ function MyLayout({ children }: { children: ReactNode }) {
                 {
                   key: "privacy",
                   label: "الخصوصية",
-                  onClick: () => navigate("/privacy"),
+                  onClick: () => navigate("/privacy-policy"),
                 },
                 {
                   // #TODO: Implement these settings
