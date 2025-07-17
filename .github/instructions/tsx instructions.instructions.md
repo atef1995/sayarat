@@ -18,16 +18,24 @@ dark mode is handled by Ant Design theming in the root, and Tailwind CSS is used
 
 ### Planning and Structure
 
-- **Component Planning**: Before starting development, write a plan for the component. Outline its purpose, props, state management, and how it fits into the overall application architecture.
+- **Component Planning**: Before starting development, think of and write a plan for the component. Outline its purpose, props, state management, and how it fits into the overall application architecture.
 
 - **Search for Existing Components**: Before creating a new component, search the codebase to see if a similar component already exists. Reuse components where possible to reduce duplication.
+
 - **Component Purpose**: Clearly define the purpose of each component. Each component should encapsulate a specific piece of functionality or UI.
+
 - **Component Naming**: Use descriptive names for components that reflect their purpose. Component names should be in PascalCase (e.g., `UserProfile`, `ProductCard`).
+
 - **Directory Structure**: Organize components in a logical directory structure. Group related components together, and consider using feature-based organization for larger applications.
+
 - **Component Hierarchy**: Plan the component hierarchy before implementation. Use a flat structure where possible to avoid deep nesting.
+
 - **Props and State Management**: Clearly define the props and state for each component. Use TypeScript interfaces or types to enforce prop types and ensure type safety.
+
 - **Component Reusability**: Design components to be reusable. Avoid hardcoding values; instead, use props to pass data and configuration.
+
 - **Hooks**: Use React hooks for managing state and side effects. Custom hooks can be created for shared logic across components.
+
 - **Context API**: Utilize the React Context API for global state management where necessary, especially for user authentication and settings.
 
 ### Component Design
