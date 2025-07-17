@@ -2,7 +2,6 @@ const logger = require('../utils/logger');
 const ListingDatabase = require('../service/listingDatabase');
 const ListingService = require('../service/listingService');
 const ListingValidation = require('../middleware/listingValidation');
-const { getSellerById } = require('../dbQueries/sellers');
 
 /**
  * Main listing controller that orchestrates listing operations
@@ -710,29 +709,51 @@ class ListingController {
       clientSecret
     } = body;
 
+    // Helper function to parse JSON strings for array fields
+    const parseJsonField = (field) => {
+      if (typeof field === 'string') {
+        try {
+          const parsed = JSON.parse(field);
+          return Array.isArray(parsed) ? parsed : field;
+        } catch {
+          return field;
+        }
+      }
+      return field;
+    };
+
+    // Helper function to convert string numbers to numbers
+    const parseNumber = (field) => {
+      if (typeof field === 'string' && field.trim() !== '') {
+        const num = Number(field);
+        return isNaN(num) ? field : num;
+      }
+      return field;
+    };
+
     return {
       title,
       car_type,
       color,
       description,
       make,
-      mileage,
+      mileage: parseNumber(mileage),
       model,
-      price,
+      price: parseNumber(price),
       transmission,
-      year,
+      year: parseNumber(year),
       location,
       fuel,
       currency,
-      hp,
-      specs,
-      engine_cylinders,
-      engine_liters,
-      highlight,
-      autoRelist,
+      hp: parseNumber(hp),
+      specs: parseJsonField(specs),
+      engine_cylinders, // Keep as string - Joi expects string
+      engine_liters: parseNumber(engine_liters),
+      highlight: highlight === 'true' || highlight === true,
+      autoRelist: autoRelist === 'true' || autoRelist === true,
       createdAt,
       timezone,
-      products,
+      products: parseJsonField(products),
       clientSecret
     };
   }
@@ -1171,7 +1192,7 @@ class ListingController {
    * @param {string} sellerId - Seller ID
    * @returns {Object} Business validation results
    */
-  async validateBusinessRules(listingData, sellerId) {
+  async validateBusinessRules(listingData, _sellerId) {
     const results = {
       valid: true,
       errors: [],

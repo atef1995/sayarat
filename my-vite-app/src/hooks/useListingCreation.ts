@@ -72,11 +72,32 @@ export const useListingCreation = ({
     (formValues: CreateListing, images?: File[]): FormData => {
       const formData = new FormData();
 
+      // Fields to exclude from FormData (UI-specific fields)
+      const excludeFields = [
+        "image_urls",
+        "id",
+        "listing_status",
+        "created_at",
+        "seller_id",
+        "status",
+        "favorites_count",
+        "is_favorited",
+        "views",
+        "_placement",
+      ];
+
       // Add all form fields to FormData
       Object.entries(formValues).forEach(([key, value]) => {
-        if (value !== null && value !== undefined) {
+        if (
+          value !== null &&
+          value !== undefined &&
+          !excludeFields.includes(key)
+        ) {
           if (Array.isArray(value)) {
             formData.append(key, JSON.stringify(value));
+          } else if (typeof value === "object") {
+            // Skip objects that aren't arrays (like image_urls object)
+            console.warn(`Skipping object field: ${key}`, value);
           } else {
             formData.append(key, String(value));
           }

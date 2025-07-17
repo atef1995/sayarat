@@ -2,12 +2,24 @@ const express = require('express');
 const passport = require('passport');
 const logger = require('../utils/logger');
 
+// Constants for OAuth scopes and redirect routes
+const FACEBOOK_SCOPES = ['email', 'public_profile'];
+const REDIRECT_ROUTES = {
+  AUTH_SUCCESS: '/?facebook_auth=success',
+  AUTH_FAILED: '/?facebook_auth=failed',
+  LINK_SUCCESS: '/profile?success=facebook_linked',
+  LINK_FAILED: '/profile?error=facebook_link_failed',
+  LINK_REDIRECT_FAILED: '/profile?error=link_redirect_failed'
+};
+
 /**
  * Facebook authentication routes
+ * Handles OAuth flow, account linking, and GDPR compliance
  */
 class FacebookAuthRoutes {
-  constructor() {
+  constructor(knex = null) {
     this.router = express.Router();
+    this.knex = knex; // Dependency injection for better testability
     this._setupRoutes();
   }
 
@@ -19,7 +31,7 @@ class FacebookAuthRoutes {
     // Initiate Facebook authentication
     this.router.get('/facebook',
       passport.authenticate('facebook', {
-        scope: ['email', 'public_profile']
+        scope: FACEBOOK_SCOPES
       })
     );
 
@@ -35,7 +47,7 @@ class FacebookAuthRoutes {
         next();
       },
       passport.authenticate('facebook', {
-        failureRedirect: '/?facebook_auth=failed'
+        failureRedirect: REDIRECT_ROUTES.AUTH_FAILED
       }),
       this._handleSuccessfulAuth.bind(this)
     );
@@ -44,7 +56,7 @@ class FacebookAuthRoutes {
     this.router.get('/facebook/link',
       this._requireAuth.bind(this),
       passport.authenticate('facebook', {
-        scope: ['email', 'public_profile']
+        scope: FACEBOOK_SCOPES
       })
     );
 
@@ -52,7 +64,7 @@ class FacebookAuthRoutes {
     this.router.get('/facebook/link/callback',
       this._requireAuth.bind(this),
       passport.authenticate('facebook', {
-        failureRedirect: '/profile?error=facebook_link_failed'
+        failureRedirect: REDIRECT_ROUTES.LINK_FAILED
       }),
       this._handleSuccessfulLink.bind(this)
     );
@@ -87,13 +99,13 @@ class FacebookAuthRoutes {
       });
 
       // Redirect to frontend (not proxied route) with success parameter
-      return res.redirect('/?facebook_auth=success');
+      return res.redirect(REDIRECT_ROUTES.AUTH_SUCCESS);
     } catch (error) {
       logger.error('Error handling successful Facebook auth:', {
         error: error.message,
         stack: error.stack
       });
-      return res.redirect('/?facebook_auth=failed');
+      return res.redirect(REDIRECT_ROUTES.AUTH_FAILED);
     }
   }
 
@@ -108,14 +120,30 @@ class FacebookAuthRoutes {
         email: req.user?.email
       });
 
-      return res.redirect('/profile?success=facebook_linked');
+      return res.redirect(REDIRECT_ROUTES.LINK_SUCCESS);
     } catch (error) {
       logger.error('Error handling successful Facebook link:', {
         error: error.message,
         stack: error.stack
       });
-      return res.redirect('/profile?error=link_redirect_failed');
+      return res.redirect(REDIRECT_ROUTES.LINK_REDIRECT_FAILED);
     }
+  }
+
+  /**
+   * Get database instance (knex)
+   * @private
+   */
+  _getDatabase(req) {
+    return this.knex || req.app.get('knex');
+  }
+
+  /**
+   * Get frontend URL for redirects
+   * @private
+   */
+  _getFrontendUrl() {
+    return process.env.FRONTEND_URL || process.env.CLIENT_URL || 'http://localhost:3000';
   }
 
   /**
@@ -133,8 +161,7 @@ class FacebookAuthRoutes {
         });
       }
 
-      // #TODO: Inject knex dependency properly
-      const knex = req.app.get('knex');
+      const knex = this._getDatabase(req);
 
       await knex('sellers')
         .where('id', userId)
@@ -168,6 +195,39 @@ class FacebookAuthRoutes {
   }
 
   /**
+   * Validate signed request from Facebook
+   * @private
+   */
+  _validateSignedRequest(signedRequest) {
+    if (!signedRequest || typeof signedRequest !== 'string') {
+      return { isValid: false, error: 'Missing or invalid signed_request parameter' };
+    }
+
+    const parts = signedRequest.split('.');
+    if (parts.length !== 2) {
+      return { isValid: false, error: 'Invalid signed_request format' };
+    }
+
+    const [signature, payload] = parts;
+    if (!signature || !payload) {
+      return { isValid: false, error: 'Invalid signed_request structure' };
+    }
+
+    try {
+      const decodedPayload = Buffer.from(payload, 'base64url').toString('utf8');
+      const data = JSON.parse(decodedPayload);
+
+      if (!data.user_id) {
+        return { isValid: false, error: 'Missing user_id in request' };
+      }
+
+      return { isValid: true, data };
+    } catch (error) {
+      return { isValid: false, error: 'Failed to decode signed_request payload' };
+    }
+  }
+
+  /**
    * Handle Facebook Data Deletion Request Webhook
    * Required by Facebook for app compliance
    * @private
@@ -176,43 +236,21 @@ class FacebookAuthRoutes {
     try {
       const { signed_request } = req.body;
 
-      if (!signed_request) {
-        logger.warn('Data deletion request missing signed_request parameter');
+      // Validate the signed request
+      const validation = this._validateSignedRequest(signed_request);
+      if (!validation.isValid) {
+        logger.warn('Data deletion request validation failed:', { error: validation.error });
         return res.status(400).json({
           success: false,
-          message: 'Missing signed_request parameter'
+          message: validation.error
         });
       }
 
-      // Parse the signed request (Facebook format: signature.payload)
-      const [signature, payload] = signed_request.split('.');
-
-      if (!signature || !payload) {
-        logger.warn('Invalid signed_request format:', { signed_request });
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid signed_request format'
-        });
-      }
-
-      // Decode the payload (Base64 URL decode)
-      const decodedPayload = Buffer.from(payload, 'base64url').toString('utf8');
-      const data = JSON.parse(decodedPayload);
-
-      const { user_id } = data;
-
-      if (!user_id) {
-        logger.warn('Data deletion request missing user_id:', { data });
-        return res.status(400).json({
-          success: false,
-          message: 'Missing user_id in request'
-        });
-      }
-
+      const { user_id } = validation.data;
       logger.info('Processing Facebook data deletion request:', { user_id });
 
       // Find and delete user data associated with this Facebook ID
-      const knex = req.app.get('knex');
+      const knex = this._getDatabase(req);
 
       const deletedCount = await knex('sellers')
         .where('facebook_id', user_id)
@@ -233,7 +271,7 @@ class FacebookAuthRoutes {
 
       // Return confirmation URL as required by Facebook
       const confirmationCode = `${user_id}_${Date.now()}`;
-      const confirmationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/facebook-deletion-confirmation?code=${confirmationCode}`;
+      const confirmationUrl = `${this._getFrontendUrl()}/facebook-deletion-confirmation?code=${confirmationCode}`;
 
       return res.json({
         url: confirmationUrl,
@@ -269,7 +307,7 @@ class FacebookAuthRoutes {
         });
       }
 
-      const knex = req.app.get('knex');
+      const knex = this._getDatabase(req);
 
       // Check if user has Facebook data to delete
       const user = await knex('sellers')

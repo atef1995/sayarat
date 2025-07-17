@@ -1,24 +1,40 @@
 const logger = require('../utils/logger');
 
-const insertSpecs = async(knex, listingId, specs) => {
+const insertSpecs = async (knex, listingId, specs) => {
   if (!listingId || !specs) {
     throw new Error('Listing ID and specs are required to insert specs');
   }
 
-  // Insert specs into the database
-  const result = await knex('car_specs')
-    .insert({ listing_id: listingId, ...specs })
-    .onConflict('listing_id') // Handle conflict on listing_id
-    .merge(); // Update existing record if conflict occurs
+  try {
+    // First, delete existing specs for this listing
+    await knex('specs').where('car_listing_id', listingId).del();
 
-  if (result.rowCount === 0) {
-    throw new Error('Failed to insert or update specs for the listing');
+    // Convert specs array to individual records
+    const specsRecords = specs.map(spec => ({
+      car_listing_id: listingId,
+      spec_name: spec
+    }));
+
+    if (specsRecords.length > 0) {
+      // Insert new specs
+      await knex('specs').insert(specsRecords);
+    }
+
+    logger.info(`Specs inserted successfully for listing ID: ${listingId}`, {
+      listingId,
+      specsCount: specs.length
+    });
+  } catch (error) {
+    logger.error('Error inserting specs', {
+      error: error.message,
+      listingId,
+      specs
+    });
+    throw error;
   }
-
-  logger.info(`Specs inserted for listing ID: ${listingId}`);
 };
 
-const insertImages = async(knex, listingId, images) => {
+const insertImages = async (knex, listingId, images) => {
   if (!listingId || !images || images.length === 0) {
     throw new Error('Listing ID and images are required to insert images');
   }
@@ -48,7 +64,7 @@ const getAllListedCars = async knex => {
   }
 };
 
-const getListingsByUsername = async(knex, username) => {
+const getListingsByUsername = async (knex, username) => {
   if (!username) {
     throw new Error('Username is required to get listing by username');
   }
@@ -103,7 +119,7 @@ const getListingsByUsername = async(knex, username) => {
   return listings;
 };
 
-const getListingById = async(knex, listingId) => {
+const getListingById = async (knex, listingId) => {
   if (!listingId) {
     throw new Error('Listing ID is required');
   }
@@ -170,7 +186,7 @@ const getListingById = async(knex, listingId) => {
   return listing;
 };
 
-const markAsPaid = async(knex, clientSecret) => {
+const markAsPaid = async (knex, clientSecret) => {
   if (!clientSecret) {
     throw new Error('clientSecret is required to mark as paid');
   }
@@ -187,7 +203,7 @@ const markAsPaid = async(knex, clientSecret) => {
   return result;
 };
 
-const toggleHighlight = async(knex, clientSecret, highlight) => {
+const toggleHighlight = async (knex, clientSecret, highlight) => {
   if (!clientSecret) {
     throw new Error('client secret is required to toggle highlight');
   }

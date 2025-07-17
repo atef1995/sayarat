@@ -18,7 +18,7 @@ const carSchema = Joi.object({
   currency: Joi.string().valid('usd', 'syp').required(),
   specs: Joi.alternatives().try(Joi.string().max(100), Joi.array().items(Joi.string().max(100))),
   engine_cylinders: Joi.string().max(3),
-  engine_liters: Joi.number().positive(),
+  engine_liters: Joi.number().min(0),
   hp: Joi.number().integer().min(0),
   highlight: Joi.boolean().default(false),
   autoRelist: Joi.boolean().default(false),
@@ -27,8 +27,35 @@ const carSchema = Joi.object({
 });
 
 const validateCarDetails = carDetails => {
+  logger.info('Validating car details', {
+    keys: Object.keys(carDetails),
+    title: carDetails.title?.substring(0, 50),
+    make: carDetails.make,
+    model: carDetails.model,
+    year: carDetails.year,
+    price: carDetails.price,
+    mileage: carDetails.mileage,
+    currency: carDetails.currency,
+    car_type: carDetails.car_type,
+    transmission: carDetails.transmission,
+    fuel: carDetails.fuel,
+    color: carDetails.color,
+    engine_cylinders: carDetails.engine_cylinders,
+    specsType: typeof carDetails.specs,
+    specsValue: Array.isArray(carDetails.specs) ? `Array(${carDetails.specs.length})` : carDetails.specs
+  });
+
   const { error } = carSchema.validate(carDetails);
   if (error) {
+    logger.error('Car details validation failed', {
+      error: error.details[0].message,
+      field: error.details[0].path.join('.'),
+      value: error.details[0].context?.value,
+      carDetails: {
+        ...carDetails,
+        description: carDetails.description?.substring(0, 100)
+      }
+    });
     throw new Error(error.details[0].message);
   }
   return true;

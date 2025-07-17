@@ -34,6 +34,18 @@ class ListingValidation {
     } = listingData;
 
     try {
+      logger.info('Validating listing data', {
+        fields: Object.keys(listingData),
+        title: title?.length,
+        make,
+        model,
+        year,
+        price,
+        currency,
+        hasSpecs: !!specs,
+        specsType: typeof specs
+      });
+
       validateCarDetails({
         title,
         car_type,
@@ -56,7 +68,15 @@ class ListingValidation {
         autoRelist
       });
     } catch (error) {
-      logger.error('Listing validation error:', { error: error.message, listingData });
+      logger.error('Listing validation error:', {
+        error: error.message,
+        listingData: {
+          ...listingData,
+          // Truncate large fields for logging
+          description: listingData.description?.substring(0, 100),
+          specs: Array.isArray(listingData.specs) ? `Array(${listingData.specs.length})` : typeof listingData.specs
+        }
+      });
       throw new Error('Invalid listing data provided');
     }
   }
