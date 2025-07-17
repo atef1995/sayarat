@@ -2,6 +2,8 @@
 applyTo: "**/*.ts"
 ---
 
+# we are using caddy, nginx, docker compose and deploying to a vps
+
 ## apply modular architecture to the code files you are working on.
 
 ## use dry principles to create reusable code.

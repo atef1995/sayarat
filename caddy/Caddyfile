@@ -10,6 +10,11 @@ sayarat.autos, www.sayarat.autos {
         reverse_proxy backend:5000
     }
 
+    # Proxy auth requests to backend (for Facebook OAuth callbacks)
+    handle /auth/* {
+        reverse_proxy backend:5000/api
+    }
+
     # Proxy sitemap and SEO files to backend
     handle /sitemap*.xml {
         reverse_proxy backend:5000

@@ -2,6 +2,8 @@
 applyTo: "**/*.tsx"
 ---
 
+# we are using caddy, nginx, docker compose and deploying to a vps
+
 ## TSX Component Development Guidelines
 
 These guidelines are designed to ensure consistency, maintainability, and performance in the development of TSX components within our codebase. Please adhere to these practices when creating or modifying components.

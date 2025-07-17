@@ -4,6 +4,8 @@ applyTo: "**/*.js"
 
 # Important
 
+## we are using caddy, nginx, docker compose and deploying to a vps
+
 When developing a new feature start with coding the skeleton of the feature, then wait for approval before proceeding with the implementation. This allows for early feedback and ensures that the feature aligns with project goals.
 
 ## JavaScript Instructions
