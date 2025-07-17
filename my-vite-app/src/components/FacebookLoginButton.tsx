@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "antd";
 import { FacebookOutlined } from "@ant-design/icons";
+import { loadApiConfig } from "../config/apiConfig";
 
 interface FacebookLoginButtonProps {
   loading?: boolean;
@@ -22,14 +23,26 @@ export const FacebookLoginButton: React.FC<FacebookLoginButtonProps> = ({
   redirectTo = "/profile",
 }) => {
   const handleFacebookLogin = () => {
-    // Store redirect URL for post-login navigation
-    if (redirectTo) {
-      sessionStorage.setItem("postLoginRedirect", redirectTo);
-    }
+    try {
+      // Store redirect URL for post-login navigation
+      if (redirectTo) {
+        sessionStorage.setItem("postLoginRedirect", redirectTo);
+      }
 
-    // Simply navigate to the backend auth endpoint
-    // This bypasses React Router completely since it's an external navigation
-    window.location.href = "/auth/facebook";
+      // Get the correct API URL and construct the Facebook auth endpoint
+      const { apiUrl } = loadApiConfig();
+      const facebookAuthUrl = `${apiUrl}/auth/facebook`;
+
+      console.log("Navigating to Facebook auth:", facebookAuthUrl);
+      console.log("API URL from config:", apiUrl);
+
+      // Force external navigation by using window.location.replace
+      // This ensures React Router doesn't intercept the navigation
+      window.location.replace(facebookAuthUrl);
+    } catch (error) {
+      console.error("Error initiating Facebook login:", error);
+      // #TODO: Add proper error handling UI feedback
+    }
   };
 
   return (
