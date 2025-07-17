@@ -281,7 +281,7 @@ createRoot(document.getElementById("root")!).render(
                   }
                 />
                 <Route
-                  path="auth/facebook/callback"
+                  path="/auth/facebook/callback"
                   element={
                     <MyLayout>
                       <FacebookCallback />

@@ -77,20 +77,14 @@ class FacebookAuthRoutes {
         email: req.user?.email
       });
 
-      // Redirect to appropriate page based on user type
-      if (req.user?.isAdmin) {
-        return res.redirect('/admin/dashboard');
-      } else if (req.user?.isCompany) {
-        return res.redirect('/company/dashboard');
-      } else {
-        return res.redirect('/dashboard');
-      }
+      // Redirect to frontend callback handler with success
+      return res.redirect('/auth/facebook/callback?success=true');
     } catch (error) {
       logger.error('Error handling successful Facebook auth:', {
         error: error.message,
         stack: error.stack
       });
-      return res.redirect('/login?error=auth_redirect_failed');
+      return res.redirect('/auth/facebook/callback?error=auth_failed');
     }
   }
 

@@ -27,6 +27,7 @@ const FacebookCallback: React.FC = () => {
         // Check if there's an error parameter from Facebook
         const error = searchParams.get("error");
         const errorDescription = searchParams.get("error_description");
+        const success = searchParams.get("success");
 
         if (error) {
           console.error("Facebook OAuth error:", error, errorDescription);
@@ -35,38 +36,36 @@ const FacebookCallback: React.FC = () => {
           return;
         }
 
-        // Check if we have a code parameter (successful OAuth)
-        const code = searchParams.get("code");
+        // Check if we have a success parameter from backend
+        if (success === "true") {
+          // Backend authentication was successful, now check session
+          await new Promise((resolve) => setTimeout(resolve, 500)); // Small delay for session sync
 
-        if (!code) {
-          setStatus("error");
-          setMessage("لم يتم تلقي رمز التحقق من فيسبوك");
+          const authResult = await checkSession();
+
+          if (authResult.data?.isAuthenticated) {
+            setStatus("success");
+            setMessage("تم تسجيل الدخول بنجاح عبر فيسبوك");
+
+            // Get redirect URL from session storage or default to profile
+            const redirectTo =
+              sessionStorage.getItem("postLoginRedirect") || "/profile";
+            sessionStorage.removeItem("postLoginRedirect");
+
+            // Redirect after a short delay to show success message
+            setTimeout(() => {
+              navigate(redirectTo, { replace: true });
+            }, 1500);
+          } else {
+            setStatus("error");
+            setMessage("فشل في تسجيل الدخول عبر فيسبوك");
+          }
           return;
         }
 
-        // The backend should handle the code exchange automatically
-        // We just need to check if the user is now authenticated
-        await new Promise((resolve) => setTimeout(resolve, 1000)); // Small delay for backend processing
-
-        const authResult = await checkSession();
-
-        if (authResult.data?.isAuthenticated) {
-          setStatus("success");
-          setMessage("تم تسجيل الدخول بنجاح عبر فيسبوك");
-
-          // Get redirect URL from session storage or default to profile
-          const redirectTo =
-            sessionStorage.getItem("postLoginRedirect") || "/profile";
-          sessionStorage.removeItem("postLoginRedirect");
-
-          // Redirect after a short delay to show success message
-          setTimeout(() => {
-            navigate(redirectTo, { replace: true });
-          }, 1500);
-        } else {
-          setStatus("error");
-          setMessage("فشل في تسجيل الدخول عبر فيسبوك");
-        }
+        // If no success or error parameters, something went wrong
+        setStatus("error");
+        setMessage("لم يتم استكمال عملية تسجيل الدخول بشكل صحيح");
       } catch (error) {
         console.error("Facebook callback error:", error);
         setStatus("error");
