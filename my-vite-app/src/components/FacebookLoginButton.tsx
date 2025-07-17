@@ -27,20 +27,9 @@ export const FacebookLoginButton: React.FC<FacebookLoginButtonProps> = ({
       sessionStorage.setItem("postLoginRedirect", redirectTo);
     }
 
-    try {
-      // Use window.location.replace to fully navigate away from React app
-      // This prevents React Router from intercepting the /auth/facebook route
-      const facebookUrl = `${window.location.origin}/auth/facebook`;
-
-      console.log("Facebook login URL:", facebookUrl);
-      console.log("Navigating away from React app to:", facebookUrl);
-
-      window.location.replace(facebookUrl);
-    } catch (error) {
-      console.error("Facebook login error:", error);
-      // Fallback: try direct navigation
-      window.location.replace(`${window.location.origin}/auth/facebook`);
-    }
+    // Simply navigate to the backend auth endpoint
+    // This bypasses React Router completely since it's an external navigation
+    window.location.href = "/auth/facebook";
   };
 
   return (
