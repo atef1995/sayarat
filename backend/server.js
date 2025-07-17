@@ -172,13 +172,17 @@ async function fallbackInitialization() {
   try {
     logger.warn('Using fallback initialization without retry logic');
 
-    // Basic Redis client
-    const redisClient = createClient({ url: redisUrl });
-    await redisClient.connect();
-    logger.info('Basic Redis client connected');
+    // Try basic Redis client first
+    try {
+      const redisClient = createClient({ url: redisUrl });
+      await redisClient.connect();
+      logger.info('Basic Redis client connected');
+      setupSessionMiddleware(redisClient);
+    } catch (redisError) {
+      logger.warn('Redis connection failed, using memory store:', redisError.message);
+      setupSessionMiddleware(null);
+    }
 
-    // Setup session with basic client
-    setupSessionMiddleware(redisClient);
     setupMiddleware();
     setupRoutes();
     startServer();
@@ -399,8 +403,10 @@ function startServer() {
     logger.info('SIGTERM signal received.');
     server.close(() => {
       logger.info('Server closed.');
-      // Use throw instead of process.exit for better error handling
-      throw new Error('Server shutdown completed');
+      // Use setImmediate to allow clean shutdown
+      setImmediate(() => {
+        throw new Error('Server shutdown completed');
+      });
     });
   });
 
@@ -413,6 +419,11 @@ cleanupTempFiles();
 // Initialize the server
 initializeServer().catch(error => {
   logger.error('Server initialization failed', { error: error.message });
+  // In production, don't throw - let the process manager handle restart
+  if (process.env.NODE_ENV === 'production') {
+    logger.error('Server startup failed in production - exiting');
+    return;
+  }
   throw new Error('Server startup failed');
 });
 
