@@ -28,18 +28,18 @@ export const FacebookLoginButton: React.FC<FacebookLoginButtonProps> = ({
     }
 
     try {
-      // Use relative URL to leverage the current domain and Caddy proxy
-      // This will become https://sayarat.autos/auth/facebook which Caddy will proxy to backend
-      const facebookUrl = `/auth/facebook`;
+      // Use window.location.replace to fully navigate away from React app
+      // This prevents React Router from intercepting the /auth/facebook route
+      const facebookUrl = `${window.location.origin}/auth/facebook`;
 
       console.log("Facebook login URL:", facebookUrl);
-      console.log("Will redirect to:", window.location.origin + facebookUrl);
+      console.log("Navigating away from React app to:", facebookUrl);
 
-      window.location.href = facebookUrl;
+      window.location.replace(facebookUrl);
     } catch (error) {
       console.error("Facebook login error:", error);
-      // Fallback URL
-      window.location.href = "/auth/facebook";
+      // Fallback: try direct navigation
+      window.location.replace(`${window.location.origin}/auth/facebook`);
     }
   };
 

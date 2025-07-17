@@ -41,7 +41,6 @@ import BlogEditorPage from "./pages/BlogEditorPage.tsx";
 import { QueryProvider } from "./providers/QueryProvider.tsx";
 import BlogManagement from "./pages/BlogManagement.tsx";
 import FacebookCallback from "./components/FacebookCallback.tsx";
-import FacebookRedirect from "./components/FacebookRedirect.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -281,7 +280,6 @@ createRoot(document.getElementById("root")!).render(
                     </MyLayout>
                   }
                 />
-                <Route path="/auth/facebook" element={<FacebookRedirect />} />
                 <Route
                   path="/auth/facebook/callback"
                   element={
