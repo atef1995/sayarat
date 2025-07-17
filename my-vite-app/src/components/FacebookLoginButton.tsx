@@ -1,7 +1,6 @@
 import React from "react";
 import { Button } from "antd";
 import { FacebookOutlined } from "@ant-design/icons";
-import { loadApiConfig } from "../config/apiConfig";
 
 interface FacebookLoginButtonProps {
   loading?: boolean;
@@ -29,19 +28,18 @@ export const FacebookLoginButton: React.FC<FacebookLoginButtonProps> = ({
     }
 
     try {
-      // Get API URL and redirect to backend Facebook OAuth endpoint
-      const config = loadApiConfig();
-      // Keep the /api prefix for auth routes since they're mounted under /api/auth
-      const facebookUrl = `${config.apiUrl}/auth/facebook`;
+      // Use relative URL to leverage the current domain and Caddy proxy
+      // This will become https://sayarat.autos/auth/facebook which Caddy will proxy to backend
+      const facebookUrl = `/auth/facebook`;
 
       console.log("Facebook login URL:", facebookUrl);
-      console.log("API Config:", config);
+      console.log("Will redirect to:", window.location.origin + facebookUrl);
 
       window.location.href = facebookUrl;
     } catch (error) {
-      console.error("Config error, using fallback URL:", error);
-      // Fallback to configured backend if config fails
-      window.location.href = "http://192.168.56.1:5000/api/auth/facebook";
+      console.error("Facebook login error:", error);
+      // Fallback URL
+      window.location.href = "/auth/facebook";
     }
   };
 
