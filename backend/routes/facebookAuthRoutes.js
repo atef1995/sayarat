@@ -25,8 +25,17 @@ class FacebookAuthRoutes {
 
     // Facebook authentication callback
     this.router.get('/facebook/callback',
+      (req, res, next) => {
+        logger.info('Facebook callback received:', {
+          query: req.query,
+          url: req.url,
+          method: req.method,
+          headers: req.headers
+        });
+        next();
+      },
       passport.authenticate('facebook', {
-        failureRedirect: '/login?error=facebook_auth_failed'
+        failureRedirect: '/?facebook_auth=failed'
       }),
       this._handleSuccessfulAuth.bind(this)
     );
@@ -77,14 +86,14 @@ class FacebookAuthRoutes {
         email: req.user?.email
       });
 
-      // Redirect to frontend callback handler with success
-      return res.redirect('/auth/facebook/callback?success=true');
+      // Redirect to frontend (not proxied route) with success parameter
+      return res.redirect('/?facebook_auth=success');
     } catch (error) {
       logger.error('Error handling successful Facebook auth:', {
         error: error.message,
         stack: error.stack
       });
-      return res.redirect('/auth/facebook/callback?error=auth_failed');
+      return res.redirect('/?facebook_auth=failed');
     }
   }
 
