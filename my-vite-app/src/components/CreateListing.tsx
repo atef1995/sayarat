@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { Spin } from "antd";
-import { CarInfo } from "../types";
+import { CreateListing as CreateListingType } from "../types";
 import CreateListingContainer from "./CreateListingContainer";
 import CheckoutForm from "./CheckoutForm";
 import { Elements } from "@stripe/react-stripe-js";
@@ -9,8 +9,8 @@ import { usePayment } from "../hooks/usePayment";
 import { loadApiConfig } from "../config/apiConfig";
 
 // Make all props optional for routing compatibility
-interface CreateListingProps extends Partial<CarInfo> {
-  initialValues?: CarInfo;
+interface CreateListingProps {
+  initialValues?: CreateListingType;
 }
 const { stripePublicKey } = loadApiConfig();
 const stripePromise = loadStripe(stripePublicKey || "VITE_STRIPE_PUBLIC_KEY");

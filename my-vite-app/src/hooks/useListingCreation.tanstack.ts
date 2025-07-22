@@ -9,7 +9,6 @@ import { CreateListing } from "../types";
 import { PaymentItem } from "../types/payment";
 import { listingKeys } from "../types/listingQueryKeys";
 
-// Types for TanStack Query
 interface ListingCreationData {
   formValues: CreateListing;
   images?: File[];
@@ -28,60 +27,6 @@ interface FieldValidationData {
   userId: string;
 }
 
-interface PaymentProcessingData {
-  handlePayment: () => Promise<boolean>;
-}
-
-// Utility function to create FormData from form values
-const createFormDataFromValues = (
-  formValues: CreateListing,
-  images?: File[],
-  productIds?: string[]
-): FormData => {
-  const formData = new FormData();
-
-  // Fields to exclude from FormData (UI-specific fields)
-  const excludeFields = [
-    "image_urls",
-    "id",
-    "listing_status",
-    "created_at",
-    "seller_id",
-    "status",
-    "favorites_count",
-    "is_favorited",
-    "views",
-    "_placement",
-  ];
-
-  // Add all form fields to FormData
-  Object.entries(formValues).forEach(([key, value]) => {
-    if (value !== null && value !== undefined && !excludeFields.includes(key)) {
-      if (Array.isArray(value)) {
-        formData.append(key, JSON.stringify(value));
-      } else if (typeof value === "object") {
-        console.warn(`Skipping object field: ${key}`, value);
-      } else {
-        formData.append(key, String(value));
-      }
-    }
-  });
-
-  // Add images if provided
-  if (images && images.length > 0) {
-    images.forEach((image) => {
-      formData.append("images", image);
-    });
-  }
-
-  // Add products if provided
-  if (productIds && productIds.length > 0) {
-    formData.append("productIds", JSON.stringify(productIds));
-  }
-
-  return formData;
-};
-
 /**
  * Hook for listing status check
  */
@@ -92,6 +37,7 @@ export const useListingStatus = () => {
   return useQuery({
     queryKey: listingKeys.status(),
     queryFn: async () => {
+      // Get API URL from config
       const { apiUrl } = loadApiConfig();
       const response = await fetch(`${apiUrl}/listings/status`, {
         credentials: "include",
@@ -172,7 +118,7 @@ export const useListingValidation = () => {
 };
 
 /**
- * Hook for creating listings with TanStack Query and automatic retry
+ * Hook for creating listings with automatic retry
  */
 export const useCreateListing = () => {
   const queryClient = useQueryClient();
@@ -184,9 +130,53 @@ export const useCreateListing = () => {
       hasProducts,
       productIds,
     }: ListingCreationData) => {
-      console.log("🚀 Starting listing creation with TanStack Query...");
+      console.log("🚀 Starting listing creation...");
 
-      const formData = createFormDataFromValues(formValues, images, productIds);
+      // Create FormData
+      const formData = new FormData();
+
+      // Fields to exclude from FormData (UI-specific fields)
+      const excludeFields = [
+        "image_urls",
+        "id",
+        "listing_status",
+        "created_at",
+        "seller_id",
+        "status",
+        "favorites_count",
+        "is_favorited",
+        "views",
+        "_placement",
+      ];
+
+      // Add all form fields to FormData
+      Object.entries(formValues).forEach(([key, value]) => {
+        if (
+          value !== null &&
+          value !== undefined &&
+          !excludeFields.includes(key)
+        ) {
+          if (Array.isArray(value)) {
+            formData.append(key, JSON.stringify(value));
+          } else if (typeof value === "object") {
+            console.warn(`Skipping object field: ${key}`, value);
+          } else {
+            formData.append(key, String(value));
+          }
+        }
+      });
+
+      // Add images if provided
+      if (images && images.length > 0) {
+        images.forEach((image) => {
+          formData.append("images", image);
+        });
+      }
+
+      // Add products if selected
+      if (hasProducts && productIds) {
+        formData.append("productIds", JSON.stringify(productIds));
+      }
 
       console.log("📋 Form data prepared:", Array.from(formData.keys()));
 
@@ -201,12 +191,7 @@ export const useCreateListing = () => {
         throw new Error("فشل في إنشاء الإعلان");
       }
 
-      return {
-        success: true,
-        message: "تم إنشاء الإعلان بنجاح",
-        formValues,
-        hasProducts,
-      };
+      return { success: true, message: "تم إنشاء الإعلان بنجاح" };
     },
     retry: (failureCount, error) => {
       // Handle specific errors that shouldn't be retried
@@ -233,7 +218,7 @@ export const useCreateListing = () => {
       // Default: retry once for other errors
       return failureCount < 1;
     },
-    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff: 1s, 2s, 4s
     onSuccess: (data) => {
       console.log("✅ Listing created successfully");
 
@@ -246,20 +231,20 @@ export const useCreateListing = () => {
     onError: (error: Error) => {
       console.error("❌ Listing creation failed:", error);
 
-      // Handle specific error types with user-friendly messages
+      // Handle specific error types
       if (error.message === "listing_limit_exceeded") {
         message.error(
           "تم الوصول إلى الحد الأقصى للإعلانات. يرجى ترقية الاشتراك"
         );
       } else if (error.name === "AbortError") {
-        message.error("انتهت مهلة الطلب. سيتم المحاولة مرة أخرى تلقائياً");
+        message.error("انتهت مهلة الطلب. يرجى المحاولة مرة أخرى");
       } else if (
         error.message.includes("Failed to fetch") ||
         error.message.includes("NetworkError")
       ) {
-        message.error("مشكلة في الاتصال. سيتم المحاولة مرة أخرى تلقائياً");
+        message.error("مشكلة في الاتصال. يرجى التحقق من الإنترنت");
       } else if (error.message.includes("Invalid response format")) {
-        message.error("خطأ في استجابة الخادم. سيتم المحاولة مرة أخرى");
+        message.error("خطأ في استجابة الخادم. يرجى المحاولة مرة أخرى");
       } else {
         message.error(error.message || "حدث خطأ أثناء إنشاء الإعلان");
       }
@@ -268,128 +253,106 @@ export const useCreateListing = () => {
 };
 
 /**
- * Hook for payment processing
+ * Simplified hook that orchestrates the entire listing creation flow
+ * This replaces the complex useListingCreation hook
  */
-export const usePaymentProcessing = () => {
-  return useMutation({
-    mutationFn: async ({ handlePayment }: PaymentProcessingData) => {
-      console.log("💳 Processing payment...");
-
-      const success = await handlePayment();
-
-      if (!success) {
-        throw new Error("فشل في معالجة عملية الدفع");
-      }
-
-      return { success: true };
-    },
-    retry: 1, // Retry payment once
-    onError: (error: Error) => {
-      console.error("❌ Payment processing failed:", error);
-      message.error(error.message || "فشل في معالجة عملية الدفع");
-    },
-  });
-};
-
-/**
- * Main orchestration hook that coordinates the entire listing creation process
- * This is the new simplified API that components should use
- */
-export const useListingCreation = () => {
+export const useListingCreation = ({
+  isAuthenticated,
+  needsSubscription,
+  hasSelectedProducts,
+  items,
+  refreshStatus,
+}: {
+  isAuthenticated: boolean;
+  needsSubscription: boolean;
+  hasSelectedProducts: boolean;
+  items: PaymentItem[];
+  refreshStatus: () => Promise<void>;
+}) => {
   const authContext = useContext(AuthContext);
-  const queryClient = useQueryClient();
 
   // Get individual mutations
-  const validateListing = useListingValidation();
-  const createListing = useCreateListing();
-  const processPayment = usePaymentProcessing();
-  const fieldValidation = useFieldValidation();
-  const { refetch: refreshStatus } = useListingStatus();
+  const validationMutation = useListingValidation();
+  const fieldValidationMutation = useFieldValidation();
+  const createListingMutation = useCreateListing();
 
-  // Combined loading state
+  // Combined state
   const isLoading =
-    validateListing.isPending ||
-    createListing.isPending ||
-    processPayment.isPending;
+    validationMutation.isPending || createListingMutation.isPending;
 
-  // Combined error state
-  const error =
-    validateListing.error || createListing.error || processPayment.error;
+  const error = validationMutation.error || createListingMutation.error;
 
   /**
-   * Main execution function - handles the complete flow
+   * Simplified execution function
    */
-  const execute = useMutation({
-    mutationFn: async ({
-      formValues,
-      images,
-      hasProducts = false,
-      items = [],
-      handlePayment,
-    }: {
-      formValues: CreateListing;
-      images?: File[];
-      hasProducts?: boolean;
-      items?: PaymentItem[];
-      handlePayment?: () => Promise<boolean>;
-    }) => {
-      console.log("🎯 Starting complete listing creation flow...");
+  const executeListingCreation = async (
+    formValues: CreateListing,
+    handlePayment: () => Promise<boolean>,
+    images?: File[]
+  ): Promise<boolean> => {
+    try {
+      // Step 1: Check authentication and subscription
+      if (!isAuthenticated) {
+        message.error("يجب تسجيل الدخول لنشر الإعلانات");
+        return false;
+      }
 
-      // Step 1: Authentication check
+      await refreshStatus();
+
+      if (needsSubscription) {
+        message.error("يجب ترقية الاشتراك لإنشاء المزيد من الإعلانات");
+        return false;
+      }
+
       const userId = authContext?.user?.id;
       if (!userId) {
-        throw new Error("يجب تسجيل الدخول لنشر الإعلانات");
+        message.error(
+          "لم يتم العثور على معرف المستخدم، يرجى إعادة تسجيل الدخول"
+        );
+        return false;
       }
 
-      // Step 2: Refresh and check status
-      console.log("🔄 Checking listing status...");
-      const statusResult = await refreshStatus();
-
-      if (statusResult.data?.needsSubscription) {
-        throw new Error("يجب ترقية الاشتراك لإنشاء المزيد من الإعلانات");
-      }
-
-      // Step 3: Backend validation
-      console.log("🔍 Validating listing data...");
-      await validateListing.mutateAsync({
+      // Step 2: Backend validation
+      console.log("🔍 Step 2: Backend validation");
+      await validationMutation.mutateAsync({
         formValues,
         images,
         userId: userId.toString(),
       });
 
-      // Step 4: Payment processing (if needed)
-      if (hasProducts && handlePayment) {
-        console.log("💳 Processing payment...");
-        await processPayment.mutateAsync({ handlePayment });
+      // Step 3: Payment processing (if needed)
+      if (hasSelectedProducts) {
+        console.log("💳 Step 3: Payment processing");
+        const paymentSuccess = await handlePayment();
+        if (!paymentSuccess) {
+          message.error("فشل في معالجة عملية الدفع");
+          return false;
+        }
       }
 
-      // Step 5: Create listing
-      console.log("📝 Creating listing...");
-      const result = await createListing.mutateAsync({
+      // Step 4: Create listing
+      console.log("📝 Step 4: Creating listing");
+      await createListingMutation.mutateAsync({
         formValues,
         images,
-        hasProducts,
-        productIds: items.map((item) => item.productId),
+        hasProducts: hasSelectedProducts,
+        productIds: hasSelectedProducts
+          ? items.map((item) => item.productId)
+          : undefined,
       });
 
-      console.log("🎉 Listing creation flow completed successfully!");
-      return result;
-    },
-    onSuccess: () => {
-      // Invalidate all relevant queries
-      queryClient.invalidateQueries({ queryKey: listingKeys.status() });
-      queryClient.invalidateQueries({ queryKey: listingKeys.userListings() });
+      // Refresh status after successful creation
+      await refreshStatus();
 
-      message.success("تم إنشاء الإعلان بنجاح!");
-    },
-    onError: (error: Error) => {
-      console.error("❌ Complete listing creation flow failed:", error);
-      message.error(error.message);
-    },
-  });
+      return true;
+    } catch (error) {
+      console.error("❌ Listing creation flow failed:", error);
+      return false;
+    }
+  };
 
   /**
-   * Field validation helper
+   * Field validation function
    */
   const validateFields = async (
     fields: Partial<CreateListing>
@@ -403,7 +366,7 @@ export const useListingCreation = () => {
         };
       }
 
-      const result = await fieldValidation.mutateAsync({
+      const result = await fieldValidationMutation.mutateAsync({
         fields,
         userId: userId.toString(),
       });
@@ -423,43 +386,37 @@ export const useListingCreation = () => {
   };
 
   /**
-   * Reset all mutations
+   * Reset function
    */
-  const reset = () => {
-    validateListing.reset();
-    createListing.reset();
-    processPayment.reset();
-    fieldValidation.reset();
-    execute.reset();
+  const resetValidation = () => {
+    validationMutation.reset();
+    createListingMutation.reset();
+    fieldValidationMutation.reset();
   };
 
   return {
-    // Main execution function (new simplified API)
-    execute: execute.mutate,
-    executeAsync: execute.mutateAsync,
-
     // State
-    isLoading: isLoading || execute.isPending,
-    isSuccess: execute.isSuccess,
-    error: error || execute.error,
+    isLoading,
+    error,
 
-    // Individual actions (for advanced usage)
-    validateListing: validateListing.mutate,
-    createListing: createListing.mutate,
-    processPayment: processPayment.mutate,
+    // Computed states for backward compatibility
+    canSubmit: !isLoading && !error,
+    canProceedToPayment: isAuthenticated && !needsSubscription,
+
+    // Actions
+    executeListingCreation,
     validateFields,
+    resetValidation,
 
-    // Utilities
-    reset,
-    refreshStatus,
+    // Individual mutations for advanced usage
+    validationMutation,
+    createListingMutation,
+    fieldValidationMutation,
 
-    // Individual mutation objects (for accessing detailed state)
-    mutations: {
-      validate: validateListing,
-      create: createListing,
-      payment: processPayment,
-      fieldValidation,
-      execute,
+    // Utility
+    clearError: () => {
+      validationMutation.reset();
+      createListingMutation.reset();
     },
   };
 };
