@@ -37,6 +37,33 @@ class ListingValidationService {
   }
 
   /**
+   * Enhanced fetch with timeout for validation requests
+   */
+  private async fetchWithTimeout(
+    url: string,
+    options: RequestInit,
+    timeoutMs: number = 30000
+  ): Promise<Response> {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      return response;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === "AbortError") {
+        throw new Error("Validation request timeout. Please try again.");
+      }
+      throw error;
+    }
+  }
+
+  /**
    * Validate listing data before payment/submission
    * This is the dry run validation that prevents payment on invalid data
    */
@@ -89,15 +116,19 @@ class ListingValidationService {
         });
       }
 
-      const response = await fetch(`${this.baseUrl}/validate`, {
-        method: "POST",
-        body: formData,
-        credentials: "include", // Include cookies for authentication
-        headers: {
-          // Don't set Content-Type header when using FormData
-          // Let the browser set it automatically with boundary
+      const response = await this.fetchWithTimeout(
+        `${this.baseUrl}/validate`,
+        {
+          method: "POST",
+          body: formData,
+          credentials: "include", // Include cookies for authentication
+          headers: {
+            // Don't set Content-Type header when using FormData
+            // Let the browser set it automatically with boundary
+          },
         },
-      });
+        45000 // 45 second timeout for validation
+      );
 
       if (!response.ok) {
         // Handle different HTTP status codes
@@ -162,18 +193,22 @@ class ListingValidationService {
     userId: string
   ): Promise<ValidationResult> {
     try {
-      const response = await fetch(`${this.baseUrl}/validate-fields`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
+      const response = await this.fetchWithTimeout(
+        `${this.baseUrl}/validate-fields`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...fields,
+            dryRun: true,
+            userId,
+          }),
+          credentials: "include",
         },
-        body: JSON.stringify({
-          ...fields,
-          dryRun: true,
-          userId,
-        }),
-        credentials: "include",
-      });
+        15000 // 15 second timeout for field validation
+      );
 
       if (!response.ok) {
         const result = await response.json();
@@ -198,10 +233,14 @@ class ListingValidationService {
    */
   async isValidationAvailable(): Promise<boolean> {
     try {
-      const response = await fetch(`${this.baseUrl}/validate/health`, {
-        method: "GET",
-        credentials: "include",
-      });
+      const response = await this.fetchWithTimeout(
+        `${this.baseUrl}/validate/health`,
+        {
+          method: "GET",
+          credentials: "include",
+        },
+        10000 // 10 second timeout for health check
+      );
       return response.ok;
     } catch {
       return false;

@@ -1,9 +1,26 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
 import { Spin, message } from "antd";
-import { CarInfo, ListingInfo } from "../types";
+import {
+  CarInfo,
+  ListingInfo,
+  CreateListing as CreateListingType,
+} from "../types";
 import CreateListing from "./CreateListing";
 import { fetchListingById } from "../api/fetchCars";
+
+interface EditListingProps {
+  initialValues?: CarInfo;
+}
+
+// Convert CarInfo to CreateListing format
+const convertCarInfoToCreateListing = (carInfo: CarInfo): CreateListingType => {
+  return {
+    ...carInfo,
+    // Convert image_urls array to the expected format for CreateListing
+    image_urls: carInfo.image_urls || [],
+  } as CreateListingType;
+};
 
 interface EditListingProps {
   initialValues?: CarInfo;
@@ -60,7 +77,13 @@ const EditListing: React.FC<EditListingProps> = () => {
     );
   }
 
-  return <CreateListing initialValues={listingData || undefined} />;
+  return (
+    <CreateListing
+      initialValues={
+        listingData ? convertCarInfoToCreateListing(listingData) : undefined
+      }
+    />
+  );
 };
 
 export default EditListing;
