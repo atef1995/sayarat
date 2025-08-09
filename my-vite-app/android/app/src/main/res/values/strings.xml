@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">sayarat</string>
+    <string name="title_activity_main">sayarat</string>
+    <string name="package_name">autos.sayarat</string>
+    <string name="custom_url_scheme">autos.sayarat</string>
+</resources>
