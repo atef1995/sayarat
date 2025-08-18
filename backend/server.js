@@ -227,6 +227,10 @@ function setupSessionMiddleware(redisClient) {
     logger.warn('Session configured with memory store (not recommended for production)');
   }
 
+  logger.info("cookies config",{
+    sessionConfig
+  })
+
   app.use(session(sessionConfig));
   app.use(passport.authenticate('session'));
 }

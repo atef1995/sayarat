@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { message, UploadFile, UploadProps } from "antd";
 import type { UploadChangeParam } from "antd/es/upload";
-import { CarInfo } from "../types";
+import {  CreateListing } from "../types";
 import { loadApiConfig } from "../config/apiConfig";
 
 interface UseImageHandlerProps {
-  initialValues?: CarInfo;
+  initialValues?: CreateListing;
   setInitialImagesUrls: (
     urls: string[] | ((prev: string[]) => string[])
   ) => void;

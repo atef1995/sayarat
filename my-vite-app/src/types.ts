@@ -1,5 +1,16 @@
-import { UploadProps } from "antd";
 import { Product } from "./types/payment";
+
+/** Rental details interface */
+export interface RentalDetails {
+  monthlyPrice: number;
+  minimumRentalPeriod: number;
+  securityDeposit?: number;
+  rentalTerms?: string;
+  includesInsurance: boolean;
+  includesFuel: boolean;
+  includesMaintenance: boolean;
+  includesDriver: boolean;
+}
 
 /** Represents core car listing information without seller data */
 export interface CarInfo {
@@ -32,6 +43,10 @@ export interface CarInfo {
   products?: Product["name"]; // Array of product names
   highlight?: boolean; // Whether this listing is highlighted
   _placement?: string; // Internal field for placement strategy info
+  // Rental-specific fields
+  listingType?: "sale" | "rental";
+  isRental?: boolean;
+  rentalDetails?: RentalDetails;
 }
 
 /** Extended CarInfo with seller data for backward compatibility */
@@ -116,9 +131,17 @@ export interface CarCardProps extends Omit<CarInfo, "products"> {
  * */
 export interface CreateListing
   extends Omit<CarInfo, "image_urls" | "created_at" | "products"> {
-  image_urls: UploadProps;
+  image_urls: string[];
   products?: Product[];
   created_at?: string;
+  // Rental-specific fields (optional for backward compatibility)
+  minimumRentalPeriod?: number;
+  securityDeposit?: number;
+  rentalTerms?: string;
+  includesInsurance?: boolean;
+  includesFuel?: boolean;
+  includesMaintenance?: boolean;
+  includesDriver?: boolean;
 }
 
 /** Represents collection of cars with company information */

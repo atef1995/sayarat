@@ -290,7 +290,7 @@ export const ensureRequiredFields = (
     engine_liters: formData.engine_liters || 0,
     specs: formData.specs || [],
     highlight: formData.highlight || false,
-    image_urls: formData.image_urls || { fileList: [] },
+    image_urls: formData.image_urls || [],
 
     // Required system fields with defaults
     id: formData.id || "",
@@ -449,7 +449,7 @@ export const validateAndEnsureBackendFields = (
     engine_liters: Number(formData.engine_liters) || 0,
     specs: formData.specs || [],
     highlight: formData.highlight || false,
-    image_urls: formData.image_urls || { fileList: [] },
+    image_urls: formData.image_urls || [],
 
     // Optional system fields - only include if present
     ...(formData.products && { products: formData.products }),

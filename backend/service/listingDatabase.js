@@ -43,7 +43,11 @@ class ListingDatabase {
       timezone,
       products,
       specs,
-      clientSecret
+      clientSecret,
+      // Rental-specific fields
+      listingType,
+      isRental,
+      rentalDetails
     } = listingData;
 
     const finalCreatedAt = createdAt ? new Date(createdAt) : new Date();
@@ -86,7 +90,11 @@ class ListingDatabase {
           products,
           paid: !products,
           client_secret: clientSecret,
-          status: products ? 'pending' : 'active'
+          status: products ? 'pending' : 'active',
+          // Rental-specific fields
+          listing_type: listingType || 'sale',
+          is_rental: isRental || false,
+          rental_details: rentalDetails ? JSON.stringify(rentalDetails) : null
         })
         .returning(['id', 'status', 'paid']);
 

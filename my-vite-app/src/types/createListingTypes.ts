@@ -4,7 +4,7 @@
  * Following TypeScript best practices and type safety guidelines
  */
 
-import { CarInfo, CreateListing } from "../types";
+import {  CreateListing } from "../types";
 import { PaymentState } from "../types/payment";
 import { ListingCreationStep } from "../types/listingTypes";
 import type { CarAnalysisResult } from "../services/aiCarAnalysis";
@@ -35,7 +35,7 @@ export enum SubscriptionModalState {
  * Interface for Create Listing Container props
  */
 export interface CreateListingContainerProps {
-  initialValues?: CarInfo;
+  initialValues?: CreateListing;
   paymentState: PaymentState;
 }
 
