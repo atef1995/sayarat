@@ -1,45 +1,113 @@
-import React, { useState, useCallback, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router";
-import { Form, Button, Card, Alert, message } from "antd";
-import { useListingCreation } from "../hooks/useListingCreation";
-import { useSubscription } from "../hooks/useSubscription";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
+import { Form, Button, Card, Divider, Alert, message, SelectProps, InputNumber, Checkbox } from "antd";
+import { CarOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import { CreateListing } from "../types";
-import { PaymentState } from "../types/payment";
+import type { CreateListingContainerProps } from "../types/createListingTypes";
+import BasicCarInfoForm from "./forms/BasicCarInfoForm";
+import TechnicalSpecsForm from "./forms/TechnicalSpecsForm";
+import ImageUploadForm from "./forms/ImageUploadForm";
+import ProductSelectionForm from "./forms/ProductSelectionForm";
+import ListingTypeSelector from "./forms/ListingTypeSelector";
+import AICarAnalysis from "./AICarAnalysis";
+import SubscriptionModal from "./SubscriptionModal";
+import { useListingForm } from "../hooks/useListingForm";
+import { useImageHandler } from "../hooks/useImageHandler";
+import { useAuth } from "../hooks/useAuth";
+import { useListingLimits } from "../hooks/useListingLimits";
+import { useListingCreation } from "../hooks/useListingCreation";
+import { useNavigate } from "react-router";
+import type { CarAnalysisResult } from "../services/aiCarAnalysis";
+import TextArea from "antd/es/input/TextArea";
+import ErrorBoundary from "./common/ErrorBoundary";
+import {
+  validateFormFields,
+  convertImageListToFiles,
+  createPaymentWrapper,
+  extractFieldChanges,
+  canProceedWithSubmission,
+  validateRequiredFields,
+  validateAndEnsureBackendFields,
+  traceFieldValues,
+  debugFormFields,
+} from "../utils/formValidationUtils";
+import { fetchCarModels } from "../api/fetchCars";
 
-interface CreateListingContainerProps {
-  initialValues?: CreateListing;
-  paymentState: PaymentState;
-}
+/**
+ * Enhanced CreateListingContainer with comprehensive validation flow
+ *
+ * Features:
+ * - Step-by-step validation process
+ * - Real-time field validation
+ * - Comprehensive error handling
+ * - Payment integration
+ * - Subscription management
+ * - Performance optimizations
+ */
 
 const CreateListingContainer: React.FC<CreateListingContainerProps> = ({
   initialValues,
   paymentState,
 }) => {
   const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
+
+  // Form and UI state
   const [form] = Form.useForm();
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [showSubscriptionModal, setShowSubscriptionModal] = useState(false);
+  const [carModels, setCarModels] = useState<SelectProps["options"]>([]);
+  const [listingType, setListingType] = useState<'sale' | 'rental'>('sale');
+
+  // Listing limits and subscription management
+  const {
+    status: limitStatus,
+    loading: limitLoading,
+    needsSubscription,
+    statusMessage,
+    refreshStatus,
+  } = useListingLimits();
+
+  // Form management
+  const {
+    loading: formLoading,
+    imageList,
+    setImageList,
+    carMakes,
+    currency,
+    setCurrency,
+  } = useListingForm({ initialValues });
+
+  // Image handling
+  const imageHandler = useImageHandler({
+    initialValues,
+    setInitialImagesUrls: () => {}, // Empty function since we're not using it
+  });
 
   // Payment state destructuring
-  const { items, hasSelectedProducts, handlePayment } = paymentState;
+  const {
+    products,
+    items,
+    onProductChange,
+    hasSelectedProducts,
+    handlePayment,
+  } = paymentState;
 
-  // Subscription system
-  const { isAuthenticated, subscriptionData } = useSubscription();
-
-  // Derived subscription state
-  const needsSubscription = !subscriptionData?.hasActiveSubscription;
-  const statusMessage = needsSubscription
-    ? "يجب ترقية الاشتراك لإنشاء المزيد من الإعلانات"
-    : "يمكنك إنشاء الإعلانات";
-
-  // Listing creation with TanStack Query
+  // Enhanced listing creation flow using new TanStack Query API
   const {
     execute: executeListingCreation,
-    isLoading,
-    isSuccess,
-    error,
-    reset,
+    isLoading: creationLoading,
+    isSuccess: creationSuccess,
+    error: creationError,
+    validateFields,
+    reset: resetValidation,
+    refreshStatus: refreshListingStatus,
   } = useListingCreation();
+
+  // Create a unified state object for easier access
+  const creationState = {
+    isLoading: creationLoading,
+    error: creationError,
+    isSuccess: creationSuccess,
+  };
 
   // Show subscription modal when needed
   useEffect(() => {
@@ -47,322 +115,510 @@ const CreateListingContainer: React.FC<CreateListingContainerProps> = ({
       message.info(statusMessage);
       setShowSubscriptionModal(true);
     }
-  }, [needsSubscription, showSubscriptionModal, statusMessage]);
+  }, [needsSubscription, statusMessage, showSubscriptionModal]);
 
-  // Navigate to success page after successful creation
+  // Handle subscription requirement from creation flow
   useEffect(() => {
-    if (isSuccess) {
-      message.success("تم إنشاء الإعلان بنجاح!");
-      // Optional: navigate to listings page or stay on current page
-      // navigate("/my-listings");
+    if (creationState.error?.message?.includes('subscription') || creationState.error?.message?.includes('اشتراك')) {
+      setShowSubscriptionModal(true);
     }
-  }, [isSuccess]);
+  }, [creationState.error]);
 
-  // Form submission handler
-  const handleSubmit = useCallback(
-    async (formValues: CreateListing) => {
-      console.log("🚀 Starting form submission...");
+  // Handle successful listing creation
+  useEffect(() => {
+    if (creationState.isSuccess) {
+      // Navigate to listings or show success page after a delay
+      setTimeout(() => {
+        navigate("/my-listings");
+      }, 2000);
+    }
+  }, [creationState.isSuccess, navigate]);
 
-      if (!isAuthenticated) {
-        message.error("يجب تسجيل الدخول لنشر الإعلانات");
-        return;
-      }
+  const handleMakeChange = useCallback(async () => {
+    form.setFieldValue("model", undefined); // Reset model when make changes
+    const data = await fetchCarModels(form.getFieldValue("make"));
+    console.log("Fetched car models:", data);
+    setCarModels(
+      data?.map((model) => ({
+        label: model,
+        value: model,
+      }))
+    );
+  }, [form]);
 
-      if (needsSubscription) {
-        message.error("يجب ترقية الاشتراك لإنشاء المزيد من الإعلانات");
-        setShowSubscriptionModal(true);
-        return;
-      }
+  const handleAIAnalysisComplete = useCallback((data: CarAnalysisResult) => {
+    console.log("AI analysis completed:", data);
+    // #TODO: Update form fields with AI analysis results
+    // #TODO: Consider showing analysis results to user for confirmation
+  }, []);
 
+  const handleSubscriptionSuccess = useCallback(() => {
+    setShowSubscriptionModal(false);
+    refreshStatus();
+    refreshListingStatus();
+    resetValidation(); // Reset the creation flow
+    message.success(
+      "تم تفعيل الاشتراك بنجاح! يمكنك الآن إنشاء إعلانات غير محدودة"
+    );
+  }, [refreshStatus, refreshListingStatus, resetValidation]);
+
+  /**
+   * Main form submission handler - uses the orchestrated validation flow
+   */
+  const onFinish = useCallback(
+    async (values?: CreateListing) => {
       try {
-        // Create a wrapper for handlePayment to match expected signature
-        const paymentWrapper = hasSelectedProducts
-          ? async (): Promise<boolean> => {
-              const result = await handlePayment();
-              return result !== null; // Convert string | null to boolean
-            }
-          : undefined;
+        // Validate form fields using utility
+        const formValues = await validateFormFields(form, values);
+        if (!formValues) {
+          return; // Error message already shown by utility
+        }
 
-        // Execute the complete listing creation flow
-        await executeListingCreation({
+        console.log("Starting enhanced submission flow with values:", {
           formValues,
+        });
+
+        // Debug the form fields to trace the issue
+        debugFormFields(formValues, currency, "Pre-Enhancement");
+
+        // Add currency from useListingForm state to form values
+        const enhancedFormValues = {
+          ...formValues,
+          currency, // Include currency from useListingForm hook
+          listingType, // Include listing type
+          isRental: listingType === 'rental', // Add isRental boolean for backend
+        };
+
+        // If it's a rental, create rental details object
+        if (listingType === 'rental') {
+          enhancedFormValues.rentalDetails = {
+            monthlyPrice: formValues.price, // Use price as monthly price for rentals
+            minimumRentalPeriod: formValues.minimumRentalPeriod || 1,
+            securityDeposit: formValues.securityDeposit || 0,
+            rentalTerms: formValues.rentalTerms || '',
+            includesInsurance: formValues.includesInsurance || false,
+            includesFuel: formValues.includesFuel || false,
+            includesMaintenance: formValues.includesMaintenance || false,
+            includesDriver: formValues.includesDriver || false,
+          };
+        }
+
+        // Enhanced validation and field completion
+        const backendValidation = validateAndEnsureBackendFields(
+          enhancedFormValues,
+          currency
+        );
+
+        if (!backendValidation.isValid) {
+          console.error("Backend validation failed:", backendValidation.errors);
+          message.error(
+            `خطأ في التحقق من البيانات: ${backendValidation.errors.join(", ")}`
+          );
+          return;
+        }
+
+        // Use the validated and complete data
+        const completeFormData = backendValidation.data;
+
+        console.log("Enhanced form values with currency:", completeFormData);
+        console.log("Current currency state:", currency);
+
+        // Trace the final form data
+        traceFieldValues(completeFormData, "Final Submission Data");
+
+        // Validate required fields before proceeding (legacy check)
+        const fieldValidation = validateRequiredFields(
+          completeFormData as CreateListing
+        );
+        if (!fieldValidation.isValid) {
+          console.error(
+            "Missing required fields:",
+            fieldValidation.missingFields
+          );
+          message.error(
+            `الحقول المطلوبة مفقودة: ${fieldValidation.missingFields.join(
+              ", "
+            )}`
+          );
+          return;
+        }
+
+        // Convert imageList to File objects using utility
+        const imageFiles = convertImageListToFiles(imageList);
+
+        // Create payment handler wrapper using utility
+        const handlePaymentWrapper = createPaymentWrapper(
+          hasSelectedProducts,
+          handlePayment
+        );
+
+        // Use the new TanStack Query API for listing creation
+        executeListingCreation({
+          formValues: completeFormData as CreateListing,
           images: imageFiles,
           hasProducts: hasSelectedProducts,
           items,
-          handlePayment: paymentWrapper,
+          handlePayment: handlePaymentWrapper,
         });
+
+        console.log("Listing creation initiated successfully!");
       } catch (error) {
-        console.error("Form submission failed:", error);
-        // Error handling is done by the hook
+        console.error("Unexpected error in onFinish:", error);
+        message.error("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
       }
     },
     [
-      isAuthenticated,
-      needsSubscription,
-      imageFiles,
+      form,
+      imageList,
+      currency,
+      listingType,
       hasSelectedProducts,
-      items,
       handlePayment,
       executeListingCreation,
+      items,
     ]
   );
 
-  // Retry handler for failed submissions
+  /**
+   * Retry the current step
+   */
   const handleRetry = useCallback(() => {
-    const formValues = form.getFieldsValue();
-    handleSubmit(formValues);
-  }, [form, handleSubmit]);
+    resetValidation();
+    // Re-trigger form submission
+    onFinish();
+  }, [resetValidation, onFinish]);
 
-  // Reset handler
-  const handleReset = useCallback(() => {
-    form.resetFields();
-    setImageFiles([]);
-    reset();
-  }, [form, reset]);
 
-  // Close subscription modal handler
-  const handleCloseSubscriptionModal = useCallback(() => {
-    setShowSubscriptionModal(false);
-  }, []);
+  // Computed values using useMemo for performance optimization
+  const isLoading = useMemo(
+    () => formLoading || limitLoading || creationState.isLoading,
+    [formLoading, limitLoading, creationState.isLoading]
+  );
 
-  // Check if form can be submitted
-  const canSubmit = useMemo(() => {
-    return (
-      isAuthenticated &&
-      !needsSubscription &&
-      !isLoading &&
-      imageFiles.length > 0
-    );
-  }, [isAuthenticated, needsSubscription, isLoading, imageFiles.length]);
+  const canSubmit = useMemo(
+    () =>
+      canProceedWithSubmission(isAuthenticated, needsSubscription, isLoading),
+    [isAuthenticated, needsSubscription, isLoading]
+  );
+
+  const showSteps = useMemo(
+    () => creationState.isLoading,
+    [creationState.isLoading]
+  );
+
+  // Real-time field validation handler with performance optimization
+  const handleFieldChange = useCallback(
+    async (
+      changedFields: Array<{ name: string | string[]; value?: unknown }>
+    ) => {
+      const changedValues = extractFieldChanges(changedFields);
+
+      // Always include currency from state in field validation
+      const enhancedChangedValues = {
+        ...changedValues,
+        currency, // Include currency from useListingForm state
+      };
+
+      // Debug the field validation process
+      debugFormFields(
+        enhancedChangedValues,
+        currency,
+        "Real-time Field Validation"
+      );
+
+      // Only validate if we have meaningful changes
+      if (Object.keys(enhancedChangedValues).length > 0) {
+        try {
+          await validateFields(enhancedChangedValues as Partial<CreateListing>);
+        } catch (error) {
+          console.error("Real-time validation error:", error);
+        }
+      }
+    },
+    [validateFields, currency] // Add currency to dependencies
+  );
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card title="إنشاء إعلان جديد" className="shadow-lg">
-        {/* Error Display */}
-        {error && (
-          <Alert
-            type="error"
-            message="خطأ في إنشاء الإعلان"
-            description={error.message}
-            action={
-              <Button size="small" onClick={handleRetry}>
-                إعادة المحاولة
-              </Button>
-            }
-            className="mb-4"
-            closable
-            onClose={() => reset()}
-          />
-        )}
-
-        {/* Success Display */}
-        {isSuccess && (
-          <Alert
-            type="success"
-            message="تم إنشاء الإعلان بنجاح!"
-            description="سيظهر إعلانك في القائمة قريباً"
-            className="mb-4"
-            closable
-          />
-        )}
-
-        {/* Loading state */}
-        {isLoading && (
-          <Alert
-            type="info"
-            message="جارٍ إنشاء الإعلان..."
-            description="يرجى الانتظار، لا تغلق هذه الصفحة"
-            className="mb-4"
-          />
-        )}
-
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={initialValues}
-          disabled={isLoading}
+    <>
+      <div className=" flex flex-col items-center w-full px-2 sm:px-4 lg:px-6 mx-auto my-4 sm:my-8">
+        <Card
+          className="w-full max-w-4xl mx-auto shadow-lg"
+          loading={limitLoading}
         >
-          {/* Basic Car Info */}
-          <Card title="معلومات السيارة الأساسية" className="mb-4">
-            <Form.Item
-              name="title"
-              label="عنوان الإعلان"
-              rules={[{ required: true, message: "يرجى إدخال عنوان الإعلان" }]}
-            >
-              <input
-                type="text"
-                className="w-full p-3 border border-gray-300 rounded-md"
-                placeholder="مثال: تويوتا كامري 2020 فل كامل"
-              />
-            </Form.Item>
+          <div className="text-center mb-4 sm:mb-6">
+            <CarOutlined className="text-3xl sm:text-4xl text-blue-600" />
+            <h1 className="text-xl sm:text-2xl font-bold mt-2">
+              {initialValues ? "تعديل السيارة" : "إضافة سيارة جديدة"}
+            </h1>
+          </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Form.Item
-                name="make"
-                label="الماركة"
-                rules={[{ required: true, message: "يرجى اختيار الماركة" }]}
-              >
-                <select
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  aria-label="اختيار ماركة السيارة"
-                >
-                  <option value="">اختر الماركة</option>
-                  <option value="Toyota">تويوتا</option>
-                  <option value="Honda">هوندا</option>
-                  <option value="BMW">بي إم دبليو</option>
-                  {/* Add more options */}
-                </select>
-              </Form.Item>
-
-              <Form.Item
-                name="model"
-                label="الموديل"
-                rules={[{ required: true, message: "يرجى إدخال الموديل" }]}
-              >
-                <input
-                  type="text"
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="مثال: كامري"
-                />
-              </Form.Item>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Form.Item
-                name="year"
-                label="سنة الصنع"
-                rules={[{ required: true, message: "يرجى إدخال سنة الصنع" }]}
-              >
-                <input
-                  type="number"
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="2020"
-                  min="1990"
-                  max={new Date().getFullYear() + 1}
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="price"
-                label="السعر"
-                rules={[{ required: true, message: "يرجى إدخال السعر" }]}
-              >
-                <input
-                  type="number"
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  placeholder="50000"
-                  min="0"
-                />
-              </Form.Item>
-
-              <Form.Item
-                name="currency"
-                label="العملة"
-                rules={[{ required: true, message: "يرجى اختيار العملة" }]}
-              >
-                <select
-                  className="w-full p-3 border border-gray-300 rounded-md"
-                  aria-label="اختيار عملة السعر"
-                >
-                  <option value="usd">دولار أمريكي</option>
-                  <option value="sar">ريال سعودي</option>
-                  <option value="aed">درهم إماراتي</option>
-                </select>
-              </Form.Item>
-            </div>
-
-            <Form.Item
-              name="description"
-              label="وصف السيارة"
-              rules={[{ required: true, message: "يرجى إدخال وصف السيارة" }]}
-            >
-              <textarea
-                className="w-full p-3 border border-gray-300 rounded-md"
-                rows={4}
-                placeholder="اكتب وصفاً مفصلاً للسيارة..."
-              />
-            </Form.Item>
-          </Card>
-
-          {/* Image Upload Section */}
-          <Card title="صور السيارة" className="mb-4">
-            <div className="text-center p-8 border-2 border-dashed border-gray-300 rounded-md">
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={(e) =>
-                  setImageFiles(Array.from(e.target.files || []))
-                }
-                className="hidden"
-                id="image-upload"
-              />
-              <label
-                htmlFor="image-upload"
-                className="cursor-pointer text-blue-600 hover:text-blue-800"
-              >
-                انقر لاختيار الصور
-              </label>
-              <p className="text-gray-500 mt-2">
-                اختر حتى 10 صور عالية الجودة لسيارتك
-              </p>
-              {imageFiles.length > 0 && (
-                <p className="text-green-600 mt-2">
-                  تم اختيار {imageFiles.length} صورة
-                </p>
-              )}
-            </div>
-          </Card>
-
-          {/* Product Selection (if applicable) */}
-          {hasSelectedProducts && (
-            <Card title="خدمات إضافية" className="mb-4">
-              <Alert
-                type="info"
-                message={`تم اختيار ${items.length} خدمة إضافية`}
-                description="سيتم توجيهك إلى صفحة الدفع بعد إنشاء الإعلان"
-                className="mb-4"
-              />
-            </Card>
+          {/* Listing Limits Alert */}
+          {(limitStatus || needsSubscription) && (
+            <Alert
+              message={statusMessage}
+              type={needsSubscription ? "warning" : "info"}
+              showIcon
+              icon={<InfoCircleOutlined />}
+              className="mb-4"
+              action={
+                needsSubscription ? (
+                  <Button
+                    size="small"
+                    type="primary"
+                    onClick={() => setShowSubscriptionModal(true)}
+                  >
+                    اشترك الآن
+                  </Button>
+                ) : null
+              }
+            />
           )}
 
-          {/* Submit Button */}
-          <div className="flex justify-between items-center pt-6">
-            <Button type="default" onClick={handleReset} disabled={isLoading}>
-              إعادة تعيين
-            </Button>
+          {/* Creation Steps Progress */}
+          {showSteps && (
+            <div className="mb-6 text-center">
+              <div className="text-blue-600 mb-2">
+                جاري معالجة الطلب...
+              </div>
+            </div>
+          )}
 
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={isLoading}
-              disabled={!canSubmit}
-              size="large"
-              className="px-8"
-            >
-              {isLoading ? "جارٍ النشر..." : "نشر الإعلان"}
-            </Button>
-          </div>
-        </Form>
-      </Card>
+          {/* Error Display */}
+          {creationState.error && (
+            <Alert
+              message="حدث خطأ"
+              description={creationState.error.message}
+              type="error"
+              showIcon
+              className="mb-4"
+              action={
+                <Button size="small" onClick={handleRetry}>
+                  إعادة المحاولة
+                </Button>
+              }
+            />
+          )}
 
-      {/* Subscription Modal (if needed) */}
-      {showSubscriptionModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <Card title="ترقية الاشتراك" className="max-w-md">
-            <p className="mb-4">{statusMessage}</p>
-            <div className="flex justify-end gap-2">
-              <Button onClick={handleCloseSubscriptionModal}>إلغاء</Button>
-              <Button type="primary" onClick={() => navigate("/subscription")}>
-                ترقية الاشتراك
+          {/* Success State - Hide form when successful */}
+          {creationState.isSuccess ? (
+            <div className="text-center py-8">
+              <div className="text-green-600 mb-4">
+                <CarOutlined className="text-5xl" />
+              </div>
+              <h2 className="text-2xl font-bold text-green-700 mb-2">
+                تم إنشاء الإعلان بنجاح!
+              </h2>
+              <p className="text-gray-600 mb-4">
+                سيتم توجيهك إلى قائمة إعلاناتك خلال ثوانٍ...
+              </p>
+              <Button type="primary" onClick={() => navigate("/my-listings")}>
+                عرض إعلاناتي
               </Button>
             </div>
-          </Card>
-        </div>
-      )}
-    </div>
+          ) : (
+            /* Main Form - Only show when not successful */
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={onFinish}
+              disabled={isLoading}
+              className="space-y-6"
+              onFieldsChange={handleFieldChange}
+            >
+              {/* Listing Type Selector */}
+              <ListingTypeSelector
+                onTypeChange={setListingType}
+                selectedType={listingType}
+              />
+              <Divider />
+
+              {/* Rental-specific fields */}
+              {listingType === 'rental' && (
+                <Card title="تفاصيل الإيجار" className="mb-4">
+                  <Alert
+                    type="info"
+                    message="إعداد تفاصيل الإيجار"
+                    description="سيتم عرض هذه التفاصيل للمستأجرين المحتملين"
+                    className="mb-4"
+                  />
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Form.Item
+                      name="minimumRentalPeriod"
+                      label="الحد الأدنى لفترة الإيجار (بالأشهر)"
+                      rules={[
+                        { required: true, message: "يرجى تحديد الحد الأدنى للإيجار" },
+                        { type: "number", min: 1, message: "يجب أن يكون شهر واحد على الأقل" }
+                      ]}
+                    >
+                      <InputNumber
+                        min={1}
+                        max={12}
+                        size="large"
+                        className="w-full"
+                        placeholder="1"
+                      />
+                    </Form.Item>
+
+                    <Form.Item
+                      name="securityDeposit"
+                      label="مبلغ التأمين (اختياري)"
+                    >
+                      <InputNumber
+                        min={0}
+                        formatter={(value) =>
+                          `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                        size="large"
+                        className="w-full"
+                        placeholder="2000"
+                      />
+                    </Form.Item>
+                  </div>
+
+                  <Form.Item
+                    name="rentalTerms"
+                    label="شروط الإيجار (اختياري)"
+                  >
+                    <TextArea
+                      rows={3}
+                      placeholder="مثال: يشمل التأمين، لا يشمل الوقود، متاح للسائقين فوق 25 عام..."
+                      maxLength={500}
+                      showCount
+                    />
+                  </Form.Item>
+
+                  <div className="p-4 rounded-md">
+                    <h4 className="font-semibold text-blue-800 mb-2">ما يشمله الإيجار:</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <Form.Item name="includesInsurance" valuePropName="checked" className="mb-2">
+                        <Checkbox>يشمل التأمين</Checkbox>
+                      </Form.Item>
+                      
+                      <Form.Item name="includesFuel" valuePropName="checked" className="mb-2">
+                        <Checkbox>يشمل الوقود</Checkbox>
+                      </Form.Item>
+
+                      <Form.Item name="includesMaintenance" valuePropName="checked" className="mb-2">
+                        <Checkbox>يشمل الصيانة</Checkbox>
+                      </Form.Item>
+
+                      <Form.Item name="includesDriver" valuePropName="checked" className="mb-2">
+                        <Checkbox>يشمل سائق</Checkbox>
+                      </Form.Item>
+                    </div>
+                  </div>
+                </Card>
+              )}
+              {listingType === 'rental' && <Divider />}
+
+              {/* AI Analysis */}
+              <AICarAnalysis
+                form={form}
+                onAnalysisComplete={handleAIAnalysisComplete}
+                setImageList={setImageList}
+              />
+              <Divider />
+
+              {/* Basic Car Info */}
+              <BasicCarInfoForm
+                carMakes={carMakes}
+                carModels={carModels}
+                setCurrency={setCurrency}
+                onMakeChange={handleMakeChange}
+                isRental={listingType === 'rental'}
+              />
+
+              {/* Technical Specifications */}
+              <TechnicalSpecsForm />
+
+              <Form.Item
+                name="description"
+                label="وصف السيارة"
+                rules={[
+                  { required: true, message: "يرجى إدخال وصف السيارة" },
+                  { max: 850, message: "الوصف يجب أن لا يتجاوز 500 حرف" },
+                ]}
+                className="mb-4"
+              >
+                <TextArea
+                  rows={7}
+                  placeholder="أدخل وصفًا تفصيليًا للسيارة"
+                  maxLength={850}
+                  showCount
+                />
+              </Form.Item>
+
+              <Divider />
+
+              {/* Image Upload */}
+              <ImageUploadForm
+                imageList={imageList}
+                setImageList={setImageList}
+                imageUploading={imageHandler.imageUploading}
+                previewOpen={imageHandler.previewOpen}
+                imageUrl={imageHandler.imageUrl}
+                beforeUpload={imageHandler.beforeUpload}
+                handleImageChange={imageHandler.handleImageChange}
+                handlePreview={imageHandler.handlePreview}
+                handleCancel={imageHandler.handleCancel}
+                deleteImage={imageHandler.deleteImage}
+                customRequest={imageHandler.customRequest}
+              />
+
+              <Divider />
+
+              {/* Product Selection */}
+              <ProductSelectionForm
+                products={products}
+                onProductChange={onProductChange}
+              />
+
+              {/* Submit Button */}
+              <div className="text-center pt-6">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  size="large"
+                  loading={isLoading}
+                  disabled={!canSubmit}
+                  className="px-8 py-2 h-auto"
+                >
+                  {isLoading
+                    ? "جاري المعالجة..."
+                    : initialValues
+                    ? "تحديث الإعلان"
+                    : "إنشاء الإعلان"}
+                </Button>
+
+                {!isAuthenticated && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    يجب تسجيل الدخول لنشر الإعلانات
+                  </p>
+                )}
+              </div>
+            </Form>
+          )}
+        </Card>
+      </div>
+
+      {/* Subscription Modal */}
+      <SubscriptionModal
+        open={showSubscriptionModal}
+        onClose={() => setShowSubscriptionModal(false)}
+        onSubscriptionSuccess={handleSubscriptionSuccess}
+      />
+    </>
   );
 };
 
-export default CreateListingContainer;
+// Enhanced export with error boundary for better error handling
+const CreateListingContainerWithErrorBoundary: React.FC<
+  CreateListingContainerProps
+> = (props) => (
+  <ErrorBoundary>
+    <CreateListingContainer {...props} />
+  </ErrorBoundary>
+);
+
+export default CreateListingContainerWithErrorBoundary;

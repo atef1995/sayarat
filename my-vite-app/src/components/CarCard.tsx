@@ -117,7 +117,12 @@ const CarCard = ({ carData }: { carData: CarCardProps }) => {
       className={`min-h-max w-56 z-10 space-y-2 ${getHighlightStyle()}`}
       onClick={(e) => redirectToCarPage(e)}
       cover={
-        <div onClick={handleCarouselClick}>
+        <div onClick={handleCarouselClick} className="relative">
+          {carData.isRental && (
+            <div className="absolute top-2 left-2 z-10 bg-green-500 text-white px-2 py-1 text-xs rounded-md">
+              للإيجار
+            </div>
+          )}
           <Carousel
             draggable
             focusOnSelect
@@ -185,7 +190,18 @@ const CarCard = ({ carData }: { carData: CarCardProps }) => {
           <p>{carData.fuel ?? ""}</p>
         </div>
         <div className="text-start text-sm">
-          <p>{priceFormat(carData.price, carData.currency)}</p>
+          {carData.isRental && carData.rentalDetails ? (
+            <div>
+              <p className="font-semibold text-green-600">
+                {priceFormat(carData.rentalDetails.monthlyPrice, carData.currency)} / شهر
+              </p>
+              <p className="text-xs text-gray-500">
+                الحد الأدنى: {carData.rentalDetails.minimumRentalPeriod} شهر
+              </p>
+            </div>
+          ) : (
+            <p>{priceFormat(carData.price, carData.currency)}</p>
+          )}
         </div>
         <div className="flex justify-between h-24 items-end m-1">
           <p className="font-semibold p-2">

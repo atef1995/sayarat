@@ -1,4 +1,4 @@
-require('@dotenvx/dotenvx').config();
+require('dotenv').config({ path: '.env.development' });
 const fs = require('fs');
 
 const config = {

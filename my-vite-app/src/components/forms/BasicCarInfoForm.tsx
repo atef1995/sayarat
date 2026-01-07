@@ -11,6 +11,7 @@ interface BasicCarInfoFormProps {
   carModels: SelectProps["options"];
   setCurrency: (value: string) => void;
   onMakeChange: () => void;
+  isRental?: boolean;
 }
 
 const BasicCarInfoForm: React.FC<BasicCarInfoFormProps> = ({
@@ -18,6 +19,7 @@ const BasicCarInfoForm: React.FC<BasicCarInfoFormProps> = ({
   carModels,
   setCurrency,
   onMakeChange,
+  isRental = false,
 }) => {
   const years = Array.from(
     { length: new Date().getFullYear() - 1980 + 1 },
@@ -109,8 +111,14 @@ const BasicCarInfoForm: React.FC<BasicCarInfoFormProps> = ({
         </Form.Item>
         <Form.Item
           name="price"
-          label="السعر"
-          rules={[{ required: true, message: "الرجاء إدخال السعر" }]}
+          label={isRental ? "السعر الشهري" : "السعر"}
+          rules={[
+            { 
+              required: true, 
+              message: isRental ? "الرجاء إدخال السعر الشهري" : "الرجاء إدخال السعر" 
+            }
+          ]}
+          tooltip={isRental ? "السعر الذي يدفعه المستأجر شهرياً" : undefined}
         >
           <InputNumber
             min={0}
@@ -120,6 +128,7 @@ const BasicCarInfoForm: React.FC<BasicCarInfoFormProps> = ({
             size="large"
             className="w-full"
             addonAfter={selectAfter}
+            placeholder={isRental ? "السعر الشهري" : "السعر"}
           />
         </Form.Item>
       </div>

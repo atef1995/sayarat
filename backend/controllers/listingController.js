@@ -706,7 +706,11 @@ class ListingController {
       createdAt,
       timezone,
       products,
-      clientSecret
+      clientSecret,
+      // Rental-specific fields
+      listingType,
+      isRental,
+      rentalDetails
     } = body;
 
     // Helper function to parse JSON strings for array fields
@@ -731,6 +735,11 @@ class ListingController {
       return field;
     };
 
+    // Parse rental details if it's a string
+    const parsedRentalDetails = rentalDetails && typeof rentalDetails === 'string' 
+      ? JSON.parse(rentalDetails) 
+      : rentalDetails;
+
     return {
       title,
       car_type,
@@ -754,7 +763,11 @@ class ListingController {
       createdAt,
       timezone,
       products: parseJsonField(products),
-      clientSecret
+      clientSecret,
+      // Rental-specific fields
+      listingType: listingType || 'sale',
+      isRental: isRental === 'true' || isRental === true,
+      rentalDetails: parsedRentalDetails
     };
   }
 

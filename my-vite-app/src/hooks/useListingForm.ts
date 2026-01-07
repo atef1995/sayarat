@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Form, message, UploadFile, SelectProps } from "antd";
-import { CarInfo, CreateListing as cl } from "../types";
+import {  CreateListing as cl, CreateListing } from "../types";
 import { fetchCarMakes, fetchCarModels } from "../api/fetchCars";
 import { getIpAddress } from "../api/fetchUserData";
 import { createStandardDate } from "../helper/time";
 
 interface UseListingFormProps {
-  initialValues?: CarInfo;
+  initialValues?: CreateListing;
 }
 
 export const useListingForm = ({ initialValues }: UseListingFormProps = {}) => {
@@ -105,7 +105,7 @@ export const useListingForm = ({ initialValues }: UseListingFormProps = {}) => {
   }, [values?.make]);
   // Create form data for submission
   const createFormData = (formValues: cl, clientSecret?: string): FormData => {
-    const { image_urls } = formValues;
+    // const { image_urls } = formValues;
     const { utc, timezone } = createStandardDate();
 
     const formData = new FormData();
@@ -130,10 +130,8 @@ export const useListingForm = ({ initialValues }: UseListingFormProps = {}) => {
     formData.append("timezone", timezone);
     formData.append("clientSecret", clientSecret || "");
 
-    console.log("Image URLs in createFormData:", image_urls);
-
     // Handle image files - check both the form structure and current imageList
-    const filesToProcess = image_urls?.fileList || imageList;
+    const filesToProcess = imageList;
 
     filesToProcess?.forEach((file: UploadFile) => {
       if (file.originFileObj) {
