@@ -157,8 +157,11 @@ class EnhancedServerConnections {
    */
   createDatabaseMiddleware() {
     return async (req, res, next) => {
+      // If dbUtils is not initialized (fallback mode), skip this middleware
       if (!this.dbUtils) {
-        return res.status(500).json({ error: 'Database not available' });
+        logger.warn({warn:'dbutils not init'})
+        // Don't block - the request handler will use knex directly
+        return next();
       }
 
       // Add database utilities to request object
@@ -186,8 +189,10 @@ class EnhancedServerConnections {
    */
   createRedisMiddleware() {
     return async (req, res, next) => {
+      // If redisUtils is not initialized (fallback mode), skip this middleware
       if (!this.redisUtils) {
-        return res.status(500).json({ error: 'Redis not available' });
+        // Don't block - Redis is optional
+        return next();
       }
 
       // Add Redis utilities to request object

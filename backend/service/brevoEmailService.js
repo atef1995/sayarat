@@ -3,6 +3,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const logger = require('../utils/logger');
 const emailTemplateService = require('./emailTemplateService');
+const { handleBrevoError } = require('../utils/brevoErrorHandler');
 
 /**
  * Brevo Email Service for sending templated emails
@@ -33,7 +34,11 @@ class BrevoEmailService {
       // Use the new email template service to generate HTML
       return await emailTemplateService.generateEmail(templateName, params);
     } catch (error) {
-      logger.error(`Failed to generate email template: ${templateName}`, error);
+      logger.error(`Failed to generate email template: ${templateName}`, {
+        error: error.message,
+        errorType: error.constructor.name,
+        stack: error.stack
+      });
 
       // Fallback to old template system if new system fails
       if (this.templateCache.has(templateName)) {
@@ -226,13 +231,12 @@ class BrevoEmailService {
         provider: 'brevo'
       };
     } catch (error) {
-      logger.error('Failed to send payment success email', {
+      handleBrevoError(error, {
+        operationType: 'payment-success',
         requestId,
         recipient: paymentIntent.metadata.email,
-        paymentId: paymentIntent.id,
-        error: error.message
+        paymentId: paymentIntent.id
       });
-      throw error;
     }
   }
 
@@ -308,13 +312,12 @@ class BrevoEmailService {
         provider: 'brevo'
       };
     } catch (error) {
-      logger.error('Failed to send payment failed email', {
+      handleBrevoError(error, {
+        operationType: 'payment-failed',
         requestId,
         recipient: failedPaymentIntent.billing_details?.email || failedPaymentIntent.metadata?.email,
-        paymentId: failedPaymentIntent.id,
-        error: error.message
+        paymentId: failedPaymentIntent.id
       });
-      throw error;
     }
   }
 
@@ -451,12 +454,11 @@ class BrevoEmailService {
         provider: 'brevo'
       };
     } catch (error) {
-      logger.error('Failed to send verification email', {
+      handleBrevoError(error, {
+        operationType: 'verification',
         requestId,
-        recipient: email,
-        error: error.message
+        recipient: email
       });
-      throw error;
     }
   }
 
@@ -522,12 +524,11 @@ class BrevoEmailService {
         provider: 'brevo'
       };
     } catch (error) {
-      logger.error('Failed to send password reset email', {
+      handleBrevoError(error, {
+        operationType: 'password-reset',
         requestId,
-        recipient: email,
-        error: error.message
+        recipient: email
       });
-      throw error;
     }
   }
 

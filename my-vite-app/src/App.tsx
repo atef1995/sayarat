@@ -6,11 +6,18 @@ import { useSearchParams, useNavigate } from "react-router";
 import { useEffect } from "react";
 import { message } from "antd";
 import { useAuth } from "./hooks/useAuth";
+import { CapacitorUtils } from "./utils/capacitor";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { checkSession } = useAuth();
+
+  useEffect(() => {
+    // Initialize Capacitor mobile app features
+    CapacitorUtils.addPlatformClasses();
+    CapacitorUtils.configureMobileApp();
+  }, []);
 
   useEffect(() => {
     const handleFacebookAuth = async () => {
