@@ -31,10 +31,8 @@ for i in $(env | grep "^VITE_" || true); do
         # Escape special characters in value for sed
         escaped_value=$(echo "$value" | sed 's/[[\.*^$()+?{|]/\\&/g')
         
-        # Replace in JS, CSS, and HTML files
-        find "$TARGET_DIR" -type f \( -name '*.js' -o -name '*.css' -o -name '*.html' \) -exec sed -i "s|$key|$escaped_value|g" '{}' + 2>/dev/null || true
-        
-        # Also handle placeholder patterns
+        # Replace explicit placeholder patterns only.
+        # Do not replace raw keys to avoid corrupting identifiers like window.__VITE_API_ENDPOINT.
         placeholder1="__${key}__"
         placeholder2="{{${key}}}"
         

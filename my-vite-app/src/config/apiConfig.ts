@@ -14,9 +14,9 @@ export interface ApiConfig {
 
 export function loadApiConfig(): ApiConfig {
   // Use consistent variable names - match your environment variables
-  const PLACEHOLDER_API_URL = "VITE_API_ENDPOINT";
-  const PLACEHOLDER_STRIPE_PUBLIC_KEY = "VITE_STRIPE_PUBLIC_KEY";
-  const PLACEHOLDER_STRIPE_SECRET_KEY = "VITE_STRIPE_SECRET_KEY";
+  const PLACEHOLDER_API_URL = "__VITE_API_ENDPOINT__";
+  const PLACEHOLDER_STRIPE_PUBLIC_KEY = "__VITE_STRIPE_PUBLIC_KEY__";
+  const PLACEHOLDER_STRIPE_SECRET_KEY = "__VITE_STRIPE_SECRET_KEY__";
 
   let apiUrl = PLACEHOLDER_API_URL;
   let stripePublicKey = PLACEHOLDER_STRIPE_PUBLIC_KEY;
