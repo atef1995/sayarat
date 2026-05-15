@@ -56,75 +56,15 @@ export default defineConfig(({ command, mode }) => {
               return "vendor-stripe";
             }
 
-            if (id.includes("@ant-design/icons")) {
-              return "vendor-ant-icons";
-            }
-
-            if (id.includes("rc-table") || id.includes("rc-pagination")) {
-              return "vendor-antd-table";
-            }
-
+            // Group all ant design and rc-* components into fewer chunks to prevent circular dependency/export issues
             if (
-              id.includes("rc-picker") ||
-              id.includes("rc-upload") ||
-              id.includes("rc-select") ||
-              id.includes("rc-input") ||
-              id.includes("rc-input-number") ||
-              id.includes("rc-textarea") ||
-              id.includes("rc-mentions") ||
-              id.includes("rc-cascader") ||
-              id.includes("rc-tree-select") ||
-              id.includes("rc-checkbox") ||
-              id.includes("rc-switch") ||
-              id.includes("rc-slider") ||
-              id.includes("rc-rate") ||
-              id.includes("rc-field-form")
+              id.includes("/antd/") || 
+              id.includes("/rc-") || 
+              id.includes("@rc-component") || 
+              id.includes("@ant-design/") ||
+              id.includes("dayjs")
             ) {
-              return "vendor-antd-form";
-            }
-
-            if (
-              id.includes("rc-dialog") ||
-              id.includes("rc-drawer") ||
-              id.includes("rc-dropdown") ||
-              id.includes("rc-menu") ||
-              id.includes("rc-tooltip") ||
-              id.includes("rc-notification") ||
-              id.includes("rc-motion") ||
-              id.includes("@rc-component/trigger") ||
-              id.includes("@rc-component/tour") ||
-              id.includes("@rc-component/portal")
-            ) {
-              return "vendor-antd-overlay";
-            }
-
-            if (
-              id.includes("rc-resize-observer") ||
-              id.includes("rc-util") ||
-              id.includes("rc-overflow") ||
-              id.includes("rc-virtual-list") ||
-              id.includes("rc-image") ||
-              id.includes("rc-segmented") ||
-              id.includes("rc-steps") ||
-              id.includes("rc-progress") ||
-              id.includes("rc-collapse") ||
-              id.includes("rc-tree") ||
-              id.includes("@rc-component/context")
-            ) {
-              return "vendor-antd-common";
-            }
-
-            if (
-              id.includes("/antd/") ||
-              id.includes("/rc-") ||
-              id.includes("@rc-component") ||
-              id.includes("/@ant-design/")
-            ) {
-              return "vendor-antd-core";
-            }
-
-            if (id.includes("dayjs")) {
-              return "vendor-dayjs";
+              return "vendor-antd";
             }
           },
         },
