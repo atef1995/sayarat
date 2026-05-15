@@ -4,7 +4,7 @@ sayarat.autos, www.sayarat.autos {
         output stdout
         format console
     }
-
+		
     # Proxy API requests to backend (keep /api prefix)
     handle /api/* {
         reverse_proxy backend:5000
@@ -27,4 +27,17 @@ sayarat.autos, www.sayarat.autos {
 
     # Proxy all other requests to frontend (catch-all - must be last)
     reverse_proxy frontend:80
+}
+
+www.vibed-to-cracked.com {
+    redir https://vibed-to-cracked.com{uri} permanent
+}
+
+vibed-to-cracked.com {
+    encode zstd gzip
+    reverse_proxy 173.212.253.103:3002
+}
+
+quiz-builder.duckdns.org {
+    reverse_proxy 173.212.253.103:3001
 }
