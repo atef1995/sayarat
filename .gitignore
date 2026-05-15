@@ -5,6 +5,14 @@ backend/node_modules
 backend/cmd.md
 my-vite-app/.env.example
 backend/logs/
+
+# Android build files
+my-vite-app/android/.gradle/
+my-vite-app/android/.idea/
+my-vite-app/android/build/
+my-vite-app/android/app/build/
+my-vite-app/android/local.properties
+
 myenv
 us_car_models_data_master
 .env
@@ -21,3 +29,5 @@ my-vite-app/.env.production
 .github/instructions/js insturctions.instructions.md
 .github/instructions/tsx instructions.instructions.md
 .github/
+docs
+node_modules

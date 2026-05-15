@@ -27,23 +27,31 @@ export function loadApiConfig(): ApiConfig {
     apiUrl = import.meta.env.VITE_API_ENDPOINT || "http://localhost:5000/api";
     stripePublicKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY || "";
     stripeSecretKey = import.meta.env.VITE_STRIPE_SECRET_KEY || "";
+  } else {
+    // For production/mobile builds, try to use environment variables or fallback
+    // Try multiple IPs for Android emulator compatibility: 10.0.2.2 is standard emulator host IP
+    apiUrl = (window as any).__VITE_API_ENDPOINT || import.meta.env.VITE_API_ENDPOINT || "http://10.0.2.2:5000/api";
+    stripePublicKey = (window as any).__VITE_STRIPE_PUBLIC_KEY || import.meta.env.VITE_STRIPE_PUBLIC_KEY || "";
+    stripeSecretKey = (window as any).__VITE_STRIPE_SECRET_KEY || import.meta.env.VITE_STRIPE_SECRET_KEY || "";
+    console.log("Mobile build detected. API URL:", apiUrl);
   }
 
   // Validation: Check if placeholders weren't replaced (still contain double underscores)
   if (!apiUrl || apiUrl.includes("VITE_") || apiUrl === "default") {
-    console.error("API URL is not configured or not replaced at runtime.");
-    throw new Error("API URL is not configured.");
+    console.error("API URL is not configured or not replaced at runtime. Using fallback: http://192.168.56.1:5000/api");
+    apiUrl = "http://192.168.56.1:5000/api";
   }
 
+  // For mobile/production, allow empty Stripe keys (will be loaded on-demand or user can set up later)
   if (
     !stripePublicKey ||
     stripePublicKey.includes("VITE_") ||
     stripePublicKey === "default"
   ) {
-    console.error(
-      "Stripe public key is not configured or not replaced at runtime."
+    console.warn(
+      "Stripe public key is not configured. Payments may not work until configured."
     );
-    throw new Error("Stripe public key is not configured.");
+    stripePublicKey = ""; // Allow empty for mobile/testing
   }
 
   if (
@@ -51,10 +59,10 @@ export function loadApiConfig(): ApiConfig {
     stripeSecretKey.includes("VITE_") ||
     stripeSecretKey === "default"
   ) {
-    console.error(
-      "Stripe secret key is not configured or not replaced at runtime."
+    console.warn(
+      "Stripe secret key is not configured. Payments may not work until configured."
     );
-    throw new Error("Stripe secret key is not configured.");
+    stripeSecretKey = ""; // Allow empty for mobile/testing
   }
 
   return {

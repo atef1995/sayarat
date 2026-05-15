@@ -1,4 +1,8 @@
-import { ComponentType } from "react";
+import { ComponentType, LazyExoticComponent } from "react";
+
+export type RouteComponent =
+  | ComponentType<any>
+  | LazyExoticComponent<ComponentType<any>>;
 
 /**
  * Route Guard Types
@@ -9,7 +13,7 @@ import { ComponentType } from "react";
 
 export interface BaseRouteGuardProps {
   /** The component to render if access is granted */
-  component: ComponentType;
+  component: RouteComponent;
 }
 
 export interface ProtectedRouteProps extends BaseRouteGuardProps {

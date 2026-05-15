@@ -45,6 +45,41 @@ export function getCompanyLogoUrl(listing: CarCardProps): string | null {
 }
 
 /**
+ * Company image types used to generate consistent loading and accessibility attributes.
+ */
+export type CompanyImageKind = "logo" | "header";
+
+/**
+ * Company image attributes for native image elements.
+ */
+export interface CompanyImageAttributes {
+  alt: string;
+  loading: "lazy";
+  decoding: "async";
+}
+
+/**
+ * Builds standard image attributes for company media.
+ * Keeps logo images lazy-loaded and provides descriptive alt text for SEO and accessibility.
+ */
+export function getCompanyImageAttributes(
+  companyName: string,
+  kind: CompanyImageKind = "logo"
+): CompanyImageAttributes {
+  const cleanedName = companyName.trim();
+  const fallbackName = cleanedName.length > 0 ? cleanedName : "Company";
+
+  return {
+    alt:
+      kind === "logo"
+        ? `${fallbackName} logo`
+        : `${fallbackName} company header image`,
+    loading: "lazy",
+    decoding: "async",
+  };
+}
+
+/**
  * Company badge configuration interface
  */
 export interface CompanyBadgeConfig {

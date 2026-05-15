@@ -1,5 +1,5 @@
 import { useParams } from "react-router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   Card,
   Avatar,
@@ -27,6 +27,7 @@ import PaginatedCards from "./PaginatedCards";
 import ReportBtn from "./buttons/ReportBtn";
 import { User as UserType } from "../types/api.types";
 import { loadApiConfig } from "../config/apiConfig";
+import SEOHelmet from "./seo/SEOHelmet";
 
 const { Title, Text, Paragraph } = Typography;
 const { apiUrl } = loadApiConfig();
@@ -90,6 +91,80 @@ const User = () => {
   const { username } = useParams<{ username: string }>();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const seoConfig = useMemo(() => {
+    const normalizedUsername = username || "user";
+    const canonicalUrl = `${window.location.origin}/user/${normalizedUsername}`;
+
+    if (!profile) {
+      return {
+        title: `الملف الشخصي @${normalizedUsername} | مزادات السيارات`,
+        description:
+          "تصفح ملف المستخدم والإعلانات المرتبطة به على منصة مزادات السيارات.",
+        canonicalUrl,
+        ogType: "website" as const,
+      };
+    }
+
+    const profileName = profile.isCompany
+      ? profile.companyName || profile.username
+      : `${profile.firstName || ""} ${profile.lastName || ""}`.trim() ||
+        profile.username;
+
+    const title = profile.isCompany
+      ? `${profileName} | شركة على مزادات السيارات`
+      : `${profileName} | بائع على مزادات السيارات`;
+
+    const description = profile.isCompany
+      ? profile.companyDescription ||
+        `تعرف على شركة ${profileName} وتصفح سياراتها المعروضة على منصة مزادات السيارات.`
+      : `تعرف على البائع ${profileName} وتصفح سياراته المعروضة على منصة مزادات السيارات.`;
+
+    const structuredData = profile.isCompany
+      ? {
+          "@context": "https://schema.org",
+          "@type": "LocalBusiness",
+          name: profileName,
+          description,
+          image: profile.companyLogo,
+          url: canonicalUrl,
+          address: {
+            "@type": "PostalAddress",
+            streetAddress: profile.companyAddress,
+            addressLocality: profile.companyCity || profile.location,
+            addressCountry: "SY",
+          },
+          telephone: profile.phone,
+        }
+      : {
+          "@context": "https://schema.org",
+          "@type": "ProfilePage",
+          name: profileName,
+          description,
+          url: canonicalUrl,
+          mainEntity: {
+            "@type": "Person",
+            name: profileName,
+          },
+        };
+
+    return {
+      title,
+      description,
+      canonicalUrl,
+      ogTitle: title,
+      ogDescription: description,
+      ogImage: profile.companyLogo || profile.picture,
+      ogType: profile.isCompany
+        ? ("business.business" as const)
+        : ("website" as const),
+      structuredData,
+      alternateUrls: [
+        { hreflang: "ar", href: canonicalUrl },
+        { hreflang: "x-default", href: canonicalUrl },
+      ],
+    };
+  }, [profile, username]);
 
   // Create search params for PaginatedCards to filter by username
   const userListingsSearchParams = username
@@ -260,6 +335,17 @@ const User = () => {
 
   return (
     <div className="max-w-6xl sm:max-w-screen-lg">
+      <SEOHelmet
+        title={seoConfig.title}
+        description={seoConfig.description}
+        canonicalUrl={seoConfig.canonicalUrl}
+        ogTitle={seoConfig.ogTitle}
+        ogDescription={seoConfig.ogDescription}
+        ogImage={seoConfig.ogImage}
+        ogType={seoConfig.ogType}
+        alternateUrls={seoConfig.alternateUrls}
+        structuredData={seoConfig.structuredData as Record<string, unknown>}
+      />
       {/* User/Company Profile Header */}
       <Card className="mb-4">
         <div className="flex items-start gap-4">

@@ -13,6 +13,7 @@ import {
   MailOutlined,
 } from "@ant-design/icons";
 import { SellerCompanyInfo } from "../../types";
+import { getCompanyImageAttributes } from "../../utils/companyUtils";
 
 const { Title, Text, Paragraph, Link } = Typography;
 
@@ -83,6 +84,7 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
    */
   const renderCompanyHeader = () => {
     const verificationStatus = getVerificationStatus();
+    const companyImageAttributes = getCompanyImageAttributes(companyInfo.name);
 
     return (
       <div className="flex items-start gap-4 mb-6">
@@ -90,8 +92,8 @@ const CompanyCard: React.FC<CompanyCardProps> = ({
         <div className="flex-shrink-0">
           {companyInfo.logo ? (
             <img
+              {...companyImageAttributes}
               src={companyInfo.logo}
-              alt={`${companyInfo.name} logo`}
               className="w-16 h-16 rounded-xl object-cover border-2 border-gray-200 shadow-sm"
               onError={(e) => {
                 e.currentTarget.src = "/images/company-placeholder.png";

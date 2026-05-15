@@ -1,4 +1,8 @@
-sayarat.autos, www.sayarat.autos {
+www.sayarat.autos {
+    redir https://sayarat.autos{uri} 308
+}
+
+sayarat.autos {
     # Enable access logging
     log {
         output stdout

@@ -3,14 +3,57 @@ import SearchSelect from "./components/SearchSelect";
 import MyLayout from "./Layout";
 import PaginatedCards from "./components/PaginatedCards";
 import { useSearchParams, useNavigate } from "react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { message } from "antd";
 import { useAuth } from "./hooks/useAuth";
+import { CapacitorUtils } from "./utils/capacitor";
+import SEOHelmet from "./components/seo/SEOHelmet";
 
 function App() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { checkSession } = useAuth();
+
+  const seoConfig = useMemo(() => {
+    const make = searchParams.get("make");
+    const model = searchParams.get("model");
+    const location = searchParams.get("location");
+
+    const hasSearchContext = Boolean(make || model || location);
+    const dynamicTitle = hasSearchContext
+      ? `سيارات ${make || ""} ${model || ""} ${location ? `في ${location}` : ""} | مزادات السيارات`
+          .replace(/\s+/g, " ")
+          .trim()
+      : "مزادات السيارات - أفضل منصة لبيع وشراء السيارات في سوريا";
+
+    const dynamicDescription = hasSearchContext
+      ? `اكتشف أحدث عروض السيارات ${make ? `من ${make}` : ""} ${
+          model ? model : ""
+        } ${
+          location ? `في ${location}` : "في سوريا"
+        }. قارن الأسعار وتواصل مع البائعين بسرعة وأمان.`
+          .replace(/\s+/g, " ")
+          .trim()
+      : "منصة مزادات السيارات الرائدة في سوريا. اكتشف أفضل العروض، قارن الأسعار، واعثر على سيارة أحلامك بأفضل الأسعار مع ضمان الجودة والأمان.";
+
+    return {
+      title: dynamicTitle,
+      description: dynamicDescription,
+      canonicalUrl: `${window.location.origin}/`,
+      ogTitle: dynamicTitle,
+      ogDescription: dynamicDescription,
+      alternateUrls: [
+        { hreflang: "ar", href: `${window.location.origin}/` },
+        { hreflang: "x-default", href: `${window.location.origin}/` },
+      ],
+    };
+  }, [searchParams]);
+
+  useEffect(() => {
+    // Initialize Capacitor mobile app features
+    CapacitorUtils.addPlatformClasses();
+    CapacitorUtils.configureMobileApp();
+  }, []);
 
   useEffect(() => {
     const handleFacebookAuth = async () => {
@@ -58,6 +101,14 @@ function App() {
 
   return (
     <MyLayout>
+      <SEOHelmet
+        title={seoConfig.title}
+        description={seoConfig.description}
+        canonicalUrl={seoConfig.canonicalUrl}
+        ogTitle={seoConfig.ogTitle}
+        ogDescription={seoConfig.ogDescription}
+        alternateUrls={seoConfig.alternateUrls}
+      />
       <SearchSelect onSearch={(params) => setSearchParams(params)} />
       <PaginatedCards searchParams={searchParams} />
     </MyLayout>

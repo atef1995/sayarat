@@ -22,6 +22,42 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Capacitor mobile app optimizations */
+body {
+  /* Prevent overscroll bounce on iOS */
+  overscroll-behavior: none;
+  /* Safe area padding for notched devices */
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Disable text selection on mobile for better UX */
+.mobile-app * {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection for input fields */
+.mobile-app input,
+.mobile-app textarea,
+.mobile-app [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* Improve touch targets */
+.mobile-app button,
+.mobile-app .ant-btn {
+  min-height: 44px;
+  min-width: 44px;
+}
+
 /* Form spacing improvements for mobile */
 @media (max-width: 639px) {
   .ant-form-item {
