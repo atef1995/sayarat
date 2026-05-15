@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 import {
   Row,
   Col,
@@ -34,6 +34,7 @@ import { BlogList, BlogSidebar } from "../components/blog";
 import ErrorBoundary from "../components/common/ErrorBoundary";
 import ScrollableContainer from "../components/common/ScrollableContainer";
 import { useResponsive } from "../hooks/useResponsive";
+import SEOHelmet from "../components/seo/SEOHelmet";
 import "./BlogPage.css";
 import { useNavigate } from "react-router";
 
@@ -164,6 +165,35 @@ const BlogPage: React.FC = () => {
     setSortBy,
   } = useBlogPage();
 
+  const seoConfig = useMemo(() => {
+    const hasFilters = Boolean(searchQuery || selectedCategory || selectedTag);
+    const baseTitle = "مدونة السيارات | مزادات السيارات";
+    const dynamicTitle = hasFilters
+      ? `مدونة السيارات ${
+          selectedCategory ? `- ${selectedCategory}` : ""
+        } ${selectedTag ? `#${selectedTag}` : ""} | مزادات السيارات`
+          .replace(/\s+/g, " ")
+          .trim()
+      : baseTitle;
+
+    const dynamicDescription = hasFilters
+      ? "تصفح مقالات السيارات المفلترة حسب التصنيف والوسوم لمعرفة آخر الأخبار والنصائح والمراجعات في السوق العربي."
+      : "اقرأ أحدث أخبار السيارات، نصائح الشراء والصيانة، وتحليلات السوق في مدونة مزادات السيارات.";
+
+    return {
+      title: dynamicTitle,
+      description: dynamicDescription,
+      canonicalUrl: `${window.location.origin}/blog`,
+      ogTitle: dynamicTitle,
+      ogDescription: dynamicDescription,
+      ogType: "website" as const,
+      alternateUrls: [
+        { hreflang: "ar", href: `${window.location.origin}/blog` },
+        { hreflang: "x-default", href: `${window.location.origin}/blog` },
+      ],
+    };
+  }, [searchQuery, selectedCategory, selectedTag]);
+
   /**
    * Handle search
    */
@@ -241,6 +271,15 @@ const BlogPage: React.FC = () => {
 
   return (
     <ErrorBoundary>
+      <SEOHelmet
+        title={seoConfig.title}
+        description={seoConfig.description}
+        canonicalUrl={seoConfig.canonicalUrl}
+        ogTitle={seoConfig.ogTitle}
+        ogDescription={seoConfig.ogDescription}
+        ogType={seoConfig.ogType}
+        alternateUrls={seoConfig.alternateUrls}
+      />
       {/* Header Section */}
 
       {/* Main Content */}

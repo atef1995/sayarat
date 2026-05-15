@@ -5,10 +5,17 @@
  * Provides query client context and development tools.
  */
 
-import React from "react";
+import React, { Suspense, lazy } from "react";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "../lib/queryClient";
+
+const ReactQueryDevtools = import.meta.env.DEV
+  ? lazy(() =>
+      import("@tanstack/react-query-devtools").then((module) => ({
+        default: module.ReactQueryDevtools,
+      }))
+    )
+  : null;
 
 interface QueryProviderProps {
   children: React.ReactNode;
@@ -23,12 +30,14 @@ export const QueryProvider: React.FC<QueryProviderProps> = ({ children }) => {
     <QueryClientProvider client={queryClient}>
       {children}
       {/* Show devtools only in development */}
-      {import.meta.env.DEV && (
-        <ReactQueryDevtools
-          initialIsOpen={false}
-          buttonPosition="bottom-left"
-          position="bottom"
-        />
+      {import.meta.env.DEV && ReactQueryDevtools && (
+        <Suspense fallback={null}>
+          <ReactQueryDevtools
+            initialIsOpen={false}
+            buttonPosition="bottom-left"
+            position="bottom"
+          />
+        </Suspense>
       )}
     </QueryClientProvider>
   );

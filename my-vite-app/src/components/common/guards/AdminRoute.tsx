@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { Suspense, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { useAuth } from "../../../hooks/useAuth";
 import { message, Spin } from "antd";
@@ -26,6 +26,7 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
 }) => {
   const { isAuthenticated, isLoading, user } = useAuth();
   const navigate = useNavigate();
+  const GuardedComponent = Component as React.ComponentType;
 
   useEffect(() => {
     // Don't redirect while still loading auth state
@@ -75,7 +76,17 @@ export const AdminRoute: React.FC<AdminRouteProps> = ({
   }
 
   // Render the protected admin component
-  return <Component />;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center items-center min-h-96 p-8">
+          <Spin size="large" />
+        </div>
+      }
+    >
+      <GuardedComponent />
+    </Suspense>
+  );
 };
 
 export default AdminRoute;

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from "react";
+import React, { useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams, useNavigate } from "react-router";
 import {
   Card,
@@ -33,6 +33,7 @@ import RelatedBlogs from "./RelatedBlogs";
 import "./BlogDetail.css";
 import { formatToSyrianDate } from "../../helper/timeFormat";
 import { useAuth } from "../../hooks/useAuth";
+import SEOHelmet from "../seo/SEOHelmet";
 
 const { Title, Paragraph, Text } = Typography;
 
@@ -50,6 +51,60 @@ const BlogDetail: React.FC = () => {
   } = useBlogPost(slug || "", {
     enabled: !!slug, // Only fetch if slug exists
   });
+
+  const seoConfig = useMemo(() => {
+    if (!blog) {
+      return {
+        title: "تفاصيل المقال | مزادات السيارات",
+        description: "اقرأ أحدث المقالات والتحليلات في مدونة مزادات السيارات.",
+        canonicalUrl: `${window.location.origin}${window.location.pathname}`,
+      };
+    }
+
+    const canonicalUrl = `${window.location.origin}/blog/${blog.slug}/${blog.id}`;
+    const title = blog.meta_title || `${blog.title} | مدونة مزادات السيارات`;
+    const description =
+      blog.meta_description ||
+      blog.excerpt ||
+      "مقال تفصيلي من مدونة مزادات السيارات.";
+
+    const articleStructuredData = {
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: blog.title,
+      description,
+      image: blog.featured_image ? [blog.featured_image] : [],
+      datePublished: blog.published_at || blog.created_at,
+      dateModified: blog.updated_at || blog.created_at,
+      author: {
+        "@type": "Person",
+        name: blog.author_name || "مزادات السيارات",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "مزادات السيارات",
+      },
+      mainEntityOfPage: canonicalUrl,
+      articleSection: blog.category_name,
+      keywords: blog.tags?.map((tag) => tag.name).join(", ") || undefined,
+      inLanguage: "ar",
+    };
+
+    return {
+      title,
+      description,
+      canonicalUrl,
+      ogTitle: title,
+      ogDescription: description,
+      ogImage: blog.featured_image,
+      ogType: "article" as const,
+      structuredData: articleStructuredData,
+      alternateUrls: [
+        { hreflang: "ar", href: canonicalUrl },
+        { hreflang: "x-default", href: canonicalUrl },
+      ],
+    };
+  }, [blog]);
 
   // Handle blog post errors
   useEffect(() => {
@@ -165,6 +220,17 @@ const BlogDetail: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <SEOHelmet
+        title={seoConfig.title}
+        description={seoConfig.description}
+        canonicalUrl={seoConfig.canonicalUrl}
+        ogTitle={seoConfig.ogTitle}
+        ogDescription={seoConfig.ogDescription}
+        ogImage={seoConfig.ogImage}
+        ogType={seoConfig.ogType}
+        alternateUrls={seoConfig.alternateUrls}
+        structuredData={seoConfig.structuredData}
+      />
       <BackTop />
 
       {/* Main Container */}

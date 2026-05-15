@@ -572,11 +572,13 @@ Allow: /
 # Arabic content specific rules
 Allow: /ar/
 Allow: /search*
-Allow: /car/*
-Allow: /company/*
+Allow: /car-listing/*
+Allow: /user/*
 Allow: /category/*
 Allow: /location/*
 Allow: /blog/*
+Allow: /blog
+Allow: /sitemap
 
 # Disallow admin and private areas
 Disallow: /admin/

@@ -29,3 +29,5 @@ my-vite-app/.env.production
 .github/instructions/js insturctions.instructions.md
 .github/instructions/tsx instructions.instructions.md
 .github/
+docs
+node_modules

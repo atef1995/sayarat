@@ -10,6 +10,7 @@ import {
 } from "@ant-design/icons";
 import { Seller, SellerCompanyInfo } from "../../types";
 import { StartConvoBtn } from "../StartConvoBtn";
+import { getCompanyImageAttributes } from "../../utils/companyUtils";
 
 const { Text, Link } = Typography;
 
@@ -63,11 +64,15 @@ const SellerProfile: React.FC<SellerProfileProps> = ({
    */
   const renderAvatar = () => {
     if (isCompany && companyInfo?.logo) {
+      const companyImageAttributes = getCompanyImageAttributes(
+        companyInfo.name
+      );
+
       return (
         <div className="relative">
           <img
+            {...companyImageAttributes}
             src={companyInfo.logo}
-            alt={`${companyInfo.name} logo`}
             className="w-12 h-12 rounded-lg object-cover border-2 border-gray-200 shadow-sm"
             onError={(e) => {
               e.currentTarget.src = "/images/company-placeholder.png";

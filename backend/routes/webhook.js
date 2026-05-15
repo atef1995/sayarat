@@ -28,7 +28,7 @@ const webhook = knex => {
    * Debug middleware specific to webhook endpoints only
    * This helps identify if webhook requests are reaching the route
    */
-  router.use('/webhook*', (req, res, next) => {
+  router.use('/webhook*path', (req, res, next) => {
     next();
   });
   // Apply rate limiting to webhook endpoint
